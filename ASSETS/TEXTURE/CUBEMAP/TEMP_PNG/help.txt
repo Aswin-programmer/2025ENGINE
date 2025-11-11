@@ -1,0 +1,10 @@
+GL_TEXTURE_2D
+toktx --t2 --bcmp --genmipmap awesomeface.ktx2 awesomeface.png 
+
+GL_TEXTURE_2D_ARRAY
+
+toktx --t2 --layers 4 --bcmp --genmipmap awesomeface2D.ktx2 awesomefaceU.png awesomefaceD.png awesomefaceL.png awesomefaceR.png
+
+GL_TEXTURE_CUBE_MAP
+
+toktx --t2 --cubemap --genmipmap --bcmp --clevel 2 skybox.ktx2 right.jpg left.jpg top.jpg bottom.jpg front.jpg back.jpg

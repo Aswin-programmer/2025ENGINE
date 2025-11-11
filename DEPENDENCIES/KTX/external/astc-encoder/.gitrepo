@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/ARM-software/astc-encoder.git
+	branch = 5.2.0
+	commit = 2319d9c4d4af53a7fc7c52985e264ce6e8a02a9b
+	parent = 7475bc1bc0411e672a0a833e19f1f53bde30b588
+	method = merge
+	cmdver = 0.4.3
