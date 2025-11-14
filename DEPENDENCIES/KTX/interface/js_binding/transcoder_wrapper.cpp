@@ -12,7 +12,7 @@
  */
 
 #include <emscripten/bind.h>
-#include "basisu/transcoder/basisu_transcoder.h"
+#include "transcoder/basisu_transcoder.h"
 
 using namespace emscripten;
 using namespace basist;
@@ -203,7 +203,7 @@ namespace msc {
         //
         // @param[in] targetFormat the format to which to transcode the image.
         //                         This enum comes from Basis Universal.
-        // @param[in] jsInSlices   emscripten::val of a .subarray of the 
+        // @param[in] jsInSlices   emscripten::val of a .subarray of the
         //                         ArrayBuffer holding the file data that
         //                         points to the first slice for this image.
         //                         An alpha slice, if it exists, always
@@ -269,12 +269,12 @@ namespace msc {
                                               imageDesc.m_alpha_byte_length != 0,
                                               isVideo
                                               // API currently doesn't have any
-                                              // way indicate if this is an
+                                              // way to indicate if this is an
                                               // iFrame or pFrame.
                                               );
             val ret = val::object();
             if (status) {
-                ret.set("transcodedImage", dst);
+                ret.set("transcodedImage", val(dst, allow_raw_pointers()));
             }
             return ret;
         }
@@ -282,16 +282,16 @@ namespace msc {
       protected:
     };
 
-    class UastcImageTranscoder : public basisu_lowlevel_uastc_transcoder {
+    class UastcImageTranscoder : public basisu_lowlevel_uastc_ldr_4x4_transcoder {
       public:
-        UastcImageTranscoder() :  basisu_lowlevel_uastc_transcoder() { }
+        UastcImageTranscoder() :  basisu_lowlevel_uastc_ldr_4x4_transcoder() { }
 
         // @~English
         // @brief Transcode a single UASTC encoded image.
         //
         // @param[in] targetFormat the format to which to transcode the image.
         //                         This enum comes from Basis Universal.
-        // @param[in] jsInSlices   emscripten::val of a .subarray of the 
+        // @param[in] jsInSlices   emscripten::val of a .subarray of the
         //                         ArrayBuffer holding the file data that
         //                         points to the the image to transcode.
         // @param[in] imageDesc    reference to a struct basisu_image_desc
@@ -337,7 +337,7 @@ namespace msc {
             uint32_t numBlocksY = (imageDesc.m_orig_height + (bh - 1)) / bh;
 
             bool status =
-                basisu_lowlevel_uastc_transcoder::transcode_image(
+                basisu_lowlevel_uastc_ldr_4x4_transcoder::transcode_image(
                                               targetFormat,
                                               dst->data(),
                                               dst->size(),
@@ -354,12 +354,12 @@ namespace msc {
                                               hasAlpha,
                                               isVideo
                                               // API currently doesn't have any
-                                              // way indicate if this is an
+                                              // way to indicate if this is an
                                               // iFrame or pFrame.
                                               );
             val ret = val::object();
             if (status) {
-                ret.set("transcodedImage", dst);
+                ret.set("transcodedImage", val(dst, allow_raw_pointers()));
             }
             return ret;
         }
@@ -468,7 +468,7 @@ enum TextureFormat = {
     "UASTC4x4",
 };
 
-enum TranscodeFlagBits = 
+enum TranscodeFlagBits =
     "TRANSCODE_ALPHA_DATA_TO_OPAQUE_FORMATS",
     "HIGH_QUALITY",
 };
@@ -798,5 +798,4 @@ EMSCRIPTEN_BINDINGS(ktx_wrappers)
         .function( "get_typed_memory_view",
                   &msc::TranscodedImage::get_typed_memory_view )
     ;
-
 }

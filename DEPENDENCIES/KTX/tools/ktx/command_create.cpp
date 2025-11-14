@@ -84,6 +84,7 @@ struct OptionsCreate {
     inline static const char* kMipmapFilterScale = "mipmap-filter-scale";
     inline static const char* kMipmapWrap = "mipmap-wrap";
     inline static const char* kScale = "scale";
+    inline static const char* kPremultiplyAlpha = "premultiply-alpha";
 
     bool _1d = false;
     bool cubemap = false;
@@ -123,6 +124,7 @@ struct OptionsCreate {
     bool failOnOriginChanges = false;
     bool warnOnOriginChanges = false;
     bool normalize = false;
+    bool premultiplyAlpha = false;
 
     void init(cxxopts::Options& opts) {
         opts.add_options()
@@ -162,8 +164,9 @@ struct OptionsCreate {
                 (kRuntimeMipmap, "Runtime mipmap generation mode.")
                 (kGenerateMipmap, "Causes mipmaps to be generated during texture creation."
                     " It enables the use of \'Generate Mipmap\' options."
-                    " If the --levels is not specified the maximum possible mip level will be generated."
-                    " This option is mutually exclusive with --runtime-mipmap and cannot be used with UINT or 3D textures.")
+                    " If --levels is not specified the maximum possible mip level will be generated."
+                    " This option is mutually exclusive with --runtime-mipmap and cannot be used with SINT,"
+                    " UINT or 3D textures or --raw.")
                 (kScale, "Scale images as they are loaded. Cannot be used with --raw. It enables use of"
                     " the \'Generate Mipmap\' options to tune the resampler.",
                     cxxopts::value<float>(), "<float>")
@@ -175,6 +178,8 @@ struct OptionsCreate {
                     "normals to generate X+Y normals with --normal-mode. For 4-component\n"
                     "inputs a 3D unit normal is calculated. 1.0 is used for the value of\n"
                     "the 4th component. Cannot be used with --raw.")
+                (kPremultiplyAlpha, "Pre-multiplies the color components of the input pixels by the alpha component"
+                    " before encoding and sets the flag in the metadata. Cannot be used with --normalize or --raw.")
                 (kSwizzle, "KTX swizzle metadata.", cxxopts::value<std::string>(), "[rgba01]{4}")
                 (kInputSwizzle, "Pre-swizzle input channels.", cxxopts::value<std::string>(), "[rgba01]{4}")
                 (kAssignTf, "Force the created texture to have the specified transfer function, ignoring"
@@ -778,6 +783,9 @@ struct OptionsCreate {
             }
         }
 
+        if (isFormatSRGB(vkFormat) && normalize)
+            report.fatal_usage("Option --{} cannot be used with sRGB formats.", kNormalize);
+
         if (isFormatNotSRGBButHasSRGBVariant(vkFormat)) {
             const auto error_message = "Invalid value \"{}\" to --{} for format \"{}\". Transfer function must not be sRGB for a non-sRGB VkFormat with sRGB variant.";
             if (!convertTF.has_value() && assignTF.has_value() && assignTF == KHR_DF_TRANSFER_SRGB) {
@@ -807,6 +815,18 @@ struct OptionsCreate {
                 report.fatal_usage("The options --{} and --{} are mutually exclusive.",
                                    kFailOnOriginChanges, kWarnOnOriginChanges);
             warnOnOriginChanges = true;
+        }
+
+        if(args[kPremultiplyAlpha].count()) {
+            if(normalize) {
+                report.fatal_usage("The options --{} cannot be used with --{}",
+                                   kPremultiplyAlpha, kNormalize);
+            }
+            if(raw) {
+                report.fatal_usage("The options --{} cannot be used with --{}",
+                                   kPremultiplyAlpha, kRaw);
+            }
+            premultiplyAlpha = true;
         }
     }
 };
@@ -890,16 +910,16 @@ Create a KTX2 file from various input files.
         <dt>\--raw</dt>
         <dd>Create from raw image data.</dd>
         <dt>\--width</dt>
-        <dd>Base level width in pixels. Required with \--raw. For non-raw, if not
+        <dd>Base level width in pixels. Required with @b \--raw. For non-raw, if not
             set, the image width is used otherwise the image is resampled to this width
             and any provided mip levels are resampled proportionately. For non-raw it
-            enables use of the 'Generate Mipmap' options listed under \--generate-mipmap
+            enables use of the 'Generate Mipmap' options listed under @b \--generate-mipmap
             to tune the resampler.</dd>
         <dt>\--height</dt>
-        <dd>Base level height in pixels. Required with \--raw. For non-raw, if not
+        <dd>Base level height in pixels. Required with @b \--raw. For non-raw, if not
             set, the image height is used otherwise the image is resampled to this height
             and any provided mip levels are resampled proportionately. For non-raw it
-            enables use of the 'Generate Mipmap' options listed under \--generate-mipmap
+            enables use of the 'Generate Mipmap' options listed under @b \--generate-mipmap
             to tune the resampler.</dd>
         <dt>\--depth</dt>
         <dd>Base level depth in pixels.
@@ -922,14 +942,14 @@ Create a KTX2 file from various input files.
         <dd>Causes mipmaps to be generated during texture creation.
             If @b \--levels is not specified the maximum possible mip level will
             be generated. This option is mutually exclusive with
-            --runtime-mipmap and cannot be used with SINT, UINT or 3D textures.
-            When set it enables the use of the following 'Generate Mipmap'
-            options.
+            --runtime-mipmap and cannot be used with SINT, UINT or 3D textures
+            or @b \--raw. When set it enables the use of the following
+            'Generate Mipmap' options.
         <dl>
             <dt>\--mipmap-filter &lt;filter&gt;</dt>
             <dd>Specifies the filter to use when generating the mipmaps.
-                Case insensitive. Ignored unless --generate-mipmap, --scale,
-                --width or --height are specified for non-raw input.<br />
+                Case insensitive. Ignored unless @b \--generate-mipmap, @b \--scale,
+                @b \--width or @b \--height are specified for non-raw input.<br />
                 Possible options are:
                 box | tent | bell | b-spline | mitchell | blackman | lanczos3 |
                 lanczos4 | lanczos6 | lanczos12 | kaiser | gaussian |
@@ -938,12 +958,12 @@ Create a KTX2 file from various input files.
                 Defaults to lanczos4.</dd>
             <dt>\--mipmap-filter-scale &lt;float&gt;</dt>
             <dd>The filter scale to use.
-                Defaults to 1.0. Ignored unless --generate-mipmap, --scale,
-                --width or --height are specified for non-raw input.</dd>
+                Defaults to 1.0. Ignored unless @b \--generate-mipmap, @b \--scale,
+                @b \--width or @b \--height are specified for non-raw input.</dd>
             <dt>\--mipmap-wrap &lt;mode&gt;</dt>
             <dd>Specify how to sample pixels near the image boundaries.
-                Case insensitive. Ignored unless --generate-mipmap, --scale,
-                --width or --height are specified for non-raw input.<br />
+                Case insensitive. Ignored unless @b \--generate-mipmap, @b \--scale,
+                @b \--width or @b \--height are specified for non-raw input.<br />
                 Possible options are:
                 wrap | reflect | clamp.
                 Defaults to clamp.</dd>
@@ -959,9 +979,13 @@ Create a KTX2 file from various input files.
         <dd>Normalize input normals to have a unit length. Only valid for
             linear normal textures with 2 or more components. For 2-component
             inputs 2D unit normals are calculated. Do not use these 2D unit
-            normals to generate X+Y normals with @b --normal-mode. For 4-component
+            normals to generate X+Y normals with @b \--normal-mode. For 4-component
             inputs a 3D unit normal is calculated. 1.0 is used for the value of
             the 4th component. Cannot be used with @b \--raw.</dd>
+        <dt>\--premultiply-alpha</dt>
+        <dd>Pre-multiplies the color components of the input pixels by the alpha component
+            before encoding and sets the flag in the metadata. Cannot be used with --normalize
+            or --raw.</dd>
         <dt>\--swizzle [rgba01]{4}</dt>
         <dd>KTX swizzle metadata.</dd>
         <dt>\--input-swizzle [rgba01]{4}</dt>
@@ -1739,6 +1763,10 @@ void CommandCreate::executeCreate() {
                     image->transformColorSpace(*colorSpaceInfo.src.transferFunction, *colorSpaceInfo.dst.transferFunction);
                 }
             }
+            // Must be set before operations like resampling. Needed even when
+            // transformColorSpace is not called.
+            image->setPrimaries(target.format().primaries());
+            image->setTransferFunction(target.format().transfer());
 
             // TODO: Add auto conversion and warning? Not needed now
             // because all supported source formats provide top-left images.
@@ -1747,18 +1775,18 @@ void CommandCreate::executeCreate() {
                 image = scaleImage(std::move(image), targetImageWidth, targetImageHeight);
 
             if (target.origin() != usedSourceOrigin) {
-                    if (options.failOnOriginChanges)
-                        fatal(rc::INVALID_FILE,
-                            "Input file \"{}\" would need to be y-flipped as input and output origins are different. "
-                            "Use --{} and do not use --{} to avoid unwanted origin conversions.",
-                            fmtInFile(inputFilepath), OptionsCreate::kAssignTexcoordOrigin,
-                            OptionsCreate::kConvertTexcoordOrigin);
+                if (options.failOnOriginChanges)
+                    fatal(rc::INVALID_FILE,
+                        "Input file \"{}\" would need to be y-flipped as input and output origins are different. "
+                        "Use --{} and do not use --{} to avoid unwanted origin conversions.",
+                        fmtInFile(inputFilepath), OptionsCreate::kAssignTexcoordOrigin,
+                        OptionsCreate::kConvertTexcoordOrigin);
 
-                    if (options.warnOnOriginChanges)
-                        warning("Input file \"{}\" is y-flipped as input and output origins are different. "
-                            "Use --{} and do not use --{} to avoid unwanted origin conversions.",
-                            fmtInFile(inputFilepath), OptionsCreate::kAssignTexcoordOrigin,
-                            OptionsCreate::kConvertTexcoordOrigin);
+                if (options.warnOnOriginChanges)
+                    warning("Input file \"{}\" is y-flipped as input and output origins are different. "
+                        "Use --{} and do not use --{} to avoid unwanted origin conversions.",
+                        fmtInFile(inputFilepath), OptionsCreate::kAssignTexcoordOrigin,
+                        OptionsCreate::kConvertTexcoordOrigin);
 
                 // Only difference allowed by CLI is y down or y up.
                 image->yflip();
@@ -1766,27 +1794,46 @@ void CommandCreate::executeCreate() {
 
             if (options.normalize) {
                 if (target.format().transfer() != KHR_DF_TRANSFER_UNSPECIFIED && target.format().transfer() != KHR_DF_TRANSFER_LINEAR) {
-                    const auto input_error_message = "Input file \"{}\" The transfer function to be applied to the created texture is neither linear nor none. Normalize is only available for these transfer functions.";
-                    const auto assign_error_message = "Input file \"{}\" Use \"{}\" to assign the linear transfer function to the input image, if required.";
-                    const auto convert_error_message = "Input file \"{}\" Modify \"{}\" settings to convert the input image to linear transfer function, if required.";
-                    const auto inputTransfer =  inputImageFile->spec().format().transfer();
-                    bool is_file_error = (inputTransfer != KHR_DF_TRANSFER_UNSPECIFIED && inputTransfer != KHR_DF_TRANSFER_LINEAR);
-                    bool is_assign_error =  !options.assignTF.has_value();
-                    bool is_convert_error =  !options.convertTF.has_value();
-                    if (is_assign_error)
-                        fatal(rc::INVALID_FILE, assign_error_message, fmtInFile(inputFilepath), OptionsCreate::kAssignOetf);
-                    else if (is_convert_error)
-                        fatal(rc::INVALID_FILE, convert_error_message, fmtInFile(inputFilepath), OptionsCreate::kConvertOetf);
-                    else {
-                        assert(is_file_error && "In this branch it must be the input file that has the transfer function issue"); (void)is_file_error;
-                        fatal(rc::INVALID_FILE, input_error_message, fmtInFile(inputFilepath));
+                    // Report source of problematic TF.
+                    //
+                    // If --format is an SRGB format
+                    // - a fatal usage error will already have been thrown so nothing to do.
+                    // If --format is non-SRGB format
+                    // - absent TF options, an implicit conversion to LINEAR takes place if the file
+                    //   TF is not LINEAR or UNSPECIFIED. If it can't be converted a fatal
+                    //   unsupported conversion error will already have been thrown. Therefore
+                    //   nothing to do. But if `create` is changed to set the TF for non-SRGB
+                    //   formats from the file's TF then this error handling will need updating.
+                    // - --assign-tf has many other possible values so that is a possible source.
+                    // - --convert-tf can only be linear or srgb. If it's srgb and the format does
+                    //   not have an equivalent SRGB format, that is another possible source.
+
+                    //const auto input_error_message = "Input file \"{}\" The transfer function to be applied to the created texture is neither linear nor none. Normalize is only available for these transfer functions.";
+                    //const auto inputTransfer =  inputImageFile->spec().format().transfer();
+                    //bool is_file_error = (inputTransfer != KHR_DF_TRANSFER_UNSPECIFIED && inputTransfer != KHR_DF_TRANSFER_LINEAR);
+                    const auto option_error_message = "--{} value is {}. Normalize can only be used if the transfer function is linear or none.";
+                    if (options.convertTF.has_value()) {
+                        fatal_usage(option_error_message, OptionsCreate::kConvertTf,
+                                    toString(options.convertTF.value()));
+                    } else if (options.assignTF.has_value()) {
+                        fatal_usage(option_error_message, OptionsCreate::kAssignTf,
+                                    toString(options.assignTF.value()));
                     }
-                    }
+                    assert(false && "target.format().transfer() is not suitable for --normalize though --assign-tf and --conver-tf were not used.");
+                }
                 image->normalize();
             }
 
             if (options.swizzleInput)
                 image->swizzle(*options.swizzleInput);
+
+            if (options.premultiplyAlpha) {
+                if(image->getComponentCount() < 4) {
+                    const auto option_error_message = "PremultiplyAlpha can only be used if the input image has alpha channels.";
+                    fatal_usage(option_error_message, OptionsCreate::kPremultiplyAlpha);
+                }
+                image->premultiplyAlpha();
+            }
 
             const auto imageData = convert(image, options.vkFormat, *inputImageFile);
 
@@ -2461,6 +2508,9 @@ KTXTexture2 CommandCreate::createTexture(const ImageSpec& target) {
 
     KHR_DFDSETVAL(texture->pDfd + 1, PRIMARIES, target.format().primaries());
     KHR_DFDSETVAL(texture->pDfd + 1, TRANSFER, target.format().transfer());
+    if(options.premultiplyAlpha) {
+        KHR_DFDSETVAL(texture->pDfd+1, FLAGS, KHR_DF_FLAG_ALPHA_PREMULTIPLIED);
+    }
 
     // Add KTXorientation metadata
     if (options.assignTexcoordOrigin.has_value() || options.convertTexcoordOrigin.has_value()) {

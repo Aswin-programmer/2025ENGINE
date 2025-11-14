@@ -2,7 +2,7 @@
 /* vi: set sw=2 ts=4 expandtab: */
 
 /*
- * Copyright 2017-2020 Mark Callow, www.edgewise-cosulting.com.
+ * Copyright 2017-2020 Mark Callow, github.com/MarkCallow.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -17,7 +17,7 @@
  * need const char* const* when we're parsing an embedded string. Also
  * Windows C library does not have getopt_long.
  *
- * @author Mark Callow, www.edgewise-consulting.com.
+ * @author Mark Callow, github.com/MarkCallow.
  */
 
 #include <assert.h>
@@ -54,6 +54,7 @@ argvector::argvector(const string& sArgs)
     bool continuation = false;
     for (smatch sm; regex_search(first, last, sm, re);) {
         bool needContinuation = false;
+#define DEBUG_REGEX 0
 #if DEBUG_REGEX
         std::cout << "prefix: " << sm.prefix() << '\n';
         std::cout << "suffix: " << sm.suffix() << '\n';
@@ -66,7 +67,7 @@ argvector::argvector(const string& sArgs)
         // All this because std::regex does not support negative
         // lookbehind assertions.
         arg = sm.str(1);
-        if (*sm[2].first == '\\') {
+         if (sm.str(2)[0] == '\\') {
             arg += " ";
             needContinuation = true;
         }

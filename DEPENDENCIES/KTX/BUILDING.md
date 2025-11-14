@@ -23,7 +23,61 @@ Supported platforms (please see their specific requirements first)
 - [Windows](#windows)
 - [Android](#android)
 
-The minimal way to a build is to clone this repository and run the following in a terminal
+The minimal way to a build is to clone this repository and follow the instructions for your desired build below.
+
+_libktx_ only
+-------------
+To build only _libktx_ and nothing else, run the following in a terminal
+
+```bash
+# Navigate to the `lib` directory of your KTX-Software clone (replace with
+# your actual path)
+cd /path/to/KTX-Software/lib
+
+# This generates build/project files in the clone's `lib/build` subfolder
+cmake . -B build
+
+# Compile the project
+cmake --build build
+```
+
+If you need the library to be static, add `-D BUILD_SHARED_LIBS=OFF` to the CMake configure command (always disabled on iOS and Emscripten).
+
+> **Note:**
+>
+> When linking to the static library, make sure to
+> define `KHRONOS_STATIC` before including KTX header files.
+> This is especially important on Windows.
+
+If you want the Basis Universal encoders in `libktx` to use OpenCL
+add `-D BASISU_SUPPORT_OPENCL=ON` to the CMake configure command. In this case
+you must have an OpenCL development environment installed on the build machine
+and a driver on the run-time machine.
+
+> **Note:**
+> 
+>  There is very little advantage to using OpenCL in the context
+>  of `libktx`. It is disabled in the default build configuration.
+
+> **Note:**
+> 
+> When building from a source `tar.gz` and not from the git repository directly, 
+> it is recommended to set the variable `KTX_GIT_VERSION_FULL` to the
+> associated git tag (e.g `v4.3.2`)
+> 
+> ```bash
+> cmake . -G Ninja -B build -DKTX_GIT_VERSION_FULL=v4.3.2
+> ```
+> Use with caution.
+
+The information below about signing on iOS, macOS and Windows applies to library only and complete builds.
+
+The only dependencies beyond the build tools are for the build machine to have a
+[bash](#bash) shell and, if using OpenCL, the mentioned OpenCL development
+environment.
+
+The complete project
+--------------------
 
 ```bash
 # Navigate to the root of your KTX-Software clone (replace with
@@ -43,39 +97,15 @@ This creates the `libktx` library and the command line tools. To create the comp
 cmake . -B build -D KTX_FEATURE_LOADTEST_APPS=ON -D KTX_FEATURE_DOC=ON
 ```
 
-If you need the library to be static, add `-D BUILD_SHARED_LIBS=OFF` to the CMake configure command (always disabled on iOS and Emscripten).
-
-> **Note:**
->
-> When linking to the static library, make sure to
-> define `KHRONOS_STATIC` before including KTX header files.
-> This is especially important on Windows.
+The library build notes and the note about `KTX_GIT_VERSION_FULL` above apply
+here too.
 
 If you want to run the CTS tests (recommended only during KTX development)
 add `-D KTX_FEATURE_TOOLS_CTS=ON` to the CMake configure command and fetch
 the CTS submodule. For more information see [Conformance Test Suite](#conformance-test-suite).
 
-If you want the Basis Universal encoders in `libktx` to use OpenCL
-add `-D BASISU_SUPPORT_OPENCL=ON` to the CMake configure command.
-
-> **Note:**
-> 
->  There is very little advantage to using OpenCL in the context
->  of `libktx`. It is disabled in the default build configuration.
-
-> **Note:**
-> 
-> When building from a source `tar.gz` and not from the git repository directly, 
-> it is recommended to set the variable `KTX_GIT_VERSION_FULL` to the
-> associated git tag (e.g `v4.3.2`)
-> 
-> ```bash
-> cmake . -G Ninja -B build -DKTX_GIT_VERSION_FULL=v4.3.2
-> ```
-> Use with caution.
-
-Building
---------
+Detailed Build and Dependency Notes
+-----------------------------------
 
 ### GNU/Linux
 
@@ -95,10 +125,10 @@ OpenCL you need
 On Ubuntu and Debian these can be installed via
 
 ```bash
-sudo apt install build-essential cmake libzstd-dev ninja-build doxygen graphviz opencl-c-headers mesa-opencl-icd
+sudo apt install build-essential cmake libzstd-dev ninja-build doxygen graphviz opencl-c-headers ocl-icd-opencl-dev mesa-opencl-icd
 ```
 
-`mesa-opencl-icd` should be replaced by the appropriate package for your GPU.
+`mesa-opencl-icd` should be replaced by the appropriate package for your GPU or with the Portable OpenCL: `pocl-opencl-icd libpocl-dev`.
 
 On Fedora and RedHat these can be installed via
 
@@ -109,8 +139,7 @@ sudo dnf install make automake gcc gcc-c++ kernel-devel cmake libzstd-devel ninj
 
 To build the load test applications you also need to install the following
 
-- [SDL2](sdl2) development library
-- [assimp](assimp) development library
+- [vcpkg](#vcpkg) (which will automatically install the actual dependencies: [SDL3](sdl3) and [assimp](assimp))
 - OpenGL development libraries
 - Vulkan development libraries
 - [Vulkan SDK](#vulkan-sdk)
@@ -119,13 +148,13 @@ To build the load test applications you also need to install the following
 On Ubuntu and Debian these can be installed via
 
 ```bash
-sudo apt install libsdl2-dev libgl1-mesa-glx libgl1-mesa-dev libvulkan1 libvulkan-dev libassimp-dev
+sudo apt install libsdl3-dev libgl1-mesa-glx libgl1-mesa-dev libvulkan1 libvulkan-dev libassimp-dev
 ```
 
 On Fedora and RedHat these can be installed via
 
 ```bash
-sudo dnf install SDL2-devel mesa-libGL mesa-libGL-devel mesa-vulkan-drivers assimp-devel
+sudo dnf install SDL3-devel mesa-libGL mesa-libGL-devel mesa-vulkan-drivers assimp-devel
 ```
 
 KTX requires `glslc`, which comes with [Vulkan SDK](#vulkan-sdk) (in sub-
@@ -163,7 +192,7 @@ You need to install the following
 
 To build the load test applications you also need to install
 
-- [vcpkg](#vcpkg) (which will automatically install the actual dependencies: [SDL2](sdl2) and [assimp](assimp))
+- [vcpkg](#vcpkg) (which will automatically install the actual dependencies: [SDL3](sdl3) and [assimp](assimp))
 - [Vulkan SDK](#vulkan-sdk)
 
 Other dependencies (like OpenGL) come with Xcode.
@@ -345,12 +374,12 @@ Web builds create three additional targets:
 You need to install the following
 
 - CMake
-- Visual Studio 2019 or 2022
+- Visual Studio 2022. VS2025 will likely work but is untested.
 - [Doxygen](#doxygen) and [dot](#dot\(graphviz\)) (only if generating documentation)
 
 To build the load test applications you also need to install
 
-- [vcpkg](#vcpkg) (which will automatically install the actual dependencies: [SDL2](sdl2) and [assimp](assimp))
+- [vcpkg](#vcpkg) (which will automatically install the actual dependencies: [SDL3](sdl3) and [assimp](assimp))
 - [Vulkan SDK](#vulkan-sdk)
 
 For the load test applications you must also set these environment variables:
@@ -362,7 +391,7 @@ Additional requirement for the OpenGL ES version of the load tests application
 
 - [OpenGL ES emulator](#opengl-es-emulator-for-windows).
 
-CMake can create solutions for Microsoft Visual Studio (2019 and 2022 are supported by KTX).
+CMake can create solutions for Microsoft Visual Studio.
 
 > **Note:** x86 (32-bit) Windows is not supported.
 
@@ -522,7 +551,7 @@ cd KTX-Software/
 git submodule update --init --recursive tests/cts
 # Configure 
 mkdir build
-cmake -B build . -DKTX_FEATURE_DOC=ON -DBUILD_SHARED_LIBS=OFF -DKTX_FEATURE_TOOLS_CTS=ON -DKTX_FEATURE_TESTS=ON -DKTX_FEATURE_TOOLS_CTS=ON
+cmake -B build . -DKTX_FEATURE_DOC=ON -DBUILD_SHARED_LIBS=OFF -DKTX_FEATURE_TOOLS=ON -DKTX_FEATURE_TESTS=ON -DKTX_FEATURE_TOOLS_CTS=ON
 # Build everything (depending on workflow its better to build the specific target like 'ktxtools'):
 cmake --build build --target all 
 # Run every test case:
@@ -540,23 +569,24 @@ All but a few project developers can ignore this section. The files discussed he
 
 The following files related to the the VkFormat enum are generated from `vulkan_core.h`:
 
-- lib/vkformat_check.c
-- lib/vkformat_enum.h
-- lib/vkformat_list.inl
-- lib/vkformat_str.c
-- lib/vkformat_typesize.c
-- lib/dfd/dfd2vk.inl
-- lib/dfd/vk2dfd.inl
+- lib/src/vkformat_check.c
+- lib/src/vkformat_enum.h
+- lib/src/vkformat_list.inl
+- lib/src/vkformat_str.c
+- lib/src/vkformat_typesize.c
+- external/dfdutils/dfd2vk.inl
+- external/dfdutils/vk2dfd.inl
 - interface/java\_binding/src/main/java/org/khronos/ktxVkFormat.java
 - interface/python\_binding/pyktx/vk\_format.py
 - interface/js\_binding/vk\_format.inl
+- tests/unittests/vkformat\_list.inl
 
 
 The following files are generated from the mapping database in the KTX-Specification repo by `generate_format_switches.rb`:
 
-- lib/vkFormat2glFormat.inl
-- lib/vkFormat2glInternalFormat.inl
-- lib/vkFormat2glType.inl
+- lib/src/vkFormat2glFormat.inl
+- lib/src/vkFormat2glInternalFormat.inl
+- lib/src/vkFormat2glType.inl
 
 All are generated by the `mkvk` target which is only configured if `KTX_GENERATE_VK_FILES` is set to `ON` at the time of CMake configuration. Since this setting is labelled *Advanced* it will not be visible in the CMake GUI unless `Advanced` is set.
 
@@ -584,7 +614,7 @@ Windows, WSL (Windows Subsystem for Linux) or Cygwin.
 
 #### vcpkg
 
-This package manager is needed to install the [SDL2](#sdl2) and [assimp](assimp)
+This package manager is needed to install the [SDL3](#sdl3) and [assimp](assimp)
 dependencies of the KTX load test applications on macOS and Windows. Since
 KTX-Software uses vcpkg's manifest mode, installation of the dependencies is
 automatic.
@@ -607,15 +637,15 @@ environment variable `VCPKG_ROOT` to where you have installed _vcpkg_ and set
 `CMAKE_TOOLCHAIN_FILE` to `$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake` when
 using CMake to configure your project.
 
-### SDL2
+### SDL3
 
 Simple Direct Media Layer. Needed if you want to build the KTX load tests.
 
-On GNU/Linux install `libsdl2-dev` using your package manager. On iOS, macOS
-and Windows it will be automatically installed by [vcpkg](#vcpkg). Libraries installed by other package managers are typically not redistributable or
-bundle-able.
+On GNU_Linx, iOS, macOS and Windows it will be automatically installed by
+[vcpkg](#vcpkg). Libraries installed by other package managers are typically
+not redistributable or bundle-able.
 
-Canonical source is at https://github.com/libsdl-org/SDL/tree/SDL2.
+Canonical source is at https://github.com/libsdl-org/SDL/tree/SDL3.
 
 ### assimp
 

@@ -1,13 +1,13 @@
 # Copyright 2017-2020 The Khronos Group Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-if(NOT KTX_FEATURE_KTX1)
-    message(WARNING "KTX_FEATURE_KTX1 is not set -> disabling tools")
+if(NOT LIBKTX_FEATURE_KTX1)
+    message(WARNING "LIBKTX_FEATURE_KTX1 is not set -> disabling tools")
     return()
 endif()
 
-if(NOT KTX_FEATURE_KTX2)
-    message(WARNING "KTX_FEATURE_KTX2 is not set -> disabling tools")
+if(NOT LIBKTX_FEATURE_KTX2)
+    message(WARNING "LIBKTX_FEATURE_KTX2 is not set -> disabling tools")
     return()
 endif()
 
@@ -26,9 +26,7 @@ function(set_tool_properties tool_target)
             #
             # Check the LC_RPATH entries with
             # - otool -l <file> | grep -A 3 LC_RPATH
-            #
-            # TODO: Consider adding @executable_path/../lib.
-            INSTALL_RPATH "@executable_path;/usr/local/lib"
+            INSTALL_RPATH "@executable_path;@executable_path/../${CMAKE_INSTALL_LIBDIR}"
             CXX_VISIBILITY_PRESET ${STATIC_APP_LIB_SYMBOL_VISIBILITY}
         )
     elseif(LINUX)

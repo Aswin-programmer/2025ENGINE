@@ -16,7 +16,7 @@
  * A swap chain is a collection of image buffers used for rendering
  * The images can then be presented to the windowing system for display.
  *
- * @author Mark Callow, www.edgewise-consulting.com.
+ * @author Mark Callow, github.com/MarkCallow.
  */
 
 #include <stdlib.h>
@@ -34,8 +34,8 @@
 
 #include "VulkanSwapchain.h"
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_vulkan.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
 #include "AppBaseSDL.h"
 #include "unused.h"
 
@@ -69,7 +69,7 @@ VulkanSwapchain::initSurface(SDL_Window* window)
 {
     U_ASSERT_ONLY VkResult err;
 
-    if (!SDL_Vulkan_CreateSurface(window, instance, &surface)) {
+    if (!SDL_Vulkan_CreateSurface(window, instance, nullptr, &surface)) {
         std::string msg = "SDL_CreateVulkanSurface failed: ";
         msg += SDL_GetError();
         ERROR_RETURN(msg.c_str());

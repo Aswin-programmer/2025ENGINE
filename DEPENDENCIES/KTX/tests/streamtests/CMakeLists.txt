@@ -3,6 +3,7 @@
 
 add_executable( streamtests
     streamtests.cc
+    ../tests.cmake
 )
 set_test_properties(streamtests)
 set_code_sign(streamtests)
@@ -18,7 +19,7 @@ target_include_directories(
 PRIVATE
     $<TARGET_PROPERTY:ktx,INCLUDE_DIRECTORIES>
     ${CMAKE_CURRENT_SOURCE_DIR}/../../other_include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib  # Just for gl_format.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../lib/src  # Just for gl_format.h
 )
 
 target_link_libraries(

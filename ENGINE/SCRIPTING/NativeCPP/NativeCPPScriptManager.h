@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <filesystem>
+#include <thread>
 
 #include "../../ECS/ECSWorld.h"
 
@@ -28,7 +29,13 @@ public:
 	NativeCPPScriptManager(std::string dllBuildPath_);
 	~NativeCPPScriptManager();
 
+	void PrintLastError(const std::string& prefix);
+
 	bool LoadDLL();
+	bool ReloadIfUpdated();
+	bool UnloadDLL();
+
+	void UpdateScript();
 
 	void LoadDependencies(std::shared_ptr<ECSWorld> ecsWorld_);
 

@@ -46,6 +46,7 @@ FEATURE_VK_UPLOAD=${FEATURE_VK_UPLOAD:-ON}
 PACKAGE=${PACKAGE:-NO}
 SUPPORT_SSE=${SUPPORT_SSE:-ON}
 SUPPORT_OPENCL=${SUPPORT_OPENCL:-OFF}
+PY_USE_VENV=${PY_USE_VENV:-OFF}
 WERROR=${WERROR:-OFF}
 
 if [[ "$ARCH" = "aarch64" && "$FEATURE_LOADTESTS" =~ "Vulkan" ]]; then
@@ -54,25 +55,48 @@ if [[ "$ARCH" = "aarch64" && "$FEATURE_LOADTESTS" =~ "Vulkan" ]]; then
   else
     FEATURE_LOADTESTS=OpenGL
   fi
-  echo "Forcing FEATURE_LOADTESTS to \"$FEATURE_LOADTESTS\" as no Vulkan SDK yet for Linux/arm64."
+  echo "$0: Forcing FEATURE_LOADTESTS to \"$FEATURE_LOADTESTS\" as no Vulkan SDK yet for Linux/arm64."
 fi
+
+if [ ! "$CMAKE_GEN" = "Ninja Multi-Config" ]; then
+  # Single configuration generator.
+  if [[ "$CONFIGURATION" =~ "," ]]; then
+    echo "$0: Multiple build configurations specified with single-configuration CMake generator."
+    exit 1
+  fi
+fi
+
+cmake_args=("-G" "$CMAKE_GEN")
 
 if [[ -z $BUILD_DIR ]]; then
   BUILD_DIR=build/linux
   if [ "$ARCH" != $(uname -m) ]; then
     BUILD_DIR+="-$ARCH-"
   fi
-  if [ "$CMAKE_GEN" = "Ninja" -o "$CMAKE_GEN" = "Unix Makefiles" ]; then
-    # Single configuration generators.
+  if [ ! "$CMAKE_GEN" = "Ninja Multi-Config" ]; then
+    # Single configuration generator. That only a single configuration
+    # is specified has already been verified.
     BUILD_DIR+="-$CONFIGURATION"
+    CMAKE_BUILD_TYPE=$CONFIGURATION
   fi
+fi
+cmake_args+=("-B" $BUILD_DIR)
+# Just setting the environment variable does not seem to work so pass to cmake.
+if [[ -n "$VCPKG_INSTALL_OPTIONS" ]]; then
+  cmake_args+=("-D" "VCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS")
+fi
+if [[ "$FEATURE_LOADTESTS" != "OFF" && -n "$VCPKG_ROOT" ]]; then
+  cmake_args+=(
+    "-D" "CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+  )
+fi
+if [ -n "$CMAKE_BUILD_TYPE" ]; then
+  cmake_args+=("-D" "CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE")
 fi
 
 mkdir -p $BUILD_DIR
 
-cmake_args=("-G" "$CMAKE_GEN"
-  "-B" $BUILD_DIR \
-  "-D" "CMAKE_BUILD_TYPE=$CONFIGURATION" \
+cmake_args+=(\
   "-D" "KTX_FEATURE_DOC=$FEATURE_DOC" \
   "-D" "KTX_FEATURE_JNI=$FEATURE_JNI" \
   "-D" "KTX_FEATURE_LOADTEST_APPS=$FEATURE_LOADTESTS" \
@@ -80,14 +104,17 @@ cmake_args=("-G" "$CMAKE_GEN"
   "-D" "KTX_FEATURE_TESTS=$FEATURE_TESTS" \
   "-D" "KTX_FEATURE_TOOLS=$FEATURE_TOOLS" \
   "-D" "KTX_FEATURE_TOOLS_CTS=$FEATURE_TOOLS_CTS" \
-  "-D" "KTX_FEATURE_GL_UPLOAD=$FEATURE_GL_UPLOAD" \
-  "-D" "KTX_FEATURE_VK_UPLOAD=$FEATURE_VK_UPLOAD" \
+  "-D" "LIBKTX_FEATURE_GL_UPLOAD=$FEATURE_GL_UPLOAD" \
+  "-D" "LIBKTX_FEATURE_VK_UPLOAD=$FEATURE_VK_UPLOAD" \
   "-D" "BASISU_SUPPORT_OPENCL=$SUPPORT_OPENCL" \
   "-D" "BASISU_SUPPORT_SSE=$SUPPORT_SSE" \
   "-D" "KTX_WERROR=$WERROR"
 )
+if [ "$FEATURE_PY" = "ON" ]; then
+  cmake_args+=("-D" "KTX_PY_USE_VENV=$PY_USE_VENV")
+fi
 if [ "$ARCH" != $(uname -m) ]; then
-  cmake_args+=("--toolchain", "cmake/linux-$ARCH-toolchain.cmake")
+  cmake_args+=("--toolchain" "cmake/linux-$ARCH-toolchain.cmake")
 fi
 config_display="Configure KTX-Software (Linux on $ARCH): "
 for arg in "${cmake_args[@]}"; do

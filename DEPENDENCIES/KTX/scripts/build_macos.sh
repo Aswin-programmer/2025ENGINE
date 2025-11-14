@@ -32,6 +32,7 @@ FEATURE_TOOLS_CTS=${FEATURE_TOOLS_CTS:-ON}
 PACKAGE=${PACKAGE:-NO}
 SUPPORT_SSE=${SUPPORT_SSE:-ON}
 SUPPORT_OPENCL=${SUPPORT_OPENCL:-OFF}
+PY_USE_VENV=${PY_USE_VENV:-OFF}
 WERROR=${WERROR:-OFF}
 
 if [ "$ARCHS" = '(ARCHS_STANDARD)' ]; then
@@ -62,6 +63,10 @@ else
 fi
 
 cmake_args=("-G" "Xcode" "-B" "$BUILD_DIR")
+# Just setting the environment variable does not seem to work so pass to cmake.
+if [[ -n "$VCPKG_INSTALL_OPTIONS" ]]; then
+  cmake_args+=("-D" "VCPKG_INSTALL_OPTIONS=$VCPKG_INSTALL_OPTIONS")
+fi
 if [[ "$FEATURE_LOADTESTS" != "OFF" && -n "$VCPKG_ROOT" ]]; then
   cmake_args+=(
     "-D" "CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
@@ -76,13 +81,15 @@ cmake_args+=( \
   "-D" "KTX_FEATURE_TESTS=$FEATURE_TESTS" \
   "-D" "KTX_FEATURE_TOOLS=$FEATURE_TOOLS" \
   "-D" "KTX_FEATURE_TOOLS_CTS=$FEATURE_TOOLS_CTS" \
+  "-D" "KTX_PY_USE_VENV=$PY_USE_VENV" \
   "-D" "KTX_WERROR=$WERROR" \
   "-D" "BASISU_SUPPORT_OPENCL=$SUPPORT_OPENCL" \
   "-D" "BASISU_SUPPORT_SSE=$SUPPORT_SSE"
 )
 if [ "$ARCHS" = "x86_64" ]; then cmake_args+=("-D" "ASTCENC_ISA_SSE41=ON"); fi
-if [ -n "$MACOS_CERTIFICATES_P12" ]; then
+if [ -n "$CODE_SIGN_IDENTITY" ]; then
   cmake_args+=( \
+    "-D" "CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_STYLE=Manual" \
     "-D" "XCODE_CODE_SIGN_IDENTITY=${CODE_SIGN_IDENTITY}" \
     "-D" "XCODE_DEVELOPMENT_TEAM=${DEVELOPMENT_TEAM}" \
     "-D" "PRODUCTBUILD_IDENTITY_NAME=${PKG_SIGN_IDENTITY}"
@@ -115,14 +122,14 @@ do
   # Build and test
   #if [ "$config" = "Debug" ]; then continue; fi
   echo "Build KTX-Software (macOS $ARCHS $config)"
-  if [ -n "$MACOS_CERTIFICATES_P12" -a "$config" = "Release" ]; then
+  if [ -n "$CODE_SIGN_IDENTITY" -a "$config" = "Release" ]; then
     cmake --build . --config $config | handle_compiler_output
   else
     cmake --build . --config $config -- $XCODE_NO_CODESIGN_ENV | handle_compiler_output
   fi
 
   # Rosetta 2 should let x86_64 tests run on an Apple Silicon Mac hence the -o.
-  if [ "$ARCHS" = "$(uname -m)" -o "$ARCHS" = "x64_64" ]; then
+  if [ "$ARCHS" = "$(uname -m)" -o "$ARCHS" = "x86_64" ]; then
     echo "Test KTX-Software (macOS $ARCHS $config)"
     ctest --output-on-failure -C $config # --verbose
   fi

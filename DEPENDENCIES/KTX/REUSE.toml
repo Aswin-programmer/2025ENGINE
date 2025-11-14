@@ -144,9 +144,9 @@ SPDX-FileCopyrightText = "2016 The Android Open Source Project"
 SPDX-License-Identifier = "Apache-2.0"
 
 [[annotations]]
-path = "tools/imageio/png.imageio/lodepng.**"
+path = "external/lodepng/**"
 precedence = "aggregate"
-SPDX-FileCopyrightText = "2005-2019 Lode Vandevenne"
+SPDX-FileCopyrightText = "2005-2025 Lode Vandevenne"
 SPDX-License-Identifier = "Zlib"
 
 [[annotations]]
@@ -160,6 +160,12 @@ path = "external/dfdutils/.gitrepo"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2019-2020 The Khronos Group Inc"
 SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "external/SDL_gesture/SDL_gesture.h"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "1997-2022 Sam Lantinga <slouken@libsdl.org>"
+SPDX-License-Identifier = "Zlib"
 
 [[annotations]]
 path = "cmake/modules/FindVulkan.cmake"

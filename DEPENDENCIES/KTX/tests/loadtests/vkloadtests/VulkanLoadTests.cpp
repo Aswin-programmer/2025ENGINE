@@ -13,7 +13,7 @@
  *
  * @brief Framework for Vulkan texture loading test samples.
  *
- * @author Mark Callow, www.edgewise-consulting.com.
+ * @author Mark Callow, github.com/MarkCallow.
  */
 
 #include <exception>
@@ -75,14 +75,14 @@ VulkanLoadTests::finalize()
     VulkanAppSDL::finalize();
 }
 
-int
+bool
 VulkanLoadTests::doEvent(SDL_Event* event)
 {
-    int result = 0;
+    bool result = false;
 
     switch (event->type) {
-      case SDL_KEYUP:
-        switch (event->key.keysym.sym) {
+      case SDL_EVENT_KEY_UP:
+        switch (event->key.key) {
           case 'q':
             quit = true;
             break;
@@ -95,12 +95,12 @@ VulkanLoadTests::doEvent(SDL_Event* event)
             invokeSample(Direction::eBack);
             break;
           default:
-            result = 1;
+            result = true;
         }
         break;
 
       // On macOS drop events come also when Launch Pad sends a file open event.
-      case SDL_DROPBEGIN:
+      case SDL_EVENT_DROP_BEGIN:
         // Opens of multiple selected files from Finder/LaunchPad come as
         // a BEGIN, COMPLETE sequence per file. Only clear infiles after a
         // suitable pause between COMPLETE and BEGIN.
@@ -108,11 +108,10 @@ VulkanLoadTests::doEvent(SDL_Event* event)
             infiles.clear();
         }
         break;
-      case SDL_DROPFILE:
-        infiles.push_back(event->drop.file);
-        SDL_free(event->drop.file);
+      case SDL_EVENT_DROP_FILE:
+        infiles.push_back(event->drop.data);
         break;
-      case SDL_DROPCOMPLETE:
+      case SDL_EVENT_DROP_COMPLETE:
         if (!infiles.empty()) {
             // Guard against the drop being text.
             dropCompleteTime = event->drop.timestamp;
@@ -120,31 +119,37 @@ VulkanLoadTests::doEvent(SDL_Event* event)
             invokeSample(Direction::eForward);
         }
         break;
-
+      case SDL_EVENT_USER:
+        if (event->user.code == SwipeDetector::swipeGesture) {
+            SwipeDetector::Direction direction
+                = SwipeDetector::pointerToDirection(event->user.data1);
+            switch (direction) {
+              case SwipeDetector::Direction::left:
+                ++sampleIndex;
+                //SDL_Log("*********** Sample changed by swipe left **********");
+                invokeSample(Direction::eForward);
+                break;
+              case SwipeDetector::Direction::right:
+                --sampleIndex;
+                //SDL_Log("*********** Sample changed by swipe right *********");
+                invokeSample(Direction::eBack);
+                break;
+              default:
+                result = true;
+            }
+        } else {
+            result = true;
+        }
+        break;
       default:
-        switch(swipeDetector.doEvent(event)) {
-          case SwipeDetector::eSwipeUp:
-          case SwipeDetector::eSwipeDown:
-          case SwipeDetector::eEventConsumed:
-            break;
-          case SwipeDetector::eSwipeLeft:
-            ++sampleIndex;
-            invokeSample(Direction::eForward);
-            break;
-          case SwipeDetector::eSwipeRight:
-            --sampleIndex;
-            invokeSample(Direction::eBack);
-            break;
-          case SwipeDetector::eEventNotConsumed:
-            result = 1;
-          }
+        result = swipeDetector.doEvent(event);
     }
     
-    if (result == 1) {
+    if (result) {
         // Further processing required.
         if (pCurSample != nullptr)
             result = pCurSample->doEvent(event);  // Give sample a chance.
-        if (result == 1)
+        if (result)
             return VulkanAppSDL::doEvent(event);  // Pass to base class.
     }
     return result;
@@ -255,7 +260,7 @@ VulkanLoadTests::invokeSample(Direction dir)
                 NULL //&colorScheme                             // .colorScheme
             };
             int buttonid;
-            if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0) {
+            if (!SDL_ShowMessageBox(&messageboxdata, &buttonid)) {
                 SDL_Log("error displaying error message box");
                 exit(1);
             }
@@ -296,7 +301,7 @@ VulkanLoadTests::invokeSample(Direction dir)
                 NULL //&colorScheme                                 // .colorScheme
             };
             int buttonid;
-            if (SDL_ShowMessageBox(&messageboxdata, &buttonid) < 0) {
+            if (!SDL_ShowMessageBox(&messageboxdata, &buttonid)) {
                 SDL_Log("error displaying error message box");
                 exit(1);
             }
@@ -323,7 +328,7 @@ VulkanLoadTests::onFPSUpdate()
 }
 
 VulkanLoadTestSample*
-VulkanLoadTests::showFile(std::string& filename)
+VulkanLoadTests::showFile(const std::string& filename)
 {
     KTX_error_code ktxresult;
     ktxTexture* kTexture;
@@ -359,8 +364,7 @@ VulkanLoadTests::showFile(std::string& filename)
     ktxTexture_Destroy(kTexture);
 
     // Escape any spaces in filename.
-    filename = std::regex_replace( filename, std::regex(" "), "\\ " );
-    std::string args = "--external " + filename;
+    std::string args = "--external " + std::regex_replace( filename, std::regex(" "), "\\ " );
     pViewer = createViewer(vkctx, w_width, w_height, args.c_str(), sBasePath);
     return pViewer;
 }
@@ -535,6 +539,14 @@ const VulkanLoadTests::sampleInvocation siSamples[] = {
       "RGB8 + Auto Mipmap"
     },
 #endif
+    { Texture::create,
+      "straight-rgba.ktx2",
+      "Straight KTX2 RGBA8"
+    },
+    { Texture::create,
+    "premultiplied-rgba.ktx2",
+    "Premultiplied KTX2 RGBA8"
+    },
 };
 
 const uint32_t uNumSamples = sizeof(siSamples) / sizeof(VulkanLoadTests::sampleInvocation);

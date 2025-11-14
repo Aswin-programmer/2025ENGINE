@@ -4,17 +4,16 @@
 # Find Vulkan package
 if(APPLE)
     # N.B. FindVulkan needs the VULKAN_SDK environment variable set to find
-    # the iOS frameworks and to set Vulkan_Target_SDK, used later in this
+    # the iOS frameworks and to set Vulkan_SDK_Base, used later in this
     # file. Therefore ensure to make that env. var. available to CMake and
     # Xcode. Special care is needed to ensure it is available to the CMake
     # and Xcode GUIs.
 #    set(CMAKE_FIND_DEBUG_MODE TRUE)
     find_package( Vulkan REQUIRED COMPONENTS MoltenVK )
 #    set(CMAKE_FIND_DEBUG_MODE FALSE)
-
     # Derive some other useful variables from those provided by find_package
     if(APPLE_LOCKED_OS)
-        set( Vulkan_SHARE_VULKAN ${Vulkan_Target_SDK}/${CMAKE_SYSTEM_NAME}/share/vulkan )
+        set( Vulkan_SHARE_VULKAN ${Vulkan_SDK_Base}/${CMAKE_SYSTEM_NAME}/share/vulkan )
     else()
         # Vulkan_LIBRARIES points to "libvulkan.dylib".
         # Find the name of the actual dylib which includes the version no.
@@ -103,6 +102,8 @@ set( VK_TEST_IMAGES
     texturearray_bc3_unorm.ktx
     texturearray_astc_8x8_unorm.ktx
     texturearray_etc2_unorm.ktx
+    straight-rgba.ktx2
+    premultiplied-rgba.ktx2
 )
 list( TRANSFORM VK_TEST_IMAGES
     PREPEND "${PROJECT_SOURCE_DIR}/tests/testimages/"
@@ -173,9 +174,9 @@ PRIVATE
 
 target_include_directories(vkloadtests
 PRIVATE
-    ${SDL2_INCLUDE_DIRS}
+    SDL3::Headers
     $<TARGET_PROPERTY:appfwSDL,INTERFACE_INCLUDE_DIRECTORIES>
-    $<TARGET_PROPERTY:ktx,INCLUDE_DIRECTORIES>
+    $<TARGET_PROPERTY:ktx,INTERFACE_INCLUDE_DIRECTORIES>
     $<TARGET_PROPERTY:objUtil,INTERFACE_INCLUDE_DIRECTORIES>
     appfwSDL/VulkanAppSDL
     vkloadtests
@@ -310,7 +311,7 @@ if(APPLE)
             XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY		"YES"
             XCODE_EMBED_FRAMEWORKS_REMOVE_HEADERS_ON_COPY	"YES"
             # Set RPATH to find frameworks
-            INSTALL_RPATH "@executable_path/Frameworks"
+            INSTALL_RPATH @executable_path/Frameworks
         )
     else()
         # Why is XCODE_EMBED_FRAMEWORKS_CODE_SIGN_ON_COPY not set here?
@@ -321,7 +322,7 @@ if(APPLE)
         set_target_properties( vkloadtests PROPERTIES
             XCODE_EMBED_FRAMEWORKS "${Vulkan_LIBRARY_REAL_PATH_NAME};${Vulkan_MoltenVK_LIBRARY};${Vulkan_Layer_VALIDATION}"
             # Set RPATH to find frameworks and dylibs
-            INSTALL_RPATH "@executable_path/../Frameworks"
+            INSTALL_RPATH @executable_path/../Frameworks
         )
         if(BUILD_SHARED_LIBS)
             # XCODE_EMBED_FRAMEWORKS does not appear to support generator
@@ -339,7 +340,7 @@ if(APPLE)
             COMMAND ${CMAKE_COMMAND} -E create_symlink "${Vulkan_LIBRARY_REAL_FILE_NAME}" "$<TARGET_BUNDLE_CONTENT_DIR:vkloadtests>/Frameworks/${Vulkan_LIBRARY_SONAME_FILE_NAME}"
             COMMENT "Create symlink for Vulkan library (ld name to real name)"
         )
-        # Re. SDL2 & assimp: no copy required.: vcpkg libs are static or else
+        # Re. SDL3 & assimp: no copy required.: vcpkg libs are static or else
         # vcpkg arranges copy. Brew libs cannot be bundled.
 
         # Specify destination for cmake --install.

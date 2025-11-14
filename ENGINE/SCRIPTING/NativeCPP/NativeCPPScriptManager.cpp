@@ -14,12 +14,30 @@ NativeCPPScriptManager::~NativeCPPScriptManager()
 {
 }
 
+void NativeCPPScriptManager::PrintLastError(const std::string& prefix)
+{
+	DWORD err = GetLastError();
+	LPVOID msg;
+
+	FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPSTR)&msg, 0, NULL);
+
+	std::cerr << prefix << " | Error Code = " << err
+		<< " | Message: " << (msg ? (char*)msg : "Unknown error")
+		<< "\n";
+
+	if (msg) LocalFree(msg);
+}
+
 bool NativeCPPScriptManager::LoadDLL()
 {
 	try {
 		lastWrite = std::filesystem::last_write_time(dllBuildPath);
 	}
-	catch (...) {
+	catch (std::exception& e) {
+		std::cerr << "[ERROR] Exception: " << e.what() << "\n";
 		std::cerr << "Failed to stat script DLL: " << dllBuildPath << '\n';
 		return false;
 	}
@@ -27,8 +45,9 @@ bool NativeCPPScriptManager::LoadDLL()
 	std::string loadPath = MakeTempCopy(dllBuildPath);
 
 	dllHandle = LoadLibraryFile(loadPath);
-	if (!dllHandle) {
-		std::cerr << "Failed to load DLL: " << loadPath << '\n';
+	if (!dllHandle)
+	{
+		PrintLastError("Failed to load DLL: " + loadPath);
 		return false;
 	}
 
@@ -40,6 +59,7 @@ bool NativeCPPScriptManager::LoadDLL()
 	if (!createScriptFunction || !DestroyScriptFunction) {
 		std::cerr << "DLL does not exports CreateScript/DestroyScript\n";
 		UnloadLibraryFile(dllHandle);
+		dllHandle = nullptr;
 		return false;
 	}
 
@@ -54,13 +74,64 @@ bool NativeCPPScriptManager::LoadDLL()
 	std::cout << "[ENGINE] &g_World: " << ecsWorld.get() << "\n";
 
 	scriptInstance->OnIntialize();
-	for (int i = 0; i < scriptInstance->v1.size(); i++)
-	{
-		std::cout << scriptInstance->v1[i] << " ";
-	}
-	std::cout << std::endl;
+
 	std::cout << "Loaded script successfully.\n";
 	return true;
+}
+
+bool NativeCPPScriptManager::ReloadIfUpdated()
+{
+	namespace fs = std::filesystem;
+	try{
+		auto current = fs::last_write_time(dllBuildPath);
+		if(current != lastWrite)
+		{
+			std::cout<<"Detected updated DLL. Reloading..."<<std::endl;
+			UnloadDLL();
+			return LoadDLL();
+		}
+	}
+	catch(...){
+		std::cout<<"Something went wrong with the reloading!."<<std::endl;
+	}
+	return false;
+}
+
+bool NativeCPPScriptManager::UnloadDLL()
+{
+    if(!scriptInstance)
+	{
+		return false;
+	}
+
+	scriptInstance->OnShutDown();
+
+	if(DestroyScriptFunction)
+	{
+		DestroyScriptFunction(scriptInstance.release());
+		scriptInstance = nullptr;
+	}
+	else
+    {
+        delete scriptInstance.release();
+        scriptInstance = nullptr;  
+        std::cout << "Error in Unloading the Script!\n";
+        return false;
+    }
+
+    UnloadLibraryFile(dllHandle);
+    dllHandle = nullptr;          
+
+    return true;
+}
+
+void NativeCPPScriptManager::UpdateScript()
+{
+	ReloadIfUpdated();
+	if(scriptInstance)
+	{
+		scriptInstance->OnUpdate();
+	}
 }
 
 void NativeCPPScriptManager::LoadDependencies(std::shared_ptr<ECSWorld> ecsWorld_)
@@ -87,6 +158,9 @@ void NativeCPPScriptManager::UnloadLibraryFile(LibHandle h)
 	//dlclose(h);
 	// Implemented Later.
 #endif
+
+	// Ensure Windows releases the DLL completely (crucial for hot reload)
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 void* NativeCPPScriptManager::GetSymbol(LibHandle h, const char* name)

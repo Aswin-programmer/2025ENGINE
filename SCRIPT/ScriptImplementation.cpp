@@ -9,27 +9,10 @@ class MyScript : public NativeCPPGlobalScript
 public:
 	void OnIntialize() override
 	{
-		std::cout << "The OnInitialize function function is working!." << std::endl;
+		std::cout << "The OnInitialize ffunction is working!." << std::endl;
 		// Creating a new entity for testing.
-
-		std::cout << "[SCRIPT] &g_World: " << ecsWorld.get() << "\n";
-
-		flecs::entity e2 = ecsWorld->FindEntityByName("Test2");
-		std::cout<<e2.has<TransfromComponent>()<<std::endl;
-		if (e2.is_valid())
-		{
-			std::cout<<"Entered the test!.\n";
-			TransfromComponent& transform = e2.get_mut<TransfromComponent>();
-			transform.Position.x = 10;
-		}
-
-		for(int i=0;i<v1.size();i++)
-		{
-			v1[i] = 5;
-		}
-
-		flecs::entity e1 = ecsWorld->FindEntityByName("Test1");
-		std::cout<<e1.has<TransfromComponent>()<<std::endl;
+		 
+		std::cout << "[SCRIPT] &g_World: " << ecsWorld.get() << "\n"; 
 
 		static bool enter = true;
 		if (enter == true)
@@ -52,12 +35,40 @@ public:
 	void OnUpdate() override
 	{
 		std::cout << "The OnUpdate function is function is working!." << std::endl;
+		std::cout<<"Hell ow"<<std::endl;  
+
+		// Print once per frame for debugging (optional)
+    std::cout << "The OnUpdate function is working!." << std::endl;
+
+    // //Rotate all entities with TransfromComponent
+    // float rotationSpeed = 1.0f; // degrees per frame (you can adjust)
+    
+    // ecsWorld->GetWorld()->query<TransfromComponent>().each([rotationSpeed](flecs::entity e, TransfromComponent& t) {
+    //    // Increment rotation around Y-axis
+    //    t.Rotation.y += rotationSpeed;
+
+    //    if (t.Rotation.y >= 360.f)
+    //        t.Rotation.y -= 360.f;
+
+
+    //    t.Rotation.x += rotationSpeed * 0.5f;
+    //    t.Rotation.z += rotationSpeed * 0.25f;
+    // });
 	}
 
 	void OnShutDown() override
 	{
+		auto world = ecsWorld->GetWorld();
+
+		world->defer_begin();  // start deferring table modifications
+
+		world->query<TransfromComponent>().each([](flecs::entity e, TransfromComponent& p) {
+			e.destruct();  // this is deferred safely
+		});
+
+		world->defer_end(); // apply all deferred operations
 		std::cout << "The OnShutdown function is actually working!." << std::endl;
-	}
+	}  
 
 private:
 

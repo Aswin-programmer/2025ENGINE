@@ -25,31 +25,38 @@ function Set-ConfigVariable {
 }
 
 # Build for the local machine by default.
-# NOTE: $env:processor_architecture reflects the architecture of
-# the process not the machine. Do not use.
-$systype = (Get-ComputerInfo).CsSystemType -match "(?<arch>.*)-based PC"
+# NOTE: See comment around line 25 in ./install_win.ps1.
+$found = (Get-ComputerInfo).CsSystemType -match "(?<arch>.*)-based PC"
 $defaultArch = $matches['arch'].toLower()
-if ($defaultArch -ne "x64" -and $defaultArch -ne "arm64") {
-  echo "KTX build for Windows does not support $defaultArch architecture."
-  echo "Only amd64 and arm64 are supported."
-  exit 1
-}
 
 # These defaults are here to permit easy running of the script locally
 # when debugging is needed. Use local variables to avoid polluting the
 # environment. Some cases have been observed where setting env. var's
 # here sets them for the parent as well.
 $ARCH = Set-ConfigVariable ARCH $defaultArch
+if ($ARCH -ne "x64" -and $ARCH -ne "arm64") {
+  echo "KTX build for Windows does not support $ARCH architecture."
+  echo "Only amd64 and arm64 are supported."
+  exit 1
+}
 $BUILD_DIR = Set-ConfigVariable BUILD_DIR "build/build-batch-vs2022"
 $CONFIGURATION = Set-ConfigVariable CONFIGURATION "Release"
 $CMAKE_GEN = Set-ConfigVariable CMAKE_GEN "Visual Studio 17 2022"
 $CMAKE_TOOLSET = Set-ConfigVariable CMAKE_TOOLSET ""
 $FEATURE_DOC = Set-ConfigVariable FEATURE_DOC "OFF"
 $FEATURE_JNI = Set-ConfigVariable FEATURE_JNI "OFF"
-if ($ARCH -eq 'x64') {
+if ($ARCH -eq $defaultArch) {
   $FEATURE_LOADTESTS = Set-ConfigVariable FEATURE_LOADTESTS "OpenGL+Vulkan"
 } else {
   $FEATURE_LOADTESTS = Set-ConfigVariable FEATURE_LOADTESTS "OpenGL"
+}
+if ($FEATURE_LOADTESTS -match "Vulkan" -and $ARCH -ne  $defaultArch) {
+  echo "The Vulkan SDK does not support cross-compilation of Vulkan apps."
+  echo "Removing `"Vulkan`" from FEATURE_LOADTESTS."
+  $FEATURE_LOADTESTS = $FEATURE_LOADTESTS -replace "\+?Vulkan"
+  if (-not $FEATURE_LOADTESTS) {
+    $FEATURE_LOADTESTS = "OFF"
+  }
 }
 $FEATURE_PY = Set-ConfigVariable FEATURE_PY "OFF"
 $FEATURE_TESTS = Set-ConfigVariable FEATURE_TESTS "ON"
@@ -59,6 +66,7 @@ $PACKAGE = Set-ConfigVariable PACKAGE "NO"
 $PYTHON = Set-ConfigVariable PYTHON ""
 $SUPPORT_SSE = Set-ConfigVariable SUPPORT_SSE "ON"
 $SUPPORT_OPENCL = Set-ConfigVariable SUPPORT_OPENCL "OFF"
+$PY_USE_VENV = Set-ConfigVariable PY_USE_VENV "OFF"
 $WERROR = Set-ConfigVariable WERROR "OFF"
 if ($ARCH -eq 'x64') {
   $OPENGL_ES_EMULATOR = Set-ConfigVariable OPENGL_ES_EMULATOR `
@@ -92,6 +100,10 @@ if($CMAKE_TOOLSET) {
     "-T", "$CMAKE_TOOLSET"
   )
 }
+# Just setting the environment variable does not seem to work, so pass to cmake.
+if($env:VCPKG_INSTALL_OPTIONS) {
+  $cmake_args += @( "-D", "VCPKG_INSTALL_OPTIONS=$env:VCPKG_INSTALL_OPTIONS" )
+}
 if($FEATURE_LOADTESTS -ne "OFF" -and $env:VCPKG_ROOT) {
   $cmake_args += @(
     "-D", "CMAKE_TOOLCHAIN_FILE=$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
@@ -106,6 +118,7 @@ $cmake_args += @(
   "-D", "KTX_FEATURE_TESTS=$FEATURE_TESTS"
   "-D", "KTX_FEATURE_TOOLS=$FEATURE_TOOLS"
   "-D", "KTX_FEATURE_TOOLS_CTS=$FEATURE_TOOLS_CTS"
+  "-D", "KTX_PY_USE_VENV=$PY_USE_VENV"
   "-D", "KTX_WERROR=$WERROR"
   "-D", "BASISU_SUPPORT_SSE=$SUPPORT_SSE"
   "-D", "BASISU_SUPPORT_OPENCL=$SUPPORT_OPENCL"

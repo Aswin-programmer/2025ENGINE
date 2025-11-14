@@ -124,6 +124,18 @@ int main()
 	nativeCPPScriptManager->LoadDependencies(ecsWorld);
 	nativeCPPScriptManager->LoadDLL();
 
+	auto world = ecsWorld->GetWorld();
+
+	world->defer_begin();  // start deferring table modifications
+
+	world->query<TransfromComponent>().each([](flecs::entity e, TransfromComponent& p) {
+		e.destruct();  // this is deferred safely
+	});
+
+	world->defer_end(); // apply all deferred operations
+	// Again, if this is not inside a system, you might need a world progress call.
+	// flecsWorld->progress();
+
 	while (!Window::shouldClose())
 	{
 		Window::clearScreen();
@@ -141,7 +153,7 @@ int main()
 
 		meshRenderSystem->MeshRendererUpdate(view, projectionP);
 
-
+		nativeCPPScriptManager->UpdateScript();
 
 		Window::update();
 	}

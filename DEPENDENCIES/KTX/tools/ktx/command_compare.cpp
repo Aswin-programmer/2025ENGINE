@@ -746,7 +746,7 @@ public:
 
                 printDiff("Packed", formatPacked(texelBlockPair.first, false), formatPacked(texelBlockPair.second, false));
 
-                // Only output chnalles if not block-compressed
+                // Only output channels if not block-compressed
                 if (!texelBlockPair.first.isBlockCompressed())
                     printDiff("Channels", formatChannels(texelBlockPair.first, false), formatChannels(texelBlockPair.second, false));
             }
@@ -1845,6 +1845,10 @@ void CommandCompare::compareKVD(PrintDiff& diff, InputStreams& streams) {
 struct KVEntry {
     char* value;
     ktx_uint32_t valueLen;
+
+    // shut up clang's complaints about derived classes
+    // that have virtual functions but non-virtual destructor
+    virtual ~KVEntry() {}
 
     template <typename T>
     static std::optional<T> load(ktxHashListEntry* entry) {

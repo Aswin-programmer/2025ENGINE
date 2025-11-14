@@ -13,7 +13,7 @@
  *
  * @brief Test loading of 2D textures.
  *
- * @author Mark Callow, www.edgewise-consulting.com.
+ * @author Mark Callow, github.com/MarkCallow.
  *
  * @par Acknowledgement
  * Thanks to Sascha Willems' - www.saschawillems.de - for the concept,
@@ -101,6 +101,10 @@ Texture::Texture(VulkanContext& vkctx,
         TextureTranscoder tc(vkctx);
         tc.transcode((ktxTexture2*)kTexture);
         transcoded = true;
+    }
+
+    if(kTexture->classId == ktxTexture2_c && ktxTexture2_GetPremultipliedAlpha((ktxTexture2*)kTexture)) {
+        uboFS.alphaMode = 1;
     }
     
     vk::Format vkFormat
@@ -311,6 +315,7 @@ Texture::cleanup()
 
     quad.freeResources(vkctx.device);
     uniformDataVS.freeResources(vkctx.device);
+    uniformDataFS.freeResources(vkctx.device);
 }
 
 void
@@ -471,10 +476,10 @@ Texture::setupVertexDescriptions()
 void
 Texture::setupDescriptorPool()
 {
-    // Example uses one ubo and one image sampler
+    // Example uses two ubo and one image sampler
     std::vector<vk::DescriptorPoolSize> poolSizes =
     {
-        {vk::DescriptorType::eUniformBuffer, 1},
+        {vk::DescriptorType::eUniformBuffer, 2},
         {vk::DescriptorType::eCombinedImageSampler, 1}
     };
 
@@ -506,6 +511,11 @@ Texture::setupDescriptorSetLayout()
          vk::DescriptorType::eCombinedImageSampler,
          1,
          vk::ShaderStageFlagBits::eFragment},
+         // Binding 2 : Fragment shader image alpha mode
+        {2,
+         vk::DescriptorType::eUniformBuffer,
+         1,
+         vk::ShaderStageFlagBits::eFragment}
     };
 
     vk::DescriptorSetLayoutCreateInfo descriptorLayout(
@@ -574,6 +584,16 @@ Texture::setupDescriptorSet()
             vk::DescriptorType::eCombinedImageSampler,
             &texDescriptor)
     );
+    // Binding 2 : Fragment shader alpha mode uniform buffer
+    writeDescriptorSets.push_back(vk::WriteDescriptorSet(
+            descriptorSet,
+            2,
+            0,
+            1,
+            vk::DescriptorType::eUniformBuffer,
+            nullptr,
+            &uniformDataFS.descriptor)
+    );
 
     vkctx.device.updateDescriptorSets(
                              static_cast<uint32_t>(writeDescriptorSets.size()),
@@ -587,7 +607,10 @@ Texture::preparePipelines()
 {
     vk::PipelineInputAssemblyStateCreateInfo inputAssemblyState(
             {},
-            vk::PrimitiveTopology::eTriangleStrip);
+            vk::PrimitiveTopology::eTriangleStrip,
+            // primmitiveRestartEnable not needed but disabling it results in a MoltenVK
+            // feature not present warning.
+            true);
 
     vk::PipelineRasterizationStateCreateInfo rasterizationState;
     // Must be false because we haven't enabled the depthClamp device feature.
@@ -680,6 +703,15 @@ Texture::prepareUniformBuffers()
         &uniformDataVS.buffer,
         &uniformDataVS.memory,
         &uniformDataVS.descriptor);
+
+    // Alpha mode uniform buffer block
+    vkctx.createBuffer(
+        vk::BufferUsageFlagBits::eUniformBuffer,
+        sizeof(uboFS),
+        &uboFS,
+        &uniformDataFS.buffer,
+        &uniformDataFS.memory,
+        &uniformDataFS.descriptor);
 
     updateUniformBuffers();
 }
