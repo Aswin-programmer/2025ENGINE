@@ -4,7 +4,7 @@ extern "C" {
 	__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 }
 
-#include <iostream>
+#include <iostream>        
 #include <memory>
 
 #include <GlobalInformation/GlobalInformation.h>
@@ -65,7 +65,7 @@ int main()
 		(std::string(RESOURCES_PATH) + "SHADER/PARTICLE_SYSTEMS/geometry_particle_shader.glsl").c_str()
 	);
 
-	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/MIXED_MODEL/mix.gltf"))
+	/*if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/MIXED_MODEL/mix.gltf"))
 	{
 		std::cout << "Failed to load the sample model!\n";
 	}
@@ -80,7 +80,16 @@ int main()
 	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/FISH/BarramundiFish.gltf"))
 	{
 		std::cout << "Failed to load the sample model!\n";
-	}
+	}*/      
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING/AnimatedTesting.gltf", true))
+	{
+		std::cout << "Failed to load the sample model!\n";
+	}       
+
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/AVOCADO/Avocado.gltf"))
+	{
+		std::cout << "Failed to load the sample model!\n";
+	} 
 
 	// ######### Setting Up The ECS      ##########
 
@@ -88,7 +97,7 @@ int main()
 	ecsWorld->InitECSWorld();
 
 	// ############################################
-
+	      
 	// ######### Setting Up The Renderer ##########
 
 	std::shared_ptr<MeshRendererSystem> meshRenderSystem = std::make_shared<MeshRendererSystem>(
@@ -115,29 +124,36 @@ int main()
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(50.f, 50.f, 50.f) })
 		.set<MeshComponent>({ "Avocado.gltf" });
 
-	// ## Testing some Scripting Stuff ##
+	flecs::entity e3 = ecsWorld->CreateEntity("Test3");
+	e3
+		.set<TransfromComponent>({ glm::vec3(0.f, 0.f, 0.f)
+		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(5.f, 5.f, 5.f) })
+		.set<MeshComponent>({ "AnimatedTesting.gltf" });
 
 	// ## Testing some Scripting Stuff ##
 
-	std::shared_ptr<NativeCPPScriptManager> nativeCPPScriptManager
-		= std::make_shared<NativeCPPScriptManager>(SCRIPT_PATH + std::string("ScriptImpl.dll"));
-	nativeCPPScriptManager->LoadDependencies(ecsWorld);
-	nativeCPPScriptManager->LoadDLL();
+	// ## Testing some Scripting Stuff ##
 
-	auto world = ecsWorld->GetWorld();
+	//std::shared_ptr<NativeCPPScriptManager> nativeCPPScriptManager
+	//	= std::make_shared<NativeCPPScriptManager>(SCRIPT_PATH + std::string("ScriptImpl.dll"));
+	//nativeCPPScriptManager->LoadDependencies(ecsWorld);
+	//nativeCPPScriptManager->LoadDLL();
 
-	world->defer_begin();  // start deferring table modifications
+	//auto world = ecsWorld->GetWorld();
 
-	world->query<TransfromComponent>().each([](flecs::entity e, TransfromComponent& p) {
-		e.destruct();  // this is deferred safely
-	});
+	//world->defer_begin();  // start deferring table modifications
 
-	world->defer_end(); // apply all deferred operations
-	// Again, if this is not inside a system, you might need a world progress call.
-	// flecsWorld->progress();
+	//world->query<TransfromComponent>().each([](flecs::entity e, TransfromComponent& p) {
+	//	e.destruct();  // this is deferred safely
+	//});
+
+	//world->defer_end(); // apply all deferred operations
+	//// Again, if this is not inside a system, you might need a world progress call.
+	//// flecsWorld->progress();
 
 	while (!Window::shouldClose())
 	{
+		ecsWorld->GetWorld()->progress();
 		Window::clearScreen();
 		Window::processInput();
 
@@ -151,9 +167,11 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		shader3.setMat4("view", view);
 
-		meshRenderSystem->MeshRendererUpdate(view, projectionP);
+		meshRenderSystem->MeshRendererUpdate(view, projectionP);        
+		     
+		/*nativeCPPScriptManager->UpdateScript();*/
 
-		nativeCPPScriptManager->UpdateScript();
+		std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;
 
 		Window::update();
 	}
@@ -202,7 +220,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 	float deltaX = xposIn - lastX;
 	float deltaY = lastY - yposIn;
 
-	lastX = xposIn;
+	lastX = xposIn;   
 	lastY = yposIn;
 
 	// Right click = Orbit

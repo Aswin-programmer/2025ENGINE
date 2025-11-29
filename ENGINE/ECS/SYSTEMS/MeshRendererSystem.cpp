@@ -29,12 +29,15 @@ void MeshRendererSystem::InitMeshRendererSystem()
 void MeshRendererSystem::MeshRendererUpdate(glm::mat4 view, glm::mat4 proj) {
     gltfMeshRenderer->CleanUp();
     meshRendererQuery.each([&](flecs::entity e, TransfromComponent& transform, MeshComponent& mesh) {
+        std::cout << "Found entity: " << e.name()
+            << " Mesh = " << mesh.GetMeshName() << "\n";
         gltfMeshRenderer->AddGLTFModelToRenderer(
             mesh.GetMeshName(),
             GLTFModelOrientation(
                 transform.GetPosition(),
                 transform.GetRotation(),
                 transform.GetScale(),
+                -1,
                 -1
             )
         );

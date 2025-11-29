@@ -65,6 +65,25 @@ void GLTFMESHRenderer::SetupGLTFMESHRenderer()
     glVertexArrayAttribBinding(meshVAO, 2, 2);
     glEnableVertexArrayAttrib(meshVAO, 2);
 
+    // JOINTS PER VERTEX VBO (binding index 3)
+    glCreateBuffers(1, &meshJointsVBO);
+    glNamedBufferStorage(meshJointsVBO, sizeof(int) * 4 * MAX_JOINTS_PER_VERTEX, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glVertexArrayVertexBuffer(meshVAO, 3, meshJointsVBO, 0, sizeof(int) * 4);
+    // attribute 3 -> joints (ivec4) - use integer format
+    glVertexArrayAttribIFormat(meshVAO, 3, 4, GL_INT, 0);
+    glVertexArrayAttribBinding(meshVAO, 3, 3);
+    glEnableVertexArrayAttrib(meshVAO, 3);
+
+    // WEIGHTS PER VERTEX VBO (binding index 4)
+    glCreateBuffers(1, &meshWeightsVBO);
+    glNamedBufferStorage(meshWeightsVBO, sizeof(float) * 4 * MAX_JOINTS_PER_VERTEX, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glVertexArrayVertexBuffer(meshVAO, 4, meshWeightsVBO, 0, sizeof(float) * 4);
+    glVertexArrayAttribFormat(meshVAO, 4, 4, GL_FLOAT, GL_FALSE, 0);
+    glVertexArrayAttribBinding(meshVAO, 4, 4);
+    glEnableVertexArrayAttrib(meshVAO, 4);
+
+
+
     // ELEMENT / INDEX buffer (we store 32-bit indices on GPU)
     glCreateBuffers(1, &meshEBO);
     glNamedBufferStorage(meshEBO, sizeof(uint32_t) * MAX_INDICES, nullptr, GL_DYNAMIC_STORAGE_BIT);
@@ -73,7 +92,7 @@ void GLTFMESHRenderer::SetupGLTFMESHRenderer()
     // Orientation SSBO (binding 0)
     glCreateBuffers(1, &OrientationSSBO);
     // size for instances (parameterize if needed)
-    glNamedBufferStorage(OrientationSSBO, sizeof(GLTFPrimitivesOrientation) * 20000, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(OrientationSSBO, sizeof(GLTFModelOrientation) * 20000, nullptr, GL_DYNAMIC_STORAGE_BIT);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, OrientationSSBO);
 
     // Material SSBO (binding 1)
@@ -98,12 +117,244 @@ void GLTFMESHRenderer::CleanUp()
     cpuPositions.clear();
     cpuNormals.clear();
     cpuTexcoords.clear();
+    cpuJoints.clear();
+    cpuWeights.clear();
     cpuIndices.clear();
 
     positionsVertexCountOffset = 0;
     indicesCountOffset = 0;
     IsBuffersUpdateRequired = false;
 }
+
+void GLTFMESHRenderer::ProcessNode(
+    int nodeIdx, 
+    std::string modelName, 
+    tinygltf::Model& model, 
+    const GLTFModelOrientation& gltfModelOrientation
+)
+{
+    const tinygltf::Node& node = model.nodes[nodeIdx];
+
+    for (int childIdx : node.children)
+    {
+        const tinygltf::Node& childNode = model.nodes[childIdx];
+
+        // build a key per node (could be per primitive if you prefer)
+        std::string key = modelName + "_" + (childNode.name.empty() ? ("node" + std::to_string(childIdx)) : childNode.name);
+
+        std::cout << "[" << modelName << "]" << " [" << key << "] " << std::endl;
+
+        // If this node already added, increment instances
+        auto it = meshStructureForRendering.find(key);
+        if (it != meshStructureForRendering.end())
+        {
+            meshStructureForRendering[key].meshInstances += 1;
+        }
+        else
+        {
+            // If node has a mesh, process its primitives
+            if (childNode.mesh >= 0)
+            {
+                // create new structure, fill offsets
+                MeshStructureForRendering msr;
+                msr.meshName = key;
+                msr.meshInstances = 1;
+                msr.meshPositionVertexOffset = positionsVertexCountOffset; // baseVertex for future draws
+                msr.meshIndexBufferOffset = indicesCountOffset; // firstIndex for future draws
+
+                const tinygltf::Mesh& mesh = model.meshes[childNode.mesh];
+
+                // We'll accumulate all primitives of this mesh as a single "mesh" for simplicity.
+                size_t totalIndicesForThisMesh = 0;
+                size_t totalVerticesForThisMesh = 0;
+
+                for (const auto& primitive : mesh.primitives)
+                {
+                    // POSITION (required)
+                    if (primitive.attributes.find("POSITION") == primitive.attributes.end())
+                    {
+                        std::cerr << "[GLTFMESHRenderer] Primitive missing POSITION attribute\n";
+                        return;
+                    }
+
+                    const tinygltf::Accessor& posAccessor = model.accessors[primitive.attributes.at("POSITION")];
+
+                    // primitive base (vertex index offset) is the current global vertex count
+                    uint32_t primitiveVertexBase = static_cast<uint32_t>(positionsVertexCountOffset);
+
+                    // Copy positions first
+                    copyAccessorToFloatVector(model, posAccessor, cpuPositions, 3);
+
+                    // Advance global vertex count
+                    positionsVertexCountOffset += posAccessor.count;
+                    totalVerticesForThisMesh += posAccessor.count;
+
+                    // Indices
+                    if (primitive.indices >= 0)
+                    {
+                        const tinygltf::Accessor& indexAccessor = model.accessors[primitive.indices];
+                        // copy indices but offset them by primitiveVertexBase
+                        copyAccessorToIndexVector(model, indexAccessor, cpuIndices, primitiveVertexBase);
+
+                        totalIndicesForThisMesh += indexAccessor.count;
+                        indicesCountOffset += indexAccessor.count;
+                    }
+                    else
+                    {
+                        // If no indices (draw arrays) generate sequential indices with vertex base
+                        for (uint32_t i = 0; i < static_cast<uint32_t>(posAccessor.count); ++i)
+                            cpuIndices.push_back(primitiveVertexBase + i);
+
+                        totalIndicesForThisMesh += posAccessor.count;
+                        indicesCountOffset += posAccessor.count;
+                    }
+
+                    // NORMAL (optional) - append per-primitive zeros if missing
+                    if (primitive.attributes.find("NORMAL") != primitive.attributes.end())
+                    {
+                        const tinygltf::Accessor& normAccessor = model.accessors[primitive.attributes.at("NORMAL")];
+                        copyAccessorToFloatVector(model, normAccessor, cpuNormals, 3);
+                    }
+                    else
+                    {
+                        // push zeros for each vertex of this primitive
+                        cpuNormals.insert(cpuNormals.end(), static_cast<size_t>(posAccessor.count) * 3, 0.0f);
+                    }
+
+                    // TEXCOORD_0
+                    if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end())
+                    {
+                        const tinygltf::Accessor& texAccessor = model.accessors[primitive.attributes.at("TEXCOORD_0")];
+                        copyAccessorToFloatVector(model, texAccessor, cpuTexcoords, 2);
+                    }
+                    else
+                    {
+                        // push zeros for each vertex of this primitive
+                        cpuTexcoords.insert(cpuTexcoords.end(), static_cast<size_t>(posAccessor.count) * 2, 0.0f);
+                    }
+
+                    // JOINTS
+                    if (primitive.attributes.find("JOINTS_0") != primitive.attributes.end())
+                    {
+                        const tinygltf::Accessor& jointsAccessor = model.accessors[primitive.attributes.at("JOINTS_0")];
+                        copyAccessorToIntVector(model, jointsAccessor, cpuJoints);
+                    }
+
+                    // WEIGHTS
+                    if (primitive.attributes.find("WEIGHTS_0") != primitive.attributes.end())
+                    {
+                        const tinygltf::Accessor& weightsAccessor = model.accessors[primitive.attributes.at("WEIGHTS_0")];
+                        copyAccessorToFloatVector(model, weightsAccessor, cpuWeights, 4);
+                    }
+
+                } // primitive loop
+
+                msr.meshIndexCnt = totalIndicesForThisMesh;
+
+                meshStructureForRendering.emplace(key, msr);
+
+                // Loading the Textures
+                if (model.textures.size() > 0)
+                {
+                    for (size_t i = 0; i < model.textures.size(); i++)
+                    {
+                        const tinygltf::Texture& tex = model.textures[i];
+                        const tinygltf::Image& image = model.images[tex.source];
+
+                        std::string filename = image.uri;
+
+                        // Find last underscore and last dot
+                        size_t underscorePos = filename.find_last_of('_');
+                        size_t dotPos = filename.find_last_of('.');
+
+                        std::string result;
+                        if (underscorePos != std::string::npos && dotPos != std::string::npos && underscorePos < dotPos) {
+                            result = filename.substr(underscorePos + 1, dotPos - underscorePos - 1);
+                        }
+
+                        // Temporary:
+                        if (result == "baseColor")
+                        {
+                            std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
+                            texture->Bind(GlobalMaterialTextureBindingIndex);
+                            gltfMaterialMapping[modelName] = GLTFMaterial(GlobalMaterialTextureBindingIndex);
+                            std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
+                            GlobalMaterialTextureBindingIndex++;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                ProcessNode(childIdx, modelName, model, gltfModelOrientation);
+                continue;
+            }
+        }
+
+        // Add material index to the model orientation
+        int currentMaterialIndex = -1;
+        if (gltfMaterialMapping.find(modelName) != gltfMaterialMapping.end())
+        {
+            currentMaterialIndex = gltfMaterialMapping[modelName].materialBindingIndex;
+        }
+
+        // compute local transform (position/rotation/scale)
+        glm::vec3 localPos(0.0f);
+        glm::vec3 localRotEuler(0.0f); // degrees
+        glm::vec3 localScale(1.0f);
+
+        if (childNode.translation.size() == 3)
+        {
+            localPos = glm::vec3(
+                static_cast<float>(childNode.translation[0]),
+                static_cast<float>(childNode.translation[1]),
+                static_cast<float>(childNode.translation[2])
+            );
+        }
+
+        if (childNode.rotation.size() == 4)
+        {
+            // tinygltf rotation is [x, y, z, w]
+            // glm::quat constructor takes (w, x, y, z) when using individual floats.
+            glm::quat q(
+                static_cast<float>(childNode.rotation[3]), // w
+                static_cast<float>(childNode.rotation[0]), // x
+                static_cast<float>(childNode.rotation[1]), // y
+                static_cast<float>(childNode.rotation[2])  // z
+            );
+            glm::vec3 euler = glm::degrees(glm::eulerAngles(q));
+            localRotEuler = euler;
+        }
+
+        if (childNode.scale.size() == 3)
+        {
+            localScale = glm::vec3(
+                static_cast<float>(childNode.scale[0]),
+                static_cast<float>(childNode.scale[1]),
+                static_cast<float>(childNode.scale[2])
+            );
+        }
+
+        // Compose final orientation by simple addition for position/rotation and multiplication for scale.
+        // NOTE: This is a simplification. Proper transform composition should be matrix/quaternion multiply.
+        GLTFModelOrientation primOrient(
+            glm::vec3(gltfModelOrientation.Position) + localPos,
+            glm::vec3(gltfModelOrientation.Rotation) + localRotEuler,
+            glm::vec3(gltfModelOrientation.Scale) * localScale,
+            currentMaterialIndex,
+            -1 // Animation Index has to be fixed.
+        );
+
+        // Always push orientation for this instance
+        primitivesOrientationPerMesh[key].push_back(primOrient);
+
+        for (int childChildIdx : childNode.children)
+        {
+            ProcessNode(childChildIdx, modelName, model, gltfModelOrientation);
+        }
+    } // node loop
+}
+
 
 bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, const GLTFModelOrientation& gltfModelOrientation)
 {
@@ -124,7 +375,9 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, cons
         const tinygltf::Node& node = model.nodes[nodeIdx];
 
         // build a key per node (could be per primitive if you prefer)
-        std::string key = modelName + "_" + std::to_string(nodeIdx);
+        std::string key = modelName + "_" + node.name;
+
+        std::cout << "[" << modelName << "]" << " [" << key << "] " << std::endl;
 
         // If this node already added, increment instances
         auto it = meshStructureForRendering.find(key);
@@ -134,16 +387,16 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, cons
         }
         else
         {
-            // create new structure, fill offsets
-            MeshStructureForRendering msr;
-            msr.meshName = key;
-            msr.meshInstances = 1;
-            msr.meshPositionVertexOffset = positionsVertexCountOffset; // baseVertex for future draws
-            msr.meshIndexBufferOffset = indicesCountOffset; // firstIndex for future draws
-
             // If node has a mesh, process its primitives
             if (node.mesh >= 0)
             {
+                // create new structure, fill offsets
+                MeshStructureForRendering msr;
+                msr.meshName = key;
+                msr.meshInstances = 1;
+                msr.meshPositionVertexOffset = positionsVertexCountOffset; // baseVertex for future draws
+                msr.meshIndexBufferOffset = indicesCountOffset; // firstIndex for future draws
+
                 const tinygltf::Mesh& mesh = model.meshes[node.mesh];
 
                 // We'll accumulate all primitives of this mesh as a single "mesh" for simplicity.
@@ -203,7 +456,7 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, cons
                         cpuNormals.insert(cpuNormals.end(), static_cast<size_t>(posAccessor.count) * 3, 0.0f);
                     }
 
-                    // TEXCOORD_0 (optional)
+                    // TEXCOORD_0
                     if (primitive.attributes.find("TEXCOORD_0") != primitive.attributes.end())
                     {
                         const tinygltf::Accessor& texAccessor = model.accessors[primitive.attributes.at("TEXCOORD_0")];
@@ -215,53 +468,69 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, cons
                         cpuTexcoords.insert(cpuTexcoords.end(), static_cast<size_t>(posAccessor.count) * 2, 0.0f);
                     }
 
+                    // JOINTS
+                    if (primitive.attributes.find("JOINTS_0") != primitive.attributes.end())
+                    {
+                        const tinygltf::Accessor& jointsAccessor = model.accessors[primitive.attributes.at("JOINTS_0")];
+                        copyAccessorToIntVector(model, jointsAccessor, cpuJoints);
+                    }
+
+                    // WEIGHTS
+                    if (primitive.attributes.find("WEIGHTS_0") != primitive.attributes.end())
+                    {
+                        const tinygltf::Accessor& weightsAccessor = model.accessors[primitive.attributes.at("WEIGHTS_0")];
+                        copyAccessorToFloatVector(model, weightsAccessor, cpuWeights, 4);
+                    }
+
                 } // primitive loop
 
                 msr.meshIndexCnt = totalIndicesForThisMesh;
+
+                meshStructureForRendering.emplace(key, msr);
+
+                // Loading the Textures
+                if (model.textures.size() > 0)
+                {
+                    for (size_t i = 0; i < model.textures.size(); i++)
+                    {
+                        const tinygltf::Texture& tex = model.textures[i];
+                        const tinygltf::Image& image = model.images[tex.source];
+
+                        std::string filename = image.uri;
+
+                        // Find last underscore and last dot
+                        size_t underscorePos = filename.find_last_of('_');
+                        size_t dotPos = filename.find_last_of('.');
+
+                        std::string result;
+                        if (underscorePos != std::string::npos && dotPos != std::string::npos && underscorePos < dotPos) {
+                            result = filename.substr(underscorePos + 1, dotPos - underscorePos - 1);
+                        }
+
+                        // Temporary:
+                        if (result == "baseColor")
+                        {
+                            std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
+                            texture->Bind(GlobalMaterialTextureBindingIndex);
+                            gltfMaterialMapping[modelName] = GLTFMaterial(GlobalMaterialTextureBindingIndex);
+                            std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
+                            GlobalMaterialTextureBindingIndex++;
+                        }
+                    }
+                }
             }
             else
             {
-                // Node without mesh -> skip adding structure
+                ProcessNode(nodeIdx, modelName, model, gltfModelOrientation);
                 continue;
-            }
-
-            meshStructureForRendering.emplace(key, msr);
-
-            if (model.textures.size() > 0)
-            {
-                for (size_t i = 0; i < model.textures.size(); i++)
-                {
-                    const tinygltf::Texture& tex = model.textures[i];
-                    const tinygltf::Image& image = model.images[tex.source];
-
-                    std::string filename = image.uri;
-
-                    // Find last underscore and last dot
-                    size_t underscorePos = filename.find_last_of('_');
-                    size_t dotPos = filename.find_last_of('.');
-
-                    std::string result;
-                    if (underscorePos != std::string::npos && dotPos != std::string::npos && underscorePos < dotPos) {
-                        result = filename.substr(underscorePos + 1, dotPos - underscorePos - 1);
-                    }
-
-                    // Temporary:
-                    if (result == "baseColor")
-                    {
-                        std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
-                        texture->Bind(GlobalMaterialTextureBindingIndex);
-                        gltfMaterialMapping[key] = GLTFMaterial(GlobalMaterialTextureBindingIndex);
-                        GlobalMaterialTextureBindingIndex++;
-                    }
-                }
             }
         }
 
         // Add material index to the model orientation
         int currentMaterialIndex = -1;
-        if (gltfMaterialMapping.find(key) != gltfMaterialMapping.end())
+        if (gltfMaterialMapping.find(modelName) != gltfMaterialMapping.end())
         {
-            currentMaterialIndex = gltfMaterialMapping[key].materialBindingIndex;
+            currentMaterialIndex = gltfMaterialMapping[modelName].materialBindingIndex;
         }
 
         // compute local transform (position/rotation/scale)
@@ -303,15 +572,18 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, cons
 
         // Compose final orientation by simple addition for position/rotation and multiplication for scale.
         // NOTE: This is a simplification. Proper transform composition should be matrix/quaternion multiply.
-        GLTFPrimitivesOrientation primOrient(
+        GLTFModelOrientation primOrient(
             glm::vec3(gltfModelOrientation.Position) + localPos,
             glm::vec3(gltfModelOrientation.Rotation) + localRotEuler,
             glm::vec3(gltfModelOrientation.Scale) * localScale,
-            currentMaterialIndex
+            currentMaterialIndex,
+            -1 // Animation Index has to be fixed.
         );
 
         // Always push orientation for this instance
         primitivesOrientationPerMesh[key].push_back(primOrient);
+
+        ProcessNode(nodeIdx, modelName, model, gltfModelOrientation);
 
     } // node loop
 
@@ -405,6 +677,18 @@ void GLTFMESHRenderer::uploadBuffersIfRequired()
         glNamedBufferSubData(meshTexVBO, 0, cpuTexcoords.size() * sizeof(float), cpuTexcoords.data());
     }
 
+    // Upload Joints
+    if (!cpuJoints.empty())
+    {
+        glNamedBufferSubData(meshJointsVBO, 0, cpuJoints.size() * sizeof(int), cpuJoints.data());
+    }
+
+    // Upload Weights
+    if (!cpuWeights.empty())
+    {
+        glNamedBufferSubData(meshWeightsVBO, 0, cpuWeights.size() * sizeof(float), cpuWeights.data());
+    }
+
     // Upload indices (we store uint32 on GPU)
     if (!cpuIndices.empty())
     {
@@ -482,6 +766,74 @@ void GLTFMESHRenderer::copyAccessorToIndexVector(const tinygltf::Model& model, c
     }
 }
 
+// Helper to copy accessor integer data (for indices)
+// Converts everything into int (signed 32-bit)
+void GLTFMESHRenderer::copyAccessorToIntVector(
+    const tinygltf::Model& model,
+    const tinygltf::Accessor& accessor,
+    std::vector<int>& out)
+{
+    const tinygltf::BufferView& bv = model.bufferViews[accessor.bufferView];
+    const tinygltf::Buffer& buff = model.buffers[bv.buffer];
+
+    const size_t accessorOffset =
+        (bv.byteOffset ? bv.byteOffset : 0) +
+        (accessor.byteOffset ? accessor.byteOffset : 0);
+
+    const unsigned char* dataPtr = buff.data.data() + accessorOffset;
+    size_t count = accessor.count;
+
+    int componentSize = 0;
+    switch (accessor.componentType)
+    {
+    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:  componentSize = 1; break;
+    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT: componentSize = 2; break;
+    case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:   componentSize = 4; break;
+    default:
+        throw std::runtime_error("[copyAccessorToIntVector] Unsupported componentType for indices");
+    }
+
+    // Determine number of components (SCALAR=1, VEC2=2, VEC3=3, VEC4=4)
+    int numComponents = 1;
+    switch (accessor.type)
+    {
+    case TINYGLTF_TYPE_SCALAR: numComponents = 1; break;
+    case TINYGLTF_TYPE_VEC2:   numComponents = 2; break;
+    case TINYGLTF_TYPE_VEC3:   numComponents = 3; break;
+    case TINYGLTF_TYPE_VEC4:   numComponents = 4; break;
+    default:
+        throw std::runtime_error("[copyAccessorToIntVector] Unsupported accessor type");
+    }
+
+    size_t stride = bv.byteStride ? bv.byteStride : (componentSize * numComponents);
+
+    out.reserve(out.size() + count * numComponents);
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        const unsigned char* elemPtr = dataPtr + i * stride;
+
+        for (int c = 0; c < numComponents; ++c)
+        {
+            const unsigned char* compPtr = elemPtr + c * componentSize;
+            int value = 0;
+            switch (accessor.componentType)
+            {
+            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
+                value = static_cast<int>(*reinterpret_cast<const uint8_t*>(compPtr));
+                break;
+            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+                value = static_cast<int>(*reinterpret_cast<const uint16_t*>(compPtr));
+                break;
+            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
+                value = static_cast<int>(*reinterpret_cast<const uint32_t*>(compPtr));
+                break;
+            }
+            out.push_back(value);
+        }
+    }
+}
+
 void GLTFMESHRenderer::ExperimentalHelper()
 {
     if (meshStructureForRendering.empty()) return;
@@ -491,7 +843,7 @@ void GLTFMESHRenderer::ExperimentalHelper()
 
     // Build indirect commands and a consolidated orientation array
     indirectCommands.clear();
-    std::vector<GLTFPrimitivesOrientation> allOrientations;
+    std::vector<GLTFModelOrientation> allOrientations;
     allOrientations.reserve(10000);
 
     GLuint baseInstance = 0;
@@ -513,7 +865,7 @@ void GLTFMESHRenderer::ExperimentalHelper()
             instancesForThisMesh = static_cast<size_t>(msr.meshInstances);
             // push default orientations if none present
             for (size_t i = 0; i < instancesForThisMesh; ++i)
-                allOrientations.emplace_back(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), -1);
+                allOrientations.emplace_back(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f), -1, -1); // Temporary Fix Needed to fixed with later animation index.
         }
 
         // create an indirect command per mesh
@@ -533,7 +885,7 @@ void GLTFMESHRenderer::ExperimentalHelper()
     // Upload all orientations to SSBO
     if (!allOrientations.empty())
     {
-        glNamedBufferSubData(OrientationSSBO, 0, allOrientations.size() * sizeof(GLTFPrimitivesOrientation), allOrientations.data());
+        glNamedBufferSubData(OrientationSSBO, 0, allOrientations.size() * sizeof(GLTFModelOrientation), allOrientations.data());
     }
 
     // Uploading the material struct Here! Has to be done.

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
+#include <random>
 
 #include "SCRIPTING/NativeCPP/NativeCPPGlobalScript.h"
 
@@ -9,12 +10,12 @@ class MyScript : public NativeCPPGlobalScript
 public:
 	void OnIntialize() override
 	{
-		std::cout << "The OnInitialize ffunction is working!." << std::endl;
+		std::cout << "The OnIni tialize ffunction is working!." << std::endl;
 		// Creating a new entity for testing.
 		 
 		std::cout << "[SCRIPT] &g_World: " << ecsWorld.get() << "\n"; 
 
-		static bool enter = true;
+		static bool enter = true; 
 		if (enter == true)
 		{
 			for (int i = 0; i < 100; i++)
@@ -28,19 +29,15 @@ public:
 						.set<MeshComponent>({ "Avocado.gltf" });
 				}
 			}
-			enter = false;
+			enter = false; 
 		}
+
 	}
 
 	void OnUpdate() override
 	{
-		std::cout << "The OnUpdate function is function is working!." << std::endl;
-		std::cout<<"Hell ow"<<std::endl;  
-
-		// Print once per frame for debugging (optional)
-    std::cout << "The OnUpdate function is working!." << std::endl;
-
-    // //Rotate all entities with TransfromComponent
+		localTime += 0.016f; // Approx ~60 FPS. Smooth and stable.
+		// //Rotate all entities with TransfromComponent
     // float rotationSpeed = 1.0f; // degrees per frame (you can adjust)
     
     // ecsWorld->GetWorld()->query<TransfromComponent>().each([rotationSpeed](flecs::entity e, TransfromComponent& t) {
@@ -54,6 +51,15 @@ public:
     //    t.Rotation.x += rotationSpeed * 0.5f;
     //    t.Rotation.z += rotationSpeed * 0.25f;
     // });
+		static std::default_random_engine rng;
+		static std::uniform_real_distribution<float> dist(-0.05f, 0.05f);
+
+		ecsWorld->GetWorld()->query<TransfromComponent>().each([&](flecs::entity e, TransfromComponent& t){
+			t.Position.x += dist(rng);
+			t.Position.y += dist(rng);
+			t.Position.z += dist(rng);
+		});
+		 
 	}
 
 	void OnShutDown() override
@@ -71,6 +77,9 @@ public:
 	}  
 
 private:
+	float localTime = 0.0f;
+	float spawnTimer = 0.0f;
+	int spawnCount = 0;
 
 };
 

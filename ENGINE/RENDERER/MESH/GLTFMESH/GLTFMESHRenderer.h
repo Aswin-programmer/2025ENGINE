@@ -16,6 +16,7 @@
 
 #include <tiny_gltf.h>
 #include "GLTFMESHLoader.h"
+#include "GLTFMESHSkeletalAnimationLoader.h"
 #include "../../SHADERS/Shader.h"
 
 #include "PROFILING/Profiler.h"
@@ -26,6 +27,8 @@ constexpr size_t MAX_POS_VERTICES = MAX_TRIANGLES * 3;      // count of vertices
 constexpr size_t MAX_NORM_VERTICES = MAX_TRIANGLES * 3;
 constexpr size_t MAX_TEXCOORD_VERTICES = MAX_TRIANGLES * 3;
 constexpr size_t MAX_INDICES = MAX_TRIANGLES * 3;
+constexpr size_t MAX_JOINTS_PER_VERTEX = MAX_TRIANGLES * 4;
+constexpr size_t MAX_WEIGHTS_PER_VERTEX = MAX_TRIANGLES * 4;
 
 struct ENGINE_API DrawElementsIndirectCommand
 {
@@ -47,16 +50,21 @@ struct GLTFModelOrientation
     glm::vec4 Rotation; // Euler degrees (temporarily). Ideally use quaternion / matrix.
     glm::vec3 Scale;
     int materialIndex;
+    int animationIndex;
+    glm::vec3 temp; // Temporary. To maintain the 16bit stride.
 
     GLTFModelOrientation() = default;
-    GLTFModelOrientation(const glm::vec3& p, const glm::vec3& r, const glm::vec3& s, int materialIndex)
-        : Position(p, 1.0f), Rotation(r, 1.0f), Scale(s), materialIndex{materialIndex} {
-    }
-};
 
-struct GLTFPrimitivesOrientation : public GLTFModelOrientation
-{
-    using GLTFModelOrientation::GLTFModelOrientation;
+    GLTFModelOrientation(const glm::vec3& p, const glm::vec3& r, const glm::vec3& s, int materialIndex, int animationIndex)
+        : 
+        Position(p, 1.0f), 
+        Rotation(r, 1.0f), 
+        Scale(s), 
+        materialIndex{materialIndex},
+        animationIndex{animationIndex},
+        temp{glm::vec3{1.f}}
+    {
+    }
 };
 
 struct GLTFMaterial
@@ -72,6 +80,16 @@ struct GLTFMaterial
         materialBindingIndex{materialBindingIndex}
     {
 
+    }
+};
+
+struct GLTFAnimations
+{
+    std::vector<glm::mat4> jointMatrices;
+
+    GLTFAnimations()
+        : jointMatrices(MAX_JOINTS, glm::mat4(1.0f))
+    {
     }
 };
 
@@ -110,6 +128,8 @@ private:
     GLuint meshPosVBO = 0;
     GLuint meshNormVBO = 0;
     GLuint meshTexVBO = 0;
+    GLuint meshJointsVBO = 0;
+    GLuint meshWeightsVBO = 0;
 
     GLuint OrientationSSBO = 0;
     GLuint MaterialSSBO = 0;
@@ -121,6 +141,8 @@ private:
     std::vector<float> cpuPositions;   // contiguous floats (x,y,z) per vertex
     std::vector<float> cpuNormals;     // contiguous floats (x,y,z) per vertex
     std::vector<float> cpuTexcoords;   // contiguous floats (u,v) per vertex
+    std::vector<int> cpuJoints;
+    std::vector<float> cpuWeights;
     std::vector<uint32_t> cpuIndices;  // always convert indices to uint32_t
 
     // Bookkeeping offsets (in counts, not bytes)
@@ -129,7 +151,7 @@ private:
 
     // Structures describing each mesh/primitive
     std::unordered_map<std::string, MeshStructureForRendering> meshStructureForRendering;
-    std::unordered_map<std::string, std::vector<GLTFPrimitivesOrientation>> primitivesOrientationPerMesh;
+    std::unordered_map<std::string, std::vector<GLTFModelOrientation>> primitivesOrientationPerMesh;
     std::unordered_map<std::string, GLTFMaterial> gltfMaterialMapping;
 
     // Indirect draw commands (built from meshStructureForRendering + orientations)
@@ -143,6 +165,7 @@ private:
     void uploadBuffersIfRequired();
     static void copyAccessorToFloatVector(const tinygltf::Model& model, const tinygltf::Accessor& accessor, std::vector<float>& out, int expectedNumComponents);
     static void copyAccessorToIndexVector(const tinygltf::Model& model, const tinygltf::Accessor& accessor, std::vector<uint32_t>& out, uint32_t indexOffset);
+    static void copyAccessorToIntVector(const tinygltf::Model& model, const tinygltf::Accessor& accessor, std::vector<int>& out);
 
-    
+    void ProcessNode(int nodeIdx, std::string modelName, tinygltf::Model& model, const GLTFModelOrientation& gltfModelOrientation);
 };

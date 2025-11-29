@@ -4,7 +4,7 @@
 // Define the static member
 std::unordered_map<std::string, tinygltf::Model> GLTFMESHLoader::GLTFModels;
 
-bool GLTFMESHLoader::LoadGLTFModel(std::string filePath)
+bool GLTFMESHLoader::LoadGLTFModel(std::string filePath, bool IsAnimationPresent)
 {
     tinygltf::TinyGLTF loader;
     tinygltf::Model model;
@@ -62,6 +62,14 @@ bool GLTFMESHLoader::LoadGLTFModel(std::string filePath)
         std::cout << image.uri << std::endl;
 
 
+    }
+
+    if (IsAnimationPresent)
+    {
+        if (!GLTFMESHSkeletalAnimationLoader::LoadSkeletalAnimationsFromGLTFModel(fileName, model))
+        {
+            std::cout << "[GLTFMESHLoader] Failed to load the Animations!." << std::endl;
+        }
     }
 
     // Store in map

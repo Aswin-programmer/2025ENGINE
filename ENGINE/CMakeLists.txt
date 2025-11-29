@@ -31,7 +31,7 @@ add_library(2025ENGINE SHARED
     "SCRIPTING/NativeCPP/NativeCPPScriptManager.h"
     "SCRIPTING/NativeCPP/NativeCPPScriptManager.cpp"
 
-)
+ "RENDERER/MESH/GLTFMESH/GLTFMESHSkeletalAnimationLoader.h" "RENDERER/MESH/GLTFMESH/GLTFMESHSkeletalAnimationLoader.cpp")
 
 target_include_directories(2025ENGINE PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"

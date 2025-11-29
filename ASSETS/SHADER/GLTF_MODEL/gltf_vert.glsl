@@ -3,12 +3,16 @@
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoord;
+layout(location = 3) in vec4 aBones;
+layout(location = 4) in vec4 aWeights;
 
 struct MeshOrientation {
     vec4 Position;
     vec4 Rotation; // Euler angles in degrees
     vec3 Scale;
     int materialIndex;
+    int animationIndex;
+    int temp[3]; // Tempory
 };
 
 layout(std430, binding = 0) buffer Orientations {
