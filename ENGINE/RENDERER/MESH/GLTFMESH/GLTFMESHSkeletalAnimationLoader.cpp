@@ -11,12 +11,14 @@ bool GLTFMESHSkeletalAnimationLoader::LoadSkeletalAnimationsFromGLTFModel(
     , const tinygltf::Model& model
 )
 {
+    std::string gltfModelNameTrimmed = gltfModelName.substr(0, gltfModelName.find_last_of('.'));
+
     // Already loaded?
-    auto it = SkeletalAnimations.find(gltfModelName);
+    auto it = SkeletalAnimations.find(gltfModelNameTrimmed);
     if (it != SkeletalAnimations.end())
     {
         // Skeletal Animations have already been loaded.
-        std::cout<< "[GLTFMESHAnimationLoader] " << gltfModelName << " is already loaded!." << std::endl;
+        std::cout<< "[GLTFMESHAnimationLoader] " << gltfModelNameTrimmed << " is already loaded!." << std::endl;
         return false;
     }
 
@@ -217,9 +219,9 @@ bool GLTFMESHSkeletalAnimationLoader::LoadSkeletalAnimationsFromGLTFModel(
     );
 
     // Insert into the global map
-    SkeletalAnimations.emplace(gltfModelName, std::move(data));
+    SkeletalAnimations.emplace(gltfModelNameTrimmed, std::move(data));
 
-    std::cout << "[GLTFMESHAnimationLoader] " << gltfModelName << " Loaded successfully" << std::endl;
+    std::cout << "[GLTFMESHAnimationLoader] " << gltfModelNameTrimmed << " Loaded successfully" << std::endl;
 
     return true;
 }

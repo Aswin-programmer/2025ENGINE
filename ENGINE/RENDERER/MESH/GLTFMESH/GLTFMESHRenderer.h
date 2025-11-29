@@ -85,11 +85,36 @@ struct GLTFMaterial
 
 struct GLTFAnimations
 {
-    std::vector<glm::mat4> jointMatrices;
+    // CHANGE 1: Use a Raw Array instead of std::vector.
+    // This forces the 6400 bytes of data to sit INSIDE the struct.
+    glm::mat4 boneMatrices[MAX_JOINTS];
 
+    // Default Constructor: Initialize everything to Identity
     GLTFAnimations()
-        : jointMatrices(MAX_JOINTS, glm::mat4(1.0f))
     {
+        for (int i = 0; i < MAX_JOINTS; i++) {
+            boneMatrices[i] = glm::mat4(1.0f);
+        }
+    }
+
+    // CHANGE 2: The Constructor still accepts a vector, but COPIES the data to the array.
+    GLTFAnimations(const std::vector<glm::mat4>& inputVector)
+    {
+        // First, fill everything with Identity matrices (safety for unused slots)
+        for (int i = 0; i < MAX_JOINTS; i++) {
+            boneMatrices[i] = glm::mat4(1.0f);
+        }
+
+        // Determine how many matrices to copy (don't overflow the fixed array)
+        size_t countToCopy = inputVector.size();
+        if (countToCopy > MAX_JOINTS) {
+            countToCopy = MAX_JOINTS; // Clamp to max
+        }
+
+        // Manual copy from the input vector to our internal fixed array
+        for (size_t i = 0; i < countToCopy; i++) {
+            boneMatrices[i] = inputVector[i];
+        }
     }
 };
 
@@ -110,7 +135,12 @@ public:
 
     // Build and upload staging CPU-side data for given loaded glTF model
     // modelName should match the key used when calling GLTFMESHLoader::LoadGLTFModel()
-    bool AddGLTFModelToRenderer(const std::string& modelName, const GLTFModelOrientation& orientation);
+    bool AddGLTFModelToRenderer(
+        const std::string& modelName,
+        const GLTFModelOrientation& orientation,
+        bool isAnimationNeeded,
+        std::vector<glm::mat4> boneMatrices = std::vector<glm::mat4>(MAX_JOINTS, glm::mat4(1.f))
+    );
 
     // Render all added meshes (uploads changed buffers automatically)
     void GLTFMESHRender();
@@ -133,9 +163,11 @@ private:
 
     GLuint OrientationSSBO = 0;
     GLuint MaterialSSBO = 0;
+    GLuint AnimationSSBO = 0;
     GLuint IndirectCommandBuffer = 0;
 
     int GlobalMaterialTextureBindingIndex = 0;
+    int GlobalAnimationBindingIndex = 0;
 
     // CPU-side staging data
     std::vector<float> cpuPositions;   // contiguous floats (x,y,z) per vertex
@@ -152,7 +184,10 @@ private:
     // Structures describing each mesh/primitive
     std::unordered_map<std::string, MeshStructureForRendering> meshStructureForRendering;
     std::unordered_map<std::string, std::vector<GLTFModelOrientation>> primitivesOrientationPerMesh;
-    std::unordered_map<std::string, GLTFMaterial> gltfMaterialMapping;
+    std::unordered_map<std::string, int> gltfMaterialMapping;
+    std::vector<GLTFMaterial> gltfMaterialContainer;
+    std::unordered_map<std::string, int> gltfAnimationMapping;
+    std::vector<GLTFAnimations> gltfAnimationsContainer;
 
     // Indirect draw commands (built from meshStructureForRendering + orientations)
     std::vector<DrawElementsIndirectCommand> indirectCommands;
@@ -167,5 +202,12 @@ private:
     static void copyAccessorToIndexVector(const tinygltf::Model& model, const tinygltf::Accessor& accessor, std::vector<uint32_t>& out, uint32_t indexOffset);
     static void copyAccessorToIntVector(const tinygltf::Model& model, const tinygltf::Accessor& accessor, std::vector<int>& out);
 
-    void ProcessNode(int nodeIdx, std::string modelName, tinygltf::Model& model, const GLTFModelOrientation& gltfModelOrientation);
+    void ProcessNode(
+        int nodeIdx, 
+        std::string modelName, 
+        tinygltf::Model& model, 
+        const GLTFModelOrientation& gltfModelOrientation,
+        bool isAnimationNeeded,
+        std::vector<glm::mat4> boneMatrices
+    );
 };

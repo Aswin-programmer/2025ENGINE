@@ -3,8 +3,8 @@ extern "C" {
 
 	__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 }
-
-#include <iostream>        
+ 
+#include <iostream>              
 #include <memory>
 
 #include <GlobalInformation/GlobalInformation.h>
@@ -18,6 +18,7 @@ extern "C" {
 #include <ECS/ECSWorld.h>
 #include <ECS/COMPONENTS/MeshComponent.h>
 #include <ECS/COMPONENTS/TransfromComponent.h>
+#include <ECS/COMPONENTS/AnimationComponent.h>
 #include <ECS/SYSTEMS/MeshRendererSystem.h>
 
 #include <SCRIPTING/NativeCPP/NativeCPPGlobalScript.h>
@@ -48,7 +49,7 @@ int main()
 		, (std::string(RESOURCES_PATH) + "SHADER/cube.frag").c_str());
 
 	TextureKTX2 textureKTX2 = TextureKTX2((std::string(RESOURCES_PATH) + "TEXTURE/KTX/cube.ktx2").c_str(), TextureType::NORMAL{});
-
+	      
 	Shader shader2 = Shader(
 		(std::string(RESOURCES_PATH) + "SHADER/GEO_TEST/geo_vert.glsl").c_str(),
 		(std::string(RESOURCES_PATH) + "SHADER/GEO_TEST/geo_frag.glsl").c_str(),
@@ -56,7 +57,7 @@ int main()
 		nullptr,
 		(std::string(RESOURCES_PATH) + "SHADER/GEO_TEST/geo_geo.glsl").c_str()
 	);
-
+	 
 	Shader shader3 = Shader(
 		(std::string(RESOURCES_PATH) + "SHADER/PARTICLE_SYSTEMS/particle_vert.glsl").c_str(),
 		(std::string(RESOURCES_PATH) + "SHADER/PARTICLE_SYSTEMS/particle_frag.glsl").c_str(),
@@ -84,8 +85,13 @@ int main()
 	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING/AnimatedTesting.gltf", true))
 	{
 		std::cout << "Failed to load the sample model!\n";
-	}       
+	}  
 
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_2/AnimatedTesting2.gltf", true))
+	{
+		std::cout << "Failed to load the sample model!\n";
+	}
+	 
 	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/AVOCADO/Avocado.gltf"))
 	{
 		std::cout << "Failed to load the sample model!\n";
@@ -110,17 +116,17 @@ int main()
 	// ############################################
 
 
-	// ##          ##
+	// ##          ##     
 
 	flecs::entity e1 = ecsWorld->CreateEntity("Test1");
 	e1
-		.set<TransfromComponent>({ glm::vec3(3.f, 1.f, 0.f)
+		.set<TransfromComponent>({ glm::vec3(0.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(50.f, 50.f, 50.f) })
 		.set<MeshComponent>({ "Avocado.gltf" });
 
 	flecs::entity e2 = ecsWorld->CreateEntity("Test2");
 	e2
-		.set<TransfromComponent>({ glm::vec3(0.f, 0.f, 0.f)
+		.set<TransfromComponent>({ glm::vec3(0.f, 2.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(50.f, 50.f, 50.f) })
 		.set<MeshComponent>({ "Avocado.gltf" });
 
@@ -128,10 +134,18 @@ int main()
 	e3
 		.set<TransfromComponent>({ glm::vec3(0.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(5.f, 5.f, 5.f) })
-		.set<MeshComponent>({ "AnimatedTesting.gltf" });
+		.set<MeshComponent>({ "AnimatedTesting.gltf" })
+		.set<AnimationComponent>({ true }); 
+
+	flecs::entity e4 = ecsWorld->CreateEntity("Test4");
+	e4
+		.set<TransfromComponent>({ glm::vec3(50.f, 0.f, 0.f)
+		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(3.f, 3.f, 3.f) })
+		.set<MeshComponent>({ "AnimatedTesting2.gltf" })
+		.set<AnimationComponent>({ true });   
 
 	// ## Testing some Scripting Stuff ##
-
+	 
 	// ## Testing some Scripting Stuff ##
 
 	//std::shared_ptr<NativeCPPScriptManager> nativeCPPScriptManager
@@ -174,8 +188,8 @@ int main()
 		std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;
 
 		Window::update();
-	}
-
+	}  
+	    
 	Window::cleanup();
 }
 

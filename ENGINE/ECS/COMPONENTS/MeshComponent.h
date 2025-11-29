@@ -19,6 +19,7 @@ public:
 
 	void UpdateMeshName(std::string MeshName_);
 	std::string GetMeshName();
+	std::string GetStrippedMeshName();
 public:
 	std::string MeshName = "NIL";
 };

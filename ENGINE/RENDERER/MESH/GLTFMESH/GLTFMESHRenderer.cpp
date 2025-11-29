@@ -5,7 +5,6 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define TINYGLTF_NOEXCEPTION
 #define JSON_NOEXCEPTION
-#define GLM_ENABLE_EXPERIMENTAL
 
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
@@ -24,9 +23,12 @@ GLTFMESHRenderer::~GLTFMESHRenderer()
     if (meshPosVBO) glDeleteBuffers(1, &meshPosVBO);
     if (meshNormVBO) glDeleteBuffers(1, &meshNormVBO);
     if (meshTexVBO) glDeleteBuffers(1, &meshTexVBO);
+    if (meshJointsVBO) glDeleteBuffers(1, &meshJointsVBO);
+    if (meshWeightsVBO) glDeleteBuffers(1, &meshWeightsVBO);
     if (meshEBO) glDeleteBuffers(1, &meshEBO);
     if (OrientationSSBO) glDeleteBuffers(1, &OrientationSSBO);
     if (MaterialSSBO) glDeleteBuffers(1, &MaterialSSBO);
+    if (AnimationSSBO) glDeleteBuffers(1, &AnimationSSBO);
     if (IndirectCommandBuffer) glDeleteBuffers(1, &IndirectCommandBuffer);
     if (meshVAO) glDeleteVertexArrays(1, &meshVAO);
 }
@@ -98,8 +100,13 @@ void GLTFMESHRenderer::SetupGLTFMESHRenderer()
     // Material SSBO (binding 1)
     glCreateBuffers(1, &MaterialSSBO);
     // size for instances (parameterize if needed)
-    glNamedBufferStorage(MaterialSSBO, sizeof(GLTFMaterial) * 20000, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(MaterialSSBO, sizeof(GLTFMaterial) * 2000, nullptr, GL_DYNAMIC_STORAGE_BIT);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, MaterialSSBO);
+
+    // Animation SSBO (binding 2)
+    glCreateBuffers(1, &AnimationSSBO);
+    glNamedBufferStorage(AnimationSSBO, sizeof(GLTFAnimations) * 2000, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, AnimationSSBO);
 
     // Indirect command buffer
     glCreateBuffers(1, &IndirectCommandBuffer);
@@ -112,6 +119,9 @@ void GLTFMESHRenderer::CleanUp()
     primitivesOrientationPerMesh.clear();
     GlobalMaterialTextureBindingIndex = 0;
     gltfMaterialMapping.clear();
+    gltfAnimationMapping.clear();
+    gltfAnimationsContainer.clear();
+    GlobalAnimationBindingIndex = 0;
     indirectCommands.clear();
 
     cpuPositions.clear();
@@ -130,7 +140,9 @@ void GLTFMESHRenderer::ProcessNode(
     int nodeIdx, 
     std::string modelName, 
     tinygltf::Model& model, 
-    const GLTFModelOrientation& gltfModelOrientation
+    const GLTFModelOrientation& gltfModelOrientation,
+    bool isAnimationNeeded,
+    std::vector<glm::mat4> boneMatrices
 )
 {
     const tinygltf::Node& node = model.nodes[nodeIdx];
@@ -239,12 +251,22 @@ void GLTFMESHRenderer::ProcessNode(
                         const tinygltf::Accessor& jointsAccessor = model.accessors[primitive.attributes.at("JOINTS_0")];
                         copyAccessorToIntVector(model, jointsAccessor, cpuJoints);
                     }
+                    else
+                    {
+                        // push zeros for each vertex of this primitive
+                        cpuJoints.insert(cpuJoints.end(), static_cast<size_t>(posAccessor.count) * 4, 0.0f);
+                    }
 
                     // WEIGHTS
                     if (primitive.attributes.find("WEIGHTS_0") != primitive.attributes.end())
                     {
                         const tinygltf::Accessor& weightsAccessor = model.accessors[primitive.attributes.at("WEIGHTS_0")];
                         copyAccessorToFloatVector(model, weightsAccessor, cpuWeights, 4);
+                    }
+                    else
+                    {
+                        // push zeros for each vertex of this primitive
+                        cpuWeights.insert(cpuWeights.end(), static_cast<size_t>(posAccessor.count) * 4, 0.0f);
                     }
 
                 } // primitive loop
@@ -275,18 +297,33 @@ void GLTFMESHRenderer::ProcessNode(
                         // Temporary:
                         if (result == "baseColor")
                         {
-                            std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
-                            texture->Bind(GlobalMaterialTextureBindingIndex);
-                            gltfMaterialMapping[modelName] = GLTFMaterial(GlobalMaterialTextureBindingIndex);
-                            std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
-                            GlobalMaterialTextureBindingIndex++;
+                            if (gltfMaterialMapping.find(modelName) == gltfMaterialMapping.end())
+                            {
+                                std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
+                                texture->Bind(GlobalMaterialTextureBindingIndex);
+                                gltfMaterialMapping[modelName] = GlobalMaterialTextureBindingIndex;
+                                gltfMaterialContainer.push_back(GLTFMaterial(GlobalMaterialTextureBindingIndex));
+                                std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
+                                GlobalMaterialTextureBindingIndex++;
+                            }
                         }
+                    }
+                }
+
+                // Adding the Animations:
+                if (isAnimationNeeded && !model.animations.empty())
+                {
+                    if (gltfAnimationMapping.find(modelName) == gltfAnimationMapping.end())
+                    {
+                        gltfAnimationMapping[modelName] = GlobalAnimationBindingIndex;
+                        gltfAnimationsContainer.push_back(GLTFAnimations(boneMatrices));
+                        GlobalAnimationBindingIndex++;
                     }
                 }
             }
             else
             {
-                ProcessNode(childIdx, modelName, model, gltfModelOrientation);
+                ProcessNode(childIdx, modelName, model, gltfModelOrientation, isAnimationNeeded, boneMatrices);
                 continue;
             }
         }
@@ -295,7 +332,14 @@ void GLTFMESHRenderer::ProcessNode(
         int currentMaterialIndex = -1;
         if (gltfMaterialMapping.find(modelName) != gltfMaterialMapping.end())
         {
-            currentMaterialIndex = gltfMaterialMapping[modelName].materialBindingIndex;
+            currentMaterialIndex = gltfMaterialContainer[gltfMaterialMapping[modelName]].materialBindingIndex;
+        }
+
+        // Add Animation index to the model orientation
+        int currentAnimationIndex = -1;
+        if (gltfAnimationMapping.find(modelName) != gltfAnimationMapping.end())
+        {
+            currentAnimationIndex = gltfAnimationMapping[modelName];
         }
 
         // compute local transform (position/rotation/scale)
@@ -342,7 +386,7 @@ void GLTFMESHRenderer::ProcessNode(
             glm::vec3(gltfModelOrientation.Rotation) + localRotEuler,
             glm::vec3(gltfModelOrientation.Scale) * localScale,
             currentMaterialIndex,
-            -1 // Animation Index has to be fixed.
+            currentAnimationIndex
         );
 
         // Always push orientation for this instance
@@ -350,13 +394,18 @@ void GLTFMESHRenderer::ProcessNode(
 
         for (int childChildIdx : childNode.children)
         {
-            ProcessNode(childChildIdx, modelName, model, gltfModelOrientation);
+            ProcessNode(childChildIdx, modelName, model, gltfModelOrientation, isAnimationNeeded, boneMatrices);
         }
     } // node loop
 }
 
 
-bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, const GLTFModelOrientation& gltfModelOrientation)
+bool GLTFMESHRenderer::AddGLTFModelToRenderer(
+    const std::string& modelName, 
+    const GLTFModelOrientation& gltfModelOrientation,
+    bool isAnimationNeeded,
+    std::vector<glm::mat4> boneMatrices
+)
 {
     // Get model by reference (no copy)
     tinygltf::Model& model = GLTFMESHLoader::GetGLTFModel(modelName);
@@ -474,12 +523,20 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, cons
                         const tinygltf::Accessor& jointsAccessor = model.accessors[primitive.attributes.at("JOINTS_0")];
                         copyAccessorToIntVector(model, jointsAccessor, cpuJoints);
                     }
+                    else 
+                    {
+                        cpuJoints.insert(cpuJoints.end(), static_cast<size_t>(posAccessor.count) * 4, 0.f);
+                    }
 
                     // WEIGHTS
                     if (primitive.attributes.find("WEIGHTS_0") != primitive.attributes.end())
                     {
                         const tinygltf::Accessor& weightsAccessor = model.accessors[primitive.attributes.at("WEIGHTS_0")];
                         copyAccessorToFloatVector(model, weightsAccessor, cpuWeights, 4);
+                    }
+                    else
+                    {
+                        cpuWeights.insert(cpuWeights.end(), static_cast<size_t>(posAccessor.count) * 4, 0.f);
                     }
 
                 } // primitive loop
@@ -510,18 +567,33 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, cons
                         // Temporary:
                         if (result == "baseColor")
                         {
-                            std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
-                            texture->Bind(GlobalMaterialTextureBindingIndex);
-                            gltfMaterialMapping[modelName] = GLTFMaterial(GlobalMaterialTextureBindingIndex);
-                            std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
-                            GlobalMaterialTextureBindingIndex++;
+                            if (gltfMaterialMapping.find(modelName) == gltfMaterialMapping.end())
+                            {
+                                std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
+                                texture->Bind(GlobalMaterialTextureBindingIndex);
+                                gltfMaterialMapping[modelName] = GlobalMaterialTextureBindingIndex;
+                                gltfMaterialContainer.push_back(GLTFMaterial(GlobalMaterialTextureBindingIndex));
+                                std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
+                                GlobalMaterialTextureBindingIndex++;
+                            }
                         }
+                    }
+                }
+
+                // Adding the Animations:
+                if (isAnimationNeeded && !model.animations.empty())
+                {
+                    if (gltfAnimationMapping.find(modelName) == gltfAnimationMapping.end())
+                    {
+                        gltfAnimationMapping[modelName] = GlobalAnimationBindingIndex;
+                        gltfAnimationsContainer.push_back(GLTFAnimations(boneMatrices));
+                        GlobalAnimationBindingIndex++;
                     }
                 }
             }
             else
             {
-                ProcessNode(nodeIdx, modelName, model, gltfModelOrientation);
+                ProcessNode(nodeIdx, modelName, model, gltfModelOrientation, isAnimationNeeded, boneMatrices);
                 continue;
             }
         }
@@ -530,7 +602,14 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, cons
         int currentMaterialIndex = -1;
         if (gltfMaterialMapping.find(modelName) != gltfMaterialMapping.end())
         {
-            currentMaterialIndex = gltfMaterialMapping[modelName].materialBindingIndex;
+            currentMaterialIndex = gltfMaterialContainer[gltfMaterialMapping[modelName]].materialBindingIndex;
+        }
+
+        // Add Animation index to the model orientation
+        int currentAnimationIndex = -1;
+        if (gltfAnimationMapping.find(modelName) != gltfAnimationMapping.end())
+        {
+            currentAnimationIndex = gltfAnimationMapping[modelName];
         }
 
         // compute local transform (position/rotation/scale)
@@ -577,13 +656,13 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(const std::string& modelName, cons
             glm::vec3(gltfModelOrientation.Rotation) + localRotEuler,
             glm::vec3(gltfModelOrientation.Scale) * localScale,
             currentMaterialIndex,
-            -1 // Animation Index has to be fixed.
+            currentAnimationIndex
         );
 
         // Always push orientation for this instance
         primitivesOrientationPerMesh[key].push_back(primOrient);
 
-        ProcessNode(nodeIdx, modelName, model, gltfModelOrientation);
+        ProcessNode(nodeIdx, modelName, model, gltfModelOrientation, isAnimationNeeded, boneMatrices);
 
     } // node loop
 
@@ -889,7 +968,7 @@ void GLTFMESHRenderer::ExperimentalHelper()
     }
 
     // Uploading the material struct Here! Has to be done.
-    std::vector<GLTFMaterial> materialsForThisInstance;
+    /*std::vector<GLTFMaterial> materialsForThisInstance;
     for (const auto& material : gltfMaterialMapping)
     {
         materialsForThisInstance.push_back(material.second);
@@ -898,8 +977,20 @@ void GLTFMESHRenderer::ExperimentalHelper()
     {
         glNamedBufferSubData(MaterialSSBO, 0
             , materialsForThisInstance.size() * sizeof(GLTFMaterial), materialsForThisInstance.data());
+    }*/
+    if (!gltfMaterialContainer.empty())
+    {
+        glNamedBufferSubData(MaterialSSBO, 0
+            , gltfMaterialContainer.size() * sizeof(GLTFMaterial), gltfMaterialContainer.data());
     }
 
+    // Uploading the Animation Struct Here!.
+    if (!gltfAnimationsContainer.empty())
+    {
+        glNamedBufferSubData(AnimationSSBO, 0
+            , gltfAnimationsContainer.size() * sizeof(GLTFAnimations), gltfAnimationsContainer.data());
+    }
+     
     // Upload indirect commands
     if (!indirectCommands.empty())
     {
