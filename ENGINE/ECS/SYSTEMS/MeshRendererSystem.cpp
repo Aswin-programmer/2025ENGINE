@@ -111,3 +111,84 @@ void MeshRendererSystem::MeshRendererUpdate(glm::mat4 view, glm::mat4 proj)
     meshRendererShader->setMat4("projection", proj);
     gltfMeshRenderer->GLTFMESHRender();
 }
+
+void MeshRendererSystem::DebugMenu(mu_Context* ctx)
+{
+    if (!ecsWorld) return;
+
+    if (mu_begin_window(ctx, "Entity Debug Menu", mu_rect(10, 10, 400, 600)))
+    {
+        // Static Mesh Entities
+        if (mu_header(ctx, "Static Mesh Entities"))
+        {
+            staticMeshRendererQuery.each([ctx](flecs::entity e, TransfromComponent& transform, MeshComponent& mesh) {
+                if (mu_begin_treenode(ctx, e.name()))
+                {
+                    char buf[64];
+
+                    // Mesh Name
+                    sprintf(buf, "Mesh: %s", mesh.GetMeshName().c_str());
+                    mu_label(ctx, buf);
+
+                    // Position
+                    int widths[] = { 50, -1 };
+                    mu_layout_row(ctx, 2, widths, 0);
+                    mu_label(ctx, "Pos X:"); mu_slider(ctx, &transform.Position.x, -100.f, 100.f);
+                    mu_label(ctx, "Pos Y:"); mu_slider(ctx, &transform.Position.y, -100.f, 100.f);
+                    mu_label(ctx, "Pos Z:"); mu_slider(ctx, &transform.Position.z, -100.f, 100.f);
+
+                    // Rotation
+                    mu_label(ctx, "Rotation X:"); mu_slider(ctx, &transform.Rotation.x, -180.f, 180.f);
+                    mu_label(ctx, "Rotation Y:"); mu_slider(ctx, &transform.Rotation.y, -180.f, 180.f);
+                    mu_label(ctx, "Rotation Z:"); mu_slider(ctx, &transform.Rotation.z, -180.f, 180.f);
+
+                    // Scale
+                    mu_label(ctx, "Scale X:"); mu_slider(ctx, &transform.Scale.x, 0.f, 10.f);
+                    mu_label(ctx, "Scale Y:"); mu_slider(ctx, &transform.Scale.y, 0.f, 10.f);
+                    mu_label(ctx, "Scale Z:"); mu_slider(ctx, &transform.Scale.z, 0.f, 10.f);
+
+                    mu_end_treenode(ctx);
+                }
+                });
+        }
+
+        // Animated Mesh Entities
+        if (mu_header(ctx, "Animated Mesh Entities"))
+        {
+            animatedMeshRendererQuery.each([ctx](flecs::entity e, TransfromComponent& transform, MeshComponent& mesh, AnimationComponent& anim) {
+                if (mu_begin_treenode(ctx, e.name()))
+                {
+                    char buf[64];
+
+                    // Mesh Name
+                    sprintf(buf, "Mesh: %s", mesh.GetMeshName().c_str());
+                    mu_label(ctx, buf);
+
+                    // Animation info
+                    sprintf(buf, "Anim Time: %.2f", anim.GetCurrentOnTime());
+                    mu_label(ctx, buf);
+
+                    // Transform sliders
+                    int widths[] = { 50, -1 };
+                    mu_layout_row(ctx, 2, widths, 0);
+                    mu_label(ctx, "Pos X:"); mu_slider(ctx, &transform.Position.x, -100.f, 100.f);
+                    mu_label(ctx, "Pos Y:"); mu_slider(ctx, &transform.Position.y, -100.f, 100.f);
+                    mu_label(ctx, "Pos Z:"); mu_slider(ctx, &transform.Position.z, -100.f, 100.f);
+
+                    mu_label(ctx, "Rot X:"); mu_slider(ctx, &transform.Rotation.x, -180.f, 180.f);
+                    mu_label(ctx, "Rot Y:"); mu_slider(ctx, &transform.Rotation.y, -180.f, 180.f);
+                    mu_label(ctx, "Rot Z:"); mu_slider(ctx, &transform.Rotation.z, -180.f, 180.f);
+
+                    mu_label(ctx, "Scale X:"); mu_slider(ctx, &transform.Scale.x, 0.f, 10.f);
+                    mu_label(ctx, "Scale Y:"); mu_slider(ctx, &transform.Scale.y, 0.f, 10.f);
+                    mu_label(ctx, "Scale Z:"); mu_slider(ctx, &transform.Scale.z, 0.f, 10.f);
+
+                    mu_end_treenode(ctx);
+                }
+                });
+        }
+
+        mu_end_window(ctx);
+    }
+}
+

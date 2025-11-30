@@ -8,8 +8,14 @@ extern "C" {
 #include <memory>
 
 #include <GlobalInformation/GlobalInformation.h>
+
 #include <WINDOW/Window.h>
+
+#include <INPUT/KeyBoard.h>
+#include <INPUT/Mouse.h>
+
 #include <CAMERA/EditorCamera.h>
+
 #include <RENDERER/TEXTURE_KTX/TextureKTX2.h>
 #include <RENDERER/SHADERS/Shader.h>
 #include <RENDERER/MESH/GLTFMESH/GLTFMESHLoader.h>
@@ -21,20 +27,25 @@ extern "C" {
 #include <ECS/COMPONENTS/AnimationComponent.h>
 #include <ECS/SYSTEMS/MeshRendererSystem.h>
 
+#include <DEBUGUI/MicroUIRenderer.h>
+
 #include <SCRIPTING/NativeCPP/NativeCPPGlobalScript.h>
 #include <SCRIPTING/NativeCPP/NativeCPPScriptManager.h>
 
 // Opengl Callbacks
 void processKeyInput(GLFWwindow* window);
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
+void mouse_pos_callback(GLFWwindow* window, double xposIn, double yposIn);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void char_callback(GLFWwindow* window, unsigned int codepoint);
 
 // Editor Camera Setup
 EditorCamera camera(45.0f, 640.f / 480.f, 0.1f, 200.0f);
 
 // Mouse Setup
 float GlobalMousePosX = 0.f;
-float GlobalMousePosY = 0.f;
+float GlobalMousePosY = 0.f; 
 
 int main() 
 {
@@ -42,8 +53,18 @@ int main()
 	
 	Window::init("TESTING");
 
-	glfwSetCursorPosCallback(Window::getGLFWWindow(), mouse_callback);
+	Keyboard::Init();
+	Mouse::Init();
+
+	// Initialzing DebugUI
+	MicroUIRenderer::InitMicroUIRenderer();
+	
+
+	glfwSetCursorPosCallback(Window::getGLFWWindow(), mouse_pos_callback);
 	glfwSetScrollCallback(Window::getGLFWWindow(), scroll_callback);
+	glfwSetKeyCallback(Window::getGLFWWindow(), key_callback);
+	glfwSetMouseButtonCallback(Window::getGLFWWindow(), mouse_button_callback);
+	glfwSetCharCallback(Window::getGLFWWindow(), char_callback);
 
 	Shader shader = Shader((std::string(RESOURCES_PATH) + "SHADER/cube.vert").c_str()
 		, (std::string(RESOURCES_PATH) + "SHADER/cube.frag").c_str());
@@ -88,6 +109,11 @@ int main()
 	}  
 
 	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_2/AnimatedTesting2.gltf", true))
+	{
+		std::cout << "Failed to load the sample model!\n";
+	}
+
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_3/AnimatedTesting3.gltf", true))
 	{
 		std::cout << "Failed to load the sample model!\n";
 	}
@@ -137,11 +163,25 @@ int main()
 		.set<MeshComponent>({ "AnimatedTesting.gltf" })
 		.set<AnimationComponent>({ true }); 
 
-	flecs::entity e4 = ecsWorld->CreateEntity("Test4");
+	flecs::entity e4 = ecsWorld->CreateEntity("Test4"); 
 	e4
 		.set<TransfromComponent>({ glm::vec3(50.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(3.f, 3.f, 3.f) })
 		.set<MeshComponent>({ "AnimatedTesting2.gltf" })
+		.set<AnimationComponent>({ true });  
+
+	flecs::entity e5 = ecsWorld->CreateEntity("Test5");
+	e5
+		.set<TransfromComponent>({ glm::vec3(10.f, 0.f, 0.f)
+		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) })
+		.set<MeshComponent>({ "AnimatedTesting3.gltf" })
+		.set<AnimationComponent>({ true });
+
+	flecs::entity e6 = ecsWorld->CreateEntity("Test6");
+	e6
+		.set<TransfromComponent>({ glm::vec3(15.f, 0.f, 0.f)
+		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) })
+		.set<MeshComponent>({ "AnimatedTesting3.gltf" })
 		.set<AnimationComponent>({ true });   
 
 	// ## Testing some Scripting Stuff ##
@@ -164,12 +204,13 @@ int main()
 	//world->defer_end(); // apply all deferred operations
 	//// Again, if this is not inside a system, you might need a world progress call.
 	//// flecsWorld->progress();
-
+	 
 	while (!Window::shouldClose())
 	{
 		ecsWorld->GetWorld()->progress();
 		Window::clearScreen();
-		Window::processInput();
+		Window::processInput(); 
+
 
 		processKeyInput(Window::getGLFWWindow()); 
 
@@ -185,11 +226,59 @@ int main()
 		     
 		/*nativeCPPScriptManager->UpdateScript();*/
 
-		std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;
+		//std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;
+
+		Mouse::Update();
+		Keyboard::Update(); 
+
+		mu_Context* ctx = MicroUIRenderer::GetContext();
+
+		ctx->style->colors[MU_COLOR_WINDOWBG] = mu_color(0, 0, 0, 0); // fully transparent
+		ctx->style->colors[MU_COLOR_PANELBG] = mu_color(0, 0, 0, 0);  // transparent panels
+
+		mu_begin(ctx);
+
+		meshRenderSystem->DebugMenu(ctx);
+
+		if (mu_begin_window(ctx, "Performance & Debug Info", mu_rect(460, 10, 300, 200)))
+		{
+			// Display FPS
+			float fps = Window::GetFPSValue();
+			char buf[64];
+			sprintf(buf, "FPS: %.1f", fps);
+			mu_label(ctx, buf);
+
+			// Display Frame Time
+			sprintf(buf, "Frame Time: %.2f ms", Window::getdt() * 1000.f);
+			mu_label(ctx, buf);
+
+			// Window size
+			sprintf(buf, "Window Size: %u x %u", Window::getWidth(), Window::getHeight());
+			mu_label(ctx, buf);
+
+			// Background Color Preview
+			mu_label(ctx, "Background Color:");
+			int widths[] = { 20, -1 };
+			mu_layout_row(ctx, 2, widths, 0);
+
+			mu_label(ctx, "R:"); mu_slider(ctx, &Window_r, 0.0f, 1.0f);
+			mu_label(ctx, "G:"); mu_slider(ctx, &Window_g, 0.0f, 1.0f);
+			mu_label(ctx, "B:"); mu_slider(ctx, &Window_b, 0.0f, 1.0f);
+			mu_label(ctx, "A:"); mu_slider(ctx, &Window_a, 0.0f, 1.0f);
+
+			mu_end_window(ctx);
+		}
+
+		mu_end(ctx); 
+
+		MicroUIRenderer::render_debug_ui(); 
+
+		
 
 		Window::update();
 	}  
-	    
+	
+	MicroUIRenderer::DestroyMicroUIRenderer();
 	Window::cleanup();
 }
 
@@ -218,7 +307,7 @@ void processKeyInput(GLFWwindow* window)
 	}*/
 }
 
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+void mouse_pos_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
 	static bool firstMouse = true;
 	static float lastX = 0.0f;
@@ -247,10 +336,79 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 	{
 		camera.OnMousePan(deltaX, deltaY);
 	}
+
+	Mouse::SetMouseMoving(true);
+
+	mu_Context* ctx = MicroUIRenderer::GetContext();
+	mu_input_mousemove(ctx, (int)xposIn, (int)yposIn);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.OnMouseScroll((float)yoffset);
+
+	Mouse::SetMouseWheelX(static_cast<int>(xoffset));
+	Mouse::SetMouseWheelY(static_cast<int>(yoffset));
+
+	mu_Context* ctx = MicroUIRenderer::GetContext();
+	mu_input_scroll(ctx, 0, (int)(yoffset * -30));
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	mu_Context* ctx = MicroUIRenderer::GetContext();
+	int c = MicroUIRenderer::get_key_code(key);
+	if (action == GLFW_PRESS)
+	{
+		Keyboard::OnKeyPressed(key);
+		mu_input_keydown(ctx, c);
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		Keyboard::OnKeyReleased(key);
+		mu_input_keyup(ctx, c);
+	}
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	mu_Context* ctx = MicroUIRenderer::GetContext();
+	int b = MicroUIRenderer::get_mouse_code(button);
+	double x, y;
+	glfwGetCursorPos(window, &x, &y);
+	if (action == GLFW_PRESS)
+	{
+		Mouse::OnBtnPressed(button);
+		mu_input_mousedown(ctx, (int)x, (int)y, b);
+	}
+	else if (action == GLFW_RELEASE)
+	{
+		Mouse::OnBtnReleased(button);
+		mu_input_mouseup(ctx, (int)x, (int)y, b);
+	}
+}
+
+void char_callback(GLFWwindow* window, unsigned int codepoint) {
+	mu_Context* ctx = MicroUIRenderer::GetContext();    
+	char buf[5] = { 0 };
+	if (codepoint <= 0x7F) {
+		buf[0] = (char)codepoint;
+	}
+	else if (codepoint <= 0x7FF) {
+		buf[0] = (char)(0xC0 | (codepoint >> 6));
+		buf[1] = (char)(0x80 | (codepoint & 0x3F));
+	}
+	else if (codepoint <= 0xFFFF) {
+		buf[0] = (char)(0xE0 | (codepoint >> 12));
+		buf[1] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
+		buf[2] = (char)(0x80 | (codepoint & 0x3F));
+	}
+	else if (codepoint <= 0x10FFFF) {
+		buf[0] = (char)(0xF0 | (codepoint >> 18));
+		buf[1] = (char)(0x80 | ((codepoint >> 12) & 0x3F));
+		buf[2] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
+		buf[3] = (char)(0x80 | (codepoint & 0x3F));
+	}
+	mu_input_text(ctx, buf);
 }
 

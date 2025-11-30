@@ -21,6 +21,8 @@
 
 #include "../../Window/Window.h"
 
+#include "../../DEBUGUI/MicroUI.h"
+
 class ENGINE_API MeshRendererSystem
 {
 public:
@@ -30,6 +32,8 @@ public:
 
     void InitMeshRendererSystem();
     void MeshRendererUpdate(glm::mat4 view, glm::mat4 proj);
+
+    void DebugMenu(mu_Context* ctx);
 
 private:
     std::string vertexShaderPath;

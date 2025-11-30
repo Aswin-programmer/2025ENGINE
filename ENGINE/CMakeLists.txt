@@ -30,8 +30,22 @@ add_library(2025ENGINE SHARED
 	"SCRIPTING/NativeCPP/NativeCPPGlobalScript.h"
     "SCRIPTING/NativeCPP/NativeCPPScriptManager.h"
     "SCRIPTING/NativeCPP/NativeCPPScriptManager.cpp"
-
- "RENDERER/MESH/GLTFMESH/GLTFMESHSkeletalAnimationLoader.h" "RENDERER/MESH/GLTFMESH/GLTFMESHSkeletalAnimationLoader.cpp" "ECS/COMPONENTS/AnimationComponent.h" "ECS/COMPONENTS/AnimationComponent.cpp")
+    "RENDERER/MESH/GLTFMESH/GLTFMESHSkeletalAnimationLoader.h" 
+    "RENDERER/MESH/GLTFMESH/GLTFMESHSkeletalAnimationLoader.cpp" 
+    "ECS/COMPONENTS/AnimationComponent.h" 
+    "ECS/COMPONENTS/AnimationComponent.cpp" 
+    "INPUT/Button.h" 
+    "INPUT/Keys.h" 
+    "INPUT/Keys.cpp"  
+    "INPUT/KeyBoard.h" 
+    "INPUT/KeyBoard.cpp" 
+    "INPUT/MouseButtons.h" 
+    "INPUT/MouseButtons.cpp" 
+    "INPUT/Mouse.h" 
+    "INPUT/Mouse.cpp"  
+    "DEBUGUI/MicroUI.h" 
+    "DEBUGUI/MicroUI.cpp" 
+     "DEBUGUI/MicroUIRenderer.h" "DEBUGUI/MicroUIRenderer.cpp")
 
 target_include_directories(2025ENGINE PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"

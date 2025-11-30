@@ -154,7 +154,7 @@ void GLTFMESHRenderer::ProcessNode(
         // build a key per node (could be per primitive if you prefer)
         std::string key = modelName + "_" + (childNode.name.empty() ? ("node" + std::to_string(childIdx)) : childNode.name);
 
-        std::cout << "[" << modelName << "]" << " [" << key << "] " << std::endl;
+        //std::cout << "[" << modelName << "]" << " [" << key << "] " << std::endl;
 
         // If this node already added, increment instances
         auto it = meshStructureForRendering.find(key);
@@ -303,7 +303,7 @@ void GLTFMESHRenderer::ProcessNode(
                                 texture->Bind(GlobalMaterialTextureBindingIndex);
                                 gltfMaterialMapping[modelName] = GlobalMaterialTextureBindingIndex;
                                 gltfMaterialContainer.push_back(GLTFMaterial(GlobalMaterialTextureBindingIndex));
-                                std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
+                                //std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
                                 GlobalMaterialTextureBindingIndex++;
                             }
                         }
@@ -426,7 +426,7 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
         // build a key per node (could be per primitive if you prefer)
         std::string key = modelName + "_" + node.name;
 
-        std::cout << "[" << modelName << "]" << " [" << key << "] " << std::endl;
+        //std::cout << "[" << modelName << "]" << " [" << key << "] " << std::endl;
 
         // If this node already added, increment instances
         auto it = meshStructureForRendering.find(key);
@@ -573,7 +573,7 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
                                 texture->Bind(GlobalMaterialTextureBindingIndex);
                                 gltfMaterialMapping[modelName] = GlobalMaterialTextureBindingIndex;
                                 gltfMaterialContainer.push_back(GLTFMaterial(GlobalMaterialTextureBindingIndex));
-                                std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
+                                //std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
                                 GlobalMaterialTextureBindingIndex++;
                             }
                         }
