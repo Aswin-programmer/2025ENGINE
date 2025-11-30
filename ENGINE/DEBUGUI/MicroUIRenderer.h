@@ -20,29 +20,22 @@
 #include "../WINDOW/Window.h"
 
 struct GLStateBackup {
-	GLboolean blend, cull, depth, scissor;
-	GLint blendSrc, blendDst;
 
-	GLStateBackup() {
-		blend = glIsEnabled(GL_BLEND);
-		cull = glIsEnabled(GL_CULL_FACE);
-		depth = glIsEnabled(GL_DEPTH_TEST);
-		scissor = glIsEnabled(GL_SCISSOR_TEST);
+    GLStateBackup() {
 
-		glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrc);
-		glGetIntegerv(GL_BLEND_DST_RGB, &blendDst);
-	}
+    }
 
-	~GLStateBackup() {
-		blend ? glEnable(GL_BLEND) : glDisable(GL_BLEND);
-		cull ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
-		depth ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
-		scissor ? glEnable(GL_SCISSOR_TEST) : glDisable(GL_SCISSOR_TEST);
-
-		glBlendFunc(blendSrc, blendDst);
-	}
+    ~GLStateBackup() {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_PROGRAM_POINT_SIZE);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
+		glDepthFunc(GL_LESS);
+    }
 };
-
 
 // Layout for our vertex data
 typedef struct {

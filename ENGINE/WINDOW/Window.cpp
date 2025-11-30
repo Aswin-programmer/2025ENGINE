@@ -51,10 +51,10 @@ bool Window::init(const char* title) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_PROGRAM_POINT_SIZE);
-    glEnable(GL_POINT_SPRITE);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
-    glFrontFace(GL_CW);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+    glDepthFunc(GL_LESS);
 
     glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
     glViewport(0, 0, m_width, m_height);
@@ -66,6 +66,14 @@ bool Window::init(const char* title) {
     GLint combinedUnits;
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &combinedUnits);
     std::cout << "Max combined texture image units: " << combinedUnits << std::endl;
+
+    GLint depthEnabled = 0;
+    glGetIntegerv(GL_DEPTH_TEST, &depthEnabled);
+    std::cout << "Depth test enabled? " << depthEnabled << std::endl;
+
+    int depthBits = 0;
+    glGetIntegerv(GL_DEPTH_BITS, &depthBits);
+    std::cout << "Actual depth buffer bits = " << depthBits << std::endl;
 
     beginTime = Time::getTime();
     endTime = beginTime;

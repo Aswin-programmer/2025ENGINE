@@ -47,6 +47,9 @@ EditorCamera camera(45.0f, 640.f / 480.f, 0.1f, 200.0f);
 float GlobalMousePosX = 0.f;
 float GlobalMousePosY = 0.f; 
 
+// Debug Global Setting
+float GlobalDebugWindowShow = false;
+
 int main() 
 {
 	std::shared_ptr<GlobalInformation> globalInformation = std::make_shared<GlobalInformation>();
@@ -128,7 +131,7 @@ int main()
 	std::shared_ptr<ECSWorld> ecsWorld = std::make_shared<ECSWorld>();
 	ecsWorld->InitECSWorld();
 
-	// ############################################
+	// ############################################    
 	      
 	// ######### Setting Up The Renderer ##########
 
@@ -137,7 +140,7 @@ int main()
 		(std::string(RESOURCES_PATH) + "SHADER/GLTF_MODEL/gltf_frag.glsl"),
 		ecsWorld->GetWorld()
 	);
-	meshRenderSystem->InitMeshRendererSystem();
+	meshRenderSystem->InitMeshRendererSystem(); 
 
 	// ############################################
 
@@ -228,53 +231,61 @@ int main()
 
 		//std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;
 
-		Mouse::Update();
-		Keyboard::Update(); 
-
-		mu_Context* ctx = MicroUIRenderer::GetContext();
-
-		ctx->style->colors[MU_COLOR_WINDOWBG] = mu_color(0, 0, 0, 0); // fully transparent
-		ctx->style->colors[MU_COLOR_PANELBG] = mu_color(0, 0, 0, 0);  // transparent panels
-
-		mu_begin(ctx);
-
-		meshRenderSystem->DebugMenu(ctx);
-
-		if (mu_begin_window(ctx, "Performance & Debug Info", mu_rect(460, 10, 300, 200)))
+		if (Keyboard::IsKeyJustPressed(KEY_F5))
 		{
-			// Display FPS
-			float fps = Window::GetFPSValue();
-			char buf[64];
-			sprintf(buf, "FPS: %.1f", fps);
-			mu_label(ctx, buf);
-
-			// Display Frame Time
-			sprintf(buf, "Frame Time: %.2f ms", Window::getdt() * 1000.f);
-			mu_label(ctx, buf);
-
-			// Window size
-			sprintf(buf, "Window Size: %u x %u", Window::getWidth(), Window::getHeight());
-			mu_label(ctx, buf);
-
-			// Background Color Preview
-			mu_label(ctx, "Background Color:");
-			int widths[] = { 20, -1 };
-			mu_layout_row(ctx, 2, widths, 0);
-
-			mu_label(ctx, "R:"); mu_slider(ctx, &Window_r, 0.0f, 1.0f);
-			mu_label(ctx, "G:"); mu_slider(ctx, &Window_g, 0.0f, 1.0f);
-			mu_label(ctx, "B:"); mu_slider(ctx, &Window_b, 0.0f, 1.0f);
-			mu_label(ctx, "A:"); mu_slider(ctx, &Window_a, 0.0f, 1.0f);
-
-			mu_end_window(ctx);
+			GlobalDebugWindowShow = !GlobalDebugWindowShow;
 		}
 
-		mu_end(ctx); 
+		if (GlobalDebugWindowShow)
+		{
+			mu_Context* ctx = MicroUIRenderer::GetContext();
 
-		MicroUIRenderer::render_debug_ui(); 
+			ctx->style->colors[MU_COLOR_WINDOWBG] = mu_color(0, 0, 0, 0); // fully transparent
+			ctx->style->colors[MU_COLOR_PANELBG] = mu_color(0, 0, 0, 0);  // transparent panels
 
+			mu_begin(ctx);
+
+			meshRenderSystem->DebugMenu(ctx);
+
+			if (mu_begin_window(ctx, "Performance & Debug Info", mu_rect(460, 10, 300, 200)))
+			{
+				// Display FPS
+				float fps = Window::GetFPSValue();
+				char buf[64];
+				sprintf(buf, "FPS: %.1f", fps);
+				mu_label(ctx, buf);
+
+				// Display Frame Time
+				sprintf(buf, "Frame Time: %.2f ms", Window::getdt() * 1000.f);
+				mu_label(ctx, buf);
+
+				// Window size
+				sprintf(buf, "Window Size: %u x %u", Window::getWidth(), Window::getHeight());
+				mu_label(ctx, buf);
+
+				// Background Color Preview
+				mu_label(ctx, "Background Color:");
+				int widths[] = { 20, -1 };
+				mu_layout_row(ctx, 2, widths, 0);
+
+				mu_label(ctx, "R:"); mu_slider(ctx, &Window_r, 0.0f, 1.0f);
+				mu_label(ctx, "G:"); mu_slider(ctx, &Window_g, 0.0f, 1.0f);
+				mu_label(ctx, "B:"); mu_slider(ctx, &Window_b, 0.0f, 1.0f);
+				mu_label(ctx, "A:"); mu_slider(ctx, &Window_a, 0.0f, 1.0f);
+
+				mu_end_window(ctx);
+			}
+
+			mu_end(ctx);
+		}
+		 
+		if (GlobalDebugWindowShow)
+		{
+			MicroUIRenderer::render_debug_ui();  
+		}
 		
-
+		Mouse::Update();
+		Keyboard::Update();
 		Window::update();
 	}  
 	
@@ -339,8 +350,11 @@ void mouse_pos_callback(GLFWwindow* window, double xposIn, double yposIn)
 
 	Mouse::SetMouseMoving(true);
 
-	mu_Context* ctx = MicroUIRenderer::GetContext();
-	mu_input_mousemove(ctx, (int)xposIn, (int)yposIn);
+	if (GlobalDebugWindowShow)
+	{
+		mu_Context* ctx = MicroUIRenderer::GetContext();
+		mu_input_mousemove(ctx, (int)xposIn, (int)yposIn);
+	}
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -350,8 +364,11 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	Mouse::SetMouseWheelX(static_cast<int>(xoffset));
 	Mouse::SetMouseWheelY(static_cast<int>(yoffset));
 
-	mu_Context* ctx = MicroUIRenderer::GetContext();
-	mu_input_scroll(ctx, 0, (int)(yoffset * -30));
+	if (GlobalDebugWindowShow)
+	{
+		mu_Context* ctx = MicroUIRenderer::GetContext();
+		mu_input_scroll(ctx, 0, (int)(yoffset * -30));
+	}
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -361,12 +378,20 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (action == GLFW_PRESS)
 	{
 		Keyboard::OnKeyPressed(key);
-		mu_input_keydown(ctx, c);
+
+		if (GlobalDebugWindowShow)
+		{
+			mu_input_keydown(ctx, c);
+		}
 	}
 	else if (action == GLFW_RELEASE)
 	{
 		Keyboard::OnKeyReleased(key);
-		mu_input_keyup(ctx, c);
+
+		if (GlobalDebugWindowShow)
+		{   
+			mu_input_keyup(ctx, c);
+		}
 	}
 }
 
@@ -379,12 +404,20 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	if (action == GLFW_PRESS)
 	{
 		Mouse::OnBtnPressed(button);
-		mu_input_mousedown(ctx, (int)x, (int)y, b);
+
+		if (GlobalDebugWindowShow)
+		{
+			mu_input_mousedown(ctx, (int)x, (int)y, b);
+		}
 	}
 	else if (action == GLFW_RELEASE)
 	{
 		Mouse::OnBtnReleased(button);
-		mu_input_mouseup(ctx, (int)x, (int)y, b);
+
+		if (GlobalDebugWindowShow)
+		{
+			mu_input_mouseup(ctx, (int)x, (int)y, b);
+		}
 	}
 }
 
@@ -409,6 +442,11 @@ void char_callback(GLFWwindow* window, unsigned int codepoint) {
 		buf[2] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
 		buf[3] = (char)(0x80 | (codepoint & 0x3F));
 	}
-	mu_input_text(ctx, buf);
+
+	if (GlobalDebugWindowShow)
+	{
+		mu_input_text(ctx, buf);
+	}
 }
 
+ 
