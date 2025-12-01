@@ -59,26 +59,32 @@ void main()
     {
         Light L = lights[i];
 
-        if(L.gltfLightType == 1) // Ending
+        if(L.gltfLightType == 2) // Ending
             break;
+        else if(L.gltfLightType == 1) // Directional Lighting
+        {
+            // Directional Light: assume position is direction
+            vec3 lightDir = normalize(-L.position); // Directional lights point from light to object
 
-        // Directional Light: assume position is direction
-        vec3 lightDir = normalize(-L.position); // Directional lights point from light to object
+            // Ambient
+            vec3 ambient = L.ambientStrength * L.lightColor;
 
-        // Ambient
-        vec3 ambient = L.ambientStrength * L.lightColor;
+            // Diffuse
+            float diff = max(dot(N, lightDir), 0.0);
+            vec3 diffuse = diff * L.diffuseStrength * L.lightColor;
 
-        // Diffuse
-        float diff = max(dot(N, lightDir), 0.0);
-        vec3 diffuse = diff * L.diffuseStrength * L.lightColor;
+            // Specular
+            vec3 H = normalize(lightDir + V); // Blinn-Phong half-vector
+            float spec = pow(max(dot(N, H), 0.0), 32.0); // shininess = 32
+            vec3 specular = spec * L.specularStrength * L.lightColor;
 
-        // Specular
-        vec3 H = normalize(lightDir + V); // Blinn-Phong half-vector
-        float spec = pow(max(dot(N, H), 0.0), 32.0); // shininess = 32
-        vec3 specular = spec * L.specularStrength * L.lightColor;
-
-        // Accumulate
-        result += ambient + diffuse + specular;
+            // Accumulate
+            result += ambient + diffuse + specular;
+        }  
+        else if(L.gltfLightType == 0)
+        {
+            continue;
+        }
     }
 
     FragColor = vec4(result * color, 1.0);

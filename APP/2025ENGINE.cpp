@@ -28,6 +28,7 @@ extern "C" {
 #include <ECS/COMPONENTS/LightingComponent.h>
 
 #include <ECS/SYSTEMS/MeshRendererSystem.h>
+#include <ECS/SYSTEMS/DebugMenuUISystem.h>
 
 #include <DEBUGUI/MicroUIRenderer.h>
 
@@ -110,7 +111,7 @@ int main()
 	}*/      
 	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING/AnimatedTesting.gltf", true))
 	{
-		std::cout << "Failed to load the sample model!\n";
+		std::cout << "Failed to load the sample model!\n"; 
 	}  
 
 	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_2/AnimatedTesting2.gltf", true))
@@ -146,8 +147,18 @@ int main()
 
 	// ############################################
 
+	// ############################################
 
-	// ##          ##     
+	std::shared_ptr<DebugMenuUISystem> debugMenuUISystem = std::make_shared<DebugMenuUISystem>(
+		MicroUIRenderer::GetContext(),     
+		ecsWorld->GetWorld()
+	);
+	debugMenuUISystem->InitDebugMenuUISystem();
+
+	// #################################################
+
+
+	// ##          ##      
 
 	flecs::entity e1 = ecsWorld->CreateEntity("Test1");
 	e1
@@ -175,30 +186,30 @@ int main()
 		.set<MeshComponent>({ "AnimatedTesting2.gltf" })
 		.set<AnimationComponent>({ true });  
 
-	flecs::entity e5 = ecsWorld->CreateEntity("Test5");
-	e5
-		.set<TransfromComponent>({ glm::vec3(10.f, 0.f, 0.f)
-		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) })
+	flecs::entity e5 = ecsWorld->CreateEntity("Test5"); 
+	e5 
+		.set<TransfromComponent>({ glm::vec3(10.f, 0.f, 0.f)  
+		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) }) 
 		.set<MeshComponent>({ "AnimatedTesting3.gltf" })
 		.set<AnimationComponent>({ true });
-
-	flecs::entity e6 = ecsWorld->CreateEntity("Test6");
+	 
+	flecs::entity e6 = ecsWorld->CreateEntity("Test6"); 
 	e6
 		.set<TransfromComponent>({ glm::vec3(15.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) })
-		.set<MeshComponent>({ "AnimatedTesting3.gltf" })
+		.set<MeshComponent>({ "AnimatedTesting3.gltf" }) 
 		.set<AnimationComponent>({ true });   
 
-	flecs::entity e7 = ecsWorld->CreateEntity("Test7");
-	e7
+	/*flecs::entity e7 = ecsWorld->CreateEntity("Test7");
+	e7 
 		.set<LightingComponent>({
-				GLTFLightType::Directional,
-				glm::vec3(12.0f, 45.0f, 78.0f),
-				glm::vec3(0.8f, 0.1f, 0.3f),
+				GLTFLightType::Directional,   
+				glm::vec3(12.0f, 45.0f, 78.0f),  
+				glm::vec3(0.8f, 0.1f, 0.3f), 
 				0.15f,
 				0.75f,
 				1.25f
-			});
+			});*/
 	 
 	// ## Testing some Scripting Stuff ##
 	 
@@ -251,52 +262,18 @@ int main()
 
 		if (GlobalDebugWindowShow)
 		{
-			mu_Context* ctx = MicroUIRenderer::GetContext();
-
-			ctx->style->colors[MU_COLOR_WINDOWBG] = mu_color(0, 0, 0, 0); // fully transparent
-			ctx->style->colors[MU_COLOR_PANELBG] = mu_color(0, 0, 0, 0);  // transparent panels
-
-			mu_begin(ctx);
-
-			meshRenderSystem->DebugMenu(ctx);
-
-			if (mu_begin_window(ctx, "Performance & Debug Info", mu_rect(460, 10, 300, 200)))
-			{
-				// Display FPS
-				float fps = Window::GetFPSValue();
-				char buf[64];
-				sprintf(buf, "FPS: %.1f", fps);
-				mu_label(ctx, buf);
-
-				// Display Frame Time
-				sprintf(buf, "Frame Time: %.2f ms", Window::getdt() * 1000.f);
-				mu_label(ctx, buf);
-
-				// Window size
-				sprintf(buf, "Window Size: %u x %u", Window::getWidth(), Window::getHeight());
-				mu_label(ctx, buf);
-
-				// Background Color Preview
-				mu_label(ctx, "Background Color:");
-				int widths[] = { 20, -1 };
-				mu_layout_row(ctx, 2, widths, 0);
-
-				mu_label(ctx, "R:"); mu_slider(ctx, &Window_r, 0.0f, 1.0f);
-				mu_label(ctx, "G:"); mu_slider(ctx, &Window_g, 0.0f, 1.0f);
-				mu_label(ctx, "B:"); mu_slider(ctx, &Window_b, 0.0f, 1.0f);
-				mu_label(ctx, "A:"); mu_slider(ctx, &Window_a, 0.0f, 1.0f);
-
-				mu_end_window(ctx);
-			}
-
-			mu_end(ctx);
-		}
+			debugMenuUISystem->StartRenderMenuUISystem();
+			debugMenuUISystem->RenderUIMenu();
+			debugMenuUISystem->PerformanceUIMenu();
+			debugMenuUISystem->EntityManagerMenu();
+			debugMenuUISystem->EndRenderMenuUISystem();
+		}  
 		  
 		if (GlobalDebugWindowShow)
 		{    
 			MicroUIRenderer::render_debug_ui();  
 		}
-		
+		 
 		Mouse::Update();
 		Keyboard::Update();
 		Window::update();
@@ -317,7 +294,7 @@ void processKeyInput(GLFWwindow* window)
 		camera.ProcessKeyboard(FORWARD, Window::getdt());
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) 
 	{
 		camera.ProcessKeyboard(BACKWARD, Window::getdt());
 	}

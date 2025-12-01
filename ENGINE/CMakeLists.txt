@@ -49,7 +49,7 @@ add_library(2025ENGINE SHARED
     "DEBUGUI/MicroUIRenderer.cpp"
     "ECS/COMPONENTS/LightingComponent.h" 
     "ECS/COMPONENTS/LightingComponent.cpp"
-)
+ "ECS/SYSTEMS/DebugMenuUISystem.h" "ECS/SYSTEMS/DebugMenuUISystem.cpp")
 
 target_include_directories(2025ENGINE PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"

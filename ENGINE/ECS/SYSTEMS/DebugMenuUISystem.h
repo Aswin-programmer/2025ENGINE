@@ -11,38 +11,35 @@
 
 #include <flecs.h>
 
-#include "../../RENDERER/MESH/GLTFMESH/GLTFMESHRenderer.h"
-#include "../../RENDERER/MESH/GLTFMESH/GLTFMESHSkeletalAnimationLoader.h"
-#include "../../RENDERER/SHADERS/Shader.h"
-
 #include "../../ECS/COMPONENTS/TransfromComponent.h"
 #include "../../ECS/COMPONENTS/MeshComponent.h"
 #include "../../ECS/COMPONENTS/AnimationComponent.h"
 #include "../../ECS/COMPONENTS/LightingComponent.h"
 
-#include "../../Window/Window.h"
-
 #include "../../DEBUGUI/MicroUI.h"
 
-class ENGINE_API MeshRendererSystem
+class ENGINE_API DebugMenuUISystem
 {
 public:
-    MeshRendererSystem();
-    MeshRendererSystem(std::string vertPath, std::string fragPath, std::shared_ptr<flecs::world> ecsWorld_);
-    ~MeshRendererSystem();
+    DebugMenuUISystem() = default;
+    DebugMenuUISystem(mu_Context* ctx, std::shared_ptr<flecs::world> ecsWorld);
+    ~DebugMenuUISystem();
+    
+    void InitDebugMenuUISystem();
 
-    void InitMeshRendererSystem();
-    void MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm::vec3 cameraPos);
+    void StartRenderMenuUISystem();
+    void RenderUIMenu();
+    void PerformanceUIMenu();
+    void EntityManagerMenu();
+    void EndRenderMenuUISystem();
 
 private:
-    std::string vertexShaderPath;
-    std::string fragmentShaderPath;
-
-    std::shared_ptr<GLTFMESHRenderer> gltfMeshRenderer;
-    std::shared_ptr<Shader> meshRendererShader;
+    mu_Context* ctx = nullptr;
     std::shared_ptr<flecs::world> ecsWorld;
 
     flecs::query<TransfromComponent, MeshComponent> staticMeshRendererQuery;
     flecs::query<TransfromComponent, MeshComponent, AnimationComponent> animatedMeshRendererQuery;
     flecs::query<LightingComponent> lightingQuery;
 };
+
+

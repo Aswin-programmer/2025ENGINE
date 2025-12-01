@@ -10,8 +10,9 @@
 
 enum class GLTFLightType : int
 {
-    Directional = 0,
-    Ending = 1 // Its used to represent the light array have ended. Its can be used for traversal in shader
+    NoLight = 0,
+    Directional = 1,
+    Ending = 2 // Its used to represent the light array have ended. Its can be used for traversal in shader
 };
 
 class ENGINE_API LightingComponent
