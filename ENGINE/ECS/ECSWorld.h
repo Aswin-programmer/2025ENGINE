@@ -13,6 +13,8 @@
 
 #include "COMPONENTS/TransfromComponent.h"
 #include "COMPONENTS/MeshComponent.h"
+#include "COMPONENTS/AnimationComponent.h"
+#include "COMPONENTS/LightingComponent.h"
 
 class ENGINE_API ECSWorld
 {

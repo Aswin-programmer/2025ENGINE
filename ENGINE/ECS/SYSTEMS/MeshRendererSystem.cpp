@@ -35,10 +35,14 @@ void MeshRendererSystem::InitMeshRendererSystem()
     animatedMeshRendererQuery = ecsWorld->query_builder<TransfromComponent, MeshComponent, AnimationComponent>()
         .build();
 
+    // Build lighting query
+    lightingQuery = ecsWorld->query_builder<LightingComponent>()
+        .build();
+
     std::cout << "MeshRendererSystem initialized successfully!" << std::endl;
 }
 
-void MeshRendererSystem::MeshRendererUpdate(glm::mat4 view, glm::mat4 proj)
+void MeshRendererSystem::MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm::vec3 cameraPos)
 {
     if (!ecsWorld) {
         std::cerr << "ECS World is null in MeshRendererUpdate!" << std::endl;
@@ -104,11 +108,37 @@ void MeshRendererSystem::MeshRendererUpdate(glm::mat4 view, glm::mat4 proj)
             }
         });
 
+    lightingQuery.each(
+        [this](flecs::entity e,const LightingComponent& lightingComponent)
+        {
+            try
+            {
+                gltfMeshRenderer->AddLightToTheRenderer(
+                    GLTFLight(
+                        lightingComponent.lightType,
+                        lightingComponent.position,
+                        lightingComponent.lightColor,
+                        lightingComponent.ambientStrength,
+                        lightingComponent.diffuseStrength,
+                        lightingComponent.specularStrength
+                    )
+                ); 
+            }
+            catch (const std::exception& ex)
+            {
+                std::cerr << "Error processing lighting for entity " << e.name() << ": " << ex.what() << std::endl;
+            }
+        }
+    ); 
+
+
+
     // Render all collected models
     gltfMeshRenderer->ExperimentalHelper();
     meshRendererShader->use();
     meshRendererShader->setMat4("view", view);
     meshRendererShader->setMat4("projection", proj);
+    meshRendererShader->setVec3("viewPos", cameraPos);
     gltfMeshRenderer->GLTFMESHRender();
 }
 
@@ -185,6 +215,55 @@ void MeshRendererSystem::DebugMenu(mu_Context* ctx)
 
                     mu_end_treenode(ctx);
                 }
+                });
+        }
+
+        // Lighting Entities
+        if (mu_header(ctx, "Lighting Entities"))
+        {
+            lightingQuery.each([ctx](flecs::entity e, LightingComponent& light)
+                {
+                    if (mu_begin_treenode(ctx, e.name()))
+                    {
+                        char buf[64];
+
+                        // Light Type
+                        sprintf(buf, "Type: %s",
+                            light.lightType == GLTFLightType::Directional ? "Directional" : "Ending");
+                        mu_label(ctx, buf);
+
+                        // --- Light Type Toggle ---
+                        int widths[] = { 80, -1 };
+                        mu_layout_row(ctx, 2, widths, 0);
+
+                        mu_label(ctx, "Directional:");
+                        int typeValue = (int)light.lightType;
+
+                        if (mu_checkbox(ctx, "##lightType", &typeValue)) {
+                            // Clamp to valid enum range
+                            if (typeValue < 0) typeValue = 0;
+                            if (typeValue > 1) typeValue = 1;
+
+                            light.lightType = (GLTFLightType)typeValue;
+                        }
+
+                        // --- Position sliders ---
+                        mu_label(ctx, "Pos X:"); mu_slider(ctx, &light.position.x, -100.f, 100.f);
+                        mu_label(ctx, "Pos Y:"); mu_slider(ctx, &light.position.y, -100.f, 100.f);
+                        mu_label(ctx, "Pos Z:"); mu_slider(ctx, &light.position.z, -100.f, 100.f);
+
+                        // --- Color sliders ---
+                        mu_label(ctx, "Color R:"); mu_slider(ctx, &light.lightColor.r, 0.f, 1.f);
+                        mu_label(ctx, "Color G:"); mu_slider(ctx, &light.lightColor.g, 0.f, 1.f);
+                        mu_label(ctx, "Color B:"); mu_slider(ctx, &light.lightColor.b, 0.f, 1.f);
+
+                        // --- Strength sliders ---
+                        mu_label(ctx, "Ambient:");  mu_slider(ctx, &light.ambientStrength, 0.f, 5.f);
+                        mu_label(ctx, "Diffuse:");  mu_slider(ctx, &light.diffuseStrength, 0.f, 5.f);
+                        mu_label(ctx, "Specular:"); mu_slider(ctx, &light.specularStrength, 0.f, 5.f);
+
+                        mu_end_treenode(ctx);
+                    }
                 });
         }
 

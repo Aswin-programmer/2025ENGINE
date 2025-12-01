@@ -29,6 +29,7 @@ GLTFMESHRenderer::~GLTFMESHRenderer()
     if (OrientationSSBO) glDeleteBuffers(1, &OrientationSSBO);
     if (MaterialSSBO) glDeleteBuffers(1, &MaterialSSBO);
     if (AnimationSSBO) glDeleteBuffers(1, &AnimationSSBO);
+    if (LightSSBO) glDeleteBuffers(1, &LightSSBO);
     if (IndirectCommandBuffer) glDeleteBuffers(1, &IndirectCommandBuffer);
     if (meshVAO) glDeleteVertexArrays(1, &meshVAO);
 }
@@ -94,23 +95,28 @@ void GLTFMESHRenderer::SetupGLTFMESHRenderer()
     // Orientation SSBO (binding 0)
     glCreateBuffers(1, &OrientationSSBO);
     // size for instances (parameterize if needed)
-    glNamedBufferStorage(OrientationSSBO, sizeof(GLTFModelOrientation) * 20000, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(OrientationSSBO, sizeof(GLTFModelOrientation) * MAX_GLTF_MODEL_ORENTATIONS, nullptr, GL_DYNAMIC_STORAGE_BIT);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, OrientationSSBO);
 
     // Material SSBO (binding 1)
     glCreateBuffers(1, &MaterialSSBO);
     // size for instances (parameterize if needed)
-    glNamedBufferStorage(MaterialSSBO, sizeof(GLTFMaterial) * 2000, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(MaterialSSBO, sizeof(GLTFMaterial) * MAX_GLTF_MATERIALS, nullptr, GL_DYNAMIC_STORAGE_BIT);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, MaterialSSBO);
 
     // Animation SSBO (binding 2)
     glCreateBuffers(1, &AnimationSSBO);
-    glNamedBufferStorage(AnimationSSBO, sizeof(GLTFAnimations) * 2000, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(AnimationSSBO, sizeof(GLTFAnimations) * MAX_GLTF_ANIMATIONS, nullptr, GL_DYNAMIC_STORAGE_BIT);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, AnimationSSBO);
+
+    // Light SSBO (binding 3)
+    glCreateBuffers(1, &LightSSBO);
+    glNamedBufferStorage(LightSSBO, sizeof(GLTFLight) * MAX_GLTF_LIGHTS, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, LightSSBO);
 
     // Indirect command buffer
     glCreateBuffers(1, &IndirectCommandBuffer);
-    glNamedBufferStorage(IndirectCommandBuffer, sizeof(DrawElementsIndirectCommand) * 4096, nullptr, GL_DYNAMIC_STORAGE_BIT);
+    glNamedBufferStorage(IndirectCommandBuffer, sizeof(DrawElementsIndirectCommand) * MAX_INDIRECT_DRAWCALLS, nullptr, GL_DYNAMIC_STORAGE_BIT);
 }
 
 void GLTFMESHRenderer::CleanUp()
@@ -121,6 +127,7 @@ void GLTFMESHRenderer::CleanUp()
     gltfMaterialMapping.clear();
     gltfAnimationMapping.clear();
     gltfAnimationsContainer.clear();
+    gltfLightsContainer.clear();
     GlobalAnimationBindingIndex = 0;
     indirectCommands.clear();
 
@@ -671,6 +678,18 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
     return true;
 }
 
+bool GLTFMESHRenderer::AddLightToTheRenderer(const GLTFLight& light)
+{
+    if (gltfLightsContainer.size() == MAX_GLTF_LIGHTS)
+    {
+        std::cout << "[GLTFMESHRenderer] The gltfLightsContainer is full!." << std::endl;
+        return false;
+    }
+
+    gltfLightsContainer.push_back(light);
+    return true;
+}
+
 void GLTFMESHRenderer::GLTFMESHRender()
 {
     PROFILE_SCOPE_N("Renderer::render");
@@ -989,6 +1008,14 @@ void GLTFMESHRenderer::ExperimentalHelper()
     {
         glNamedBufferSubData(AnimationSSBO, 0
             , gltfAnimationsContainer.size() * sizeof(GLTFAnimations), gltfAnimationsContainer.data());
+    }
+
+    // Uploading the Lights Struct Here!.
+    // Uploading the final one to mark the end of the GLTFLights SSBO.
+    gltfLightsContainer.push_back(GLTFLight(GLTFLightType::Ending));
+    if (!gltfLightsContainer.empty())
+    {
+        glNamedBufferSubData(LightSSBO, 0, gltfLightsContainer.size() * sizeof(GLTFLight), gltfLightsContainer.data());
     }
      
     // Upload indirect commands

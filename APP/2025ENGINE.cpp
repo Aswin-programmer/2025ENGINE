@@ -25,6 +25,8 @@ extern "C" {
 #include <ECS/COMPONENTS/MeshComponent.h>
 #include <ECS/COMPONENTS/TransfromComponent.h>
 #include <ECS/COMPONENTS/AnimationComponent.h>
+#include <ECS/COMPONENTS/LightingComponent.h>
+
 #include <ECS/SYSTEMS/MeshRendererSystem.h>
 
 #include <DEBUGUI/MicroUIRenderer.h>
@@ -187,6 +189,17 @@ int main()
 		.set<MeshComponent>({ "AnimatedTesting3.gltf" })
 		.set<AnimationComponent>({ true });   
 
+	flecs::entity e7 = ecsWorld->CreateEntity("Test7");
+	e7
+		.set<LightingComponent>({
+				GLTFLightType::Directional,
+				glm::vec3(12.0f, 45.0f, 78.0f),
+				glm::vec3(0.8f, 0.1f, 0.3f),
+				0.15f,
+				0.75f,
+				1.25f
+			});
+	 
 	// ## Testing some Scripting Stuff ##
 	 
 	// ## Testing some Scripting Stuff ##
@@ -225,7 +238,7 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		shader3.setMat4("view", view);
 
-		meshRenderSystem->MeshRendererUpdate(view, projectionP);        
+		meshRenderSystem->MeshRendererUpdate(view, projectionP, camera.GetPosition());        
 		     
 		/*nativeCPPScriptManager->UpdateScript();*/
 
@@ -278,9 +291,9 @@ int main()
 
 			mu_end(ctx);
 		}
-		 
+		  
 		if (GlobalDebugWindowShow)
-		{
+		{    
 			MicroUIRenderer::render_debug_ui();  
 		}
 		

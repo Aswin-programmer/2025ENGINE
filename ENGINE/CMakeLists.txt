@@ -45,7 +45,11 @@ add_library(2025ENGINE SHARED
     "INPUT/Mouse.cpp"  
     "DEBUGUI/MicroUI.h" 
     "DEBUGUI/MicroUI.cpp" 
-     "DEBUGUI/MicroUIRenderer.h" "DEBUGUI/MicroUIRenderer.cpp")
+    "DEBUGUI/MicroUIRenderer.h"
+    "DEBUGUI/MicroUIRenderer.cpp"
+    "ECS/COMPONENTS/LightingComponent.h" 
+    "ECS/COMPONENTS/LightingComponent.cpp"
+)
 
 target_include_directories(2025ENGINE PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"

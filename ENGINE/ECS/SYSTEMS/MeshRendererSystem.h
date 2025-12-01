@@ -18,6 +18,7 @@
 #include "../../ECS/COMPONENTS/TransfromComponent.h"
 #include "../../ECS/COMPONENTS/MeshComponent.h"
 #include "../../ECS/COMPONENTS/AnimationComponent.h"
+#include "../../ECS/COMPONENTS/LightingComponent.h"
 
 #include "../../Window/Window.h"
 
@@ -31,7 +32,7 @@ public:
     ~MeshRendererSystem();
 
     void InitMeshRendererSystem();
-    void MeshRendererUpdate(glm::mat4 view, glm::mat4 proj);
+    void MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm::vec3 cameraPos);
 
     void DebugMenu(mu_Context* ctx);
 
@@ -42,6 +43,8 @@ private:
     std::shared_ptr<GLTFMESHRenderer> gltfMeshRenderer;
     std::shared_ptr<Shader> meshRendererShader;
     std::shared_ptr<flecs::world> ecsWorld;
+
     flecs::query<TransfromComponent, MeshComponent> staticMeshRendererQuery;
     flecs::query<TransfromComponent, MeshComponent, AnimationComponent> animatedMeshRendererQuery;
+    flecs::query<LightingComponent> lightingQuery;
 };

@@ -17,6 +17,9 @@
 #include <tiny_gltf.h>
 #include "GLTFMESHLoader.h"
 #include "GLTFMESHSkeletalAnimationLoader.h"
+
+#include "../../../ECS/COMPONENTS/LightingComponent.h"
+
 #include "../../SHADERS/Shader.h"
 
 #include "PROFILING/Profiler.h"
@@ -30,11 +33,31 @@ constexpr size_t MAX_INDICES = MAX_TRIANGLES * 3;
 constexpr size_t MAX_JOINTS_PER_VERTEX = MAX_TRIANGLES * 4;
 constexpr size_t MAX_WEIGHTS_PER_VERTEX = MAX_TRIANGLES * 4;
 
-struct ENGINE_API DrawElementsIndirectCommand
+constexpr size_t MAX_GLTF_MODEL_ORENTATIONS = 20000;
+constexpr size_t MAX_GLTF_MATERIALS = 2000;
+constexpr size_t MAX_GLTF_ANIMATIONS = 200;
+constexpr size_t MAX_GLTF_LIGHTS = 100;
+constexpr size_t MAX_INDIRECT_DRAWCALLS = 4096;
+
+struct DrawElementsIndirectCommand
 {
     DrawElementsIndirectCommand() = default;
-    DrawElementsIndirectCommand(GLuint _count, GLuint _primCount, GLuint _firstIndex, GLuint _baseVertex, GLuint _baseInstance)
-        : count(_count), primCount(_primCount), firstIndex(_firstIndex), baseVertex(_baseVertex), baseInstance(_baseInstance) {}
+    DrawElementsIndirectCommand(
+        GLuint _count, 
+        GLuint _primCount, 
+        GLuint _firstIndex, 
+        GLuint _baseVertex, 
+        GLuint _baseInstance
+    )
+        : 
+        count(_count), 
+        primCount(_primCount), 
+        firstIndex(_firstIndex), 
+        baseVertex(_baseVertex), 
+        baseInstance(_baseInstance) 
+    {
+
+    }
 
     GLuint count = 0;        // number of indices
     GLuint primCount = 0;    // instance count
@@ -118,6 +141,50 @@ struct GLTFAnimations
     }
 };
 
+struct GLTFLight
+{
+    glm::vec3 position;
+    int gltfLightType;
+    glm::vec3 lightColor; //Diffue
+    float ambientStrength;
+    float diffuseStrength;
+    float specularStrength;
+    glm::vec2 padding;//Temp
+
+    GLTFLight() = default;
+    GLTFLight(
+        GLTFLightType gltfLightType,
+        glm::vec3 position,
+        glm::vec3 lightColor,
+        float ambientStrength,
+        float diffuseStrength,
+        float specularStrength
+    )
+        :
+        gltfLightType{ (int)gltfLightType },
+        position{ position },
+        lightColor{ lightColor },
+        ambientStrength{ ambientStrength },
+        diffuseStrength{ diffuseStrength },
+        specularStrength{ specularStrength },
+        padding{ glm::vec2(1.f) }
+    {
+
+    }
+    GLTFLight(GLTFLightType type)
+        : 
+        gltfLightType{ (int)type },
+        position{ glm::vec3(1.0f) },
+        lightColor{ glm::vec3(1.0f) },
+        ambientStrength{ 0.0f },
+        diffuseStrength{ 0.0f },
+        specularStrength{ 0.0f },
+        padding{ 0.0f, 0.0f }
+    {
+
+    }
+};
+
 struct MeshStructureForRendering
 {
     std::string meshName;
@@ -142,6 +209,8 @@ public:
         std::vector<glm::mat4> boneMatrices = std::vector<glm::mat4>(MAX_JOINTS, glm::mat4(1.f))
     );
 
+    bool AddLightToTheRenderer(const GLTFLight& light);
+
     // Render all added meshes (uploads changed buffers automatically)
     void GLTFMESHRender();
 
@@ -164,6 +233,7 @@ private:
     GLuint OrientationSSBO = 0;
     GLuint MaterialSSBO = 0;
     GLuint AnimationSSBO = 0;
+    GLuint LightSSBO = 0;
     GLuint IndirectCommandBuffer = 0;
 
     int GlobalMaterialTextureBindingIndex = 0;
@@ -188,6 +258,7 @@ private:
     std::vector<GLTFMaterial> gltfMaterialContainer;
     std::unordered_map<std::string, int> gltfAnimationMapping;
     std::vector<GLTFAnimations> gltfAnimationsContainer;
+    std::vector<GLTFLight> gltfLightsContainer;
 
     // Indirect draw commands (built from meshStructureForRendering + orientations)
     std::vector<DrawElementsIndirectCommand> indirectCommands;
