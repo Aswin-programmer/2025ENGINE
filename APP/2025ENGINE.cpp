@@ -164,49 +164,67 @@ int main()
 	e1
 		.set<TransfromComponent>({ glm::vec3(0.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(50.f, 50.f, 50.f) })
-		.set<MeshComponent>({ "Avocado.gltf" });
+		.set<MeshComponent>({ 
+			"Avocado.gltf",
+			1, 1, 1
+		});
 
 	flecs::entity e2 = ecsWorld->CreateEntity("Test2");
 	e2
 		.set<TransfromComponent>({ glm::vec3(0.f, 2.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(50.f, 50.f, 50.f) })
-		.set<MeshComponent>({ "Avocado.gltf" });
+		.set<MeshComponent>({ 
+			"Avocado.gltf",
+			1, 1, 1
+		});
 
 	flecs::entity e3 = ecsWorld->CreateEntity("Test3");
 	e3
 		.set<TransfromComponent>({ glm::vec3(0.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(5.f, 5.f, 5.f) })
-		.set<MeshComponent>({ "AnimatedTesting.gltf" })
+		.set<MeshComponent>({ 
+			"AnimatedTesting.gltf",
+			1, 1, 1
+		})
 		.set<AnimationComponent>({ true }); 
 
 	flecs::entity e4 = ecsWorld->CreateEntity("Test4"); 
 	e4
 		.set<TransfromComponent>({ glm::vec3(50.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(3.f, 3.f, 3.f) })
-		.set<MeshComponent>({ "AnimatedTesting2.gltf" })
+		.set<MeshComponent>({ 
+			"AnimatedTesting2.gltf",
+			1, 1, 1
+		})
 		.set<AnimationComponent>({ true });  
 
 	flecs::entity e5 = ecsWorld->CreateEntity("Test5"); 
 	e5 
 		.set<TransfromComponent>({ glm::vec3(10.f, 0.f, 0.f)  
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) }) 
-		.set<MeshComponent>({ "AnimatedTesting3.gltf" })
+		.set<MeshComponent>({ 
+			"AnimatedTesting3.gltf",
+			1, 1, 1
+		})
 		.set<AnimationComponent>({ true });
 	 
 	flecs::entity e6 = ecsWorld->CreateEntity("Test6"); 
 	e6
 		.set<TransfromComponent>({ glm::vec3(15.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) })
-		.set<MeshComponent>({ "AnimatedTesting3.gltf" }) 
+		.set<MeshComponent>({ 
+			"AnimatedTesting3.gltf",
+			1, 1, 1
+		}) 
 		.set<AnimationComponent>({ true });   
 
 	/*flecs::entity e7 = ecsWorld->CreateEntity("Test7");
-	e7 
+	e7  
 		.set<LightingComponent>({
 				GLTFLightType::Directional,   
-				glm::vec3(12.0f, 45.0f, 78.0f),  
+				glm::vec3(12.0f, 45.0f, 78.0f),   
 				glm::vec3(0.8f, 0.1f, 0.3f), 
-				0.15f,
+				0.15f, 
 				0.75f,
 				1.25f
 			});*/
@@ -214,7 +232,7 @@ int main()
 	// ## Testing some Scripting Stuff ##
 	 
 	// ## Testing some Scripting Stuff ##
-
+	 
 	//std::shared_ptr<NativeCPPScriptManager> nativeCPPScriptManager
 	//	= std::make_shared<NativeCPPScriptManager>(SCRIPT_PATH + std::string("ScriptImpl.dll"));
 	//nativeCPPScriptManager->LoadDependencies(ecsWorld);

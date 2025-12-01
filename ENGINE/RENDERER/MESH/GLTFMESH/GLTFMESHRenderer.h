@@ -93,14 +93,32 @@ struct GLTFModelOrientation
 struct GLTFMaterial
 {
     int materialBindingIndex; // Stores the input of GL_TEXTURE_0
-    int temp1;
-    int temt2;
-    int temp3;
+    float ambientStrength;
+    float diffuseStrength;
+    float specularStrength;
 
     GLTFMaterial() = default;
     GLTFMaterial(const int materialBindingIndex)
         :
-        materialBindingIndex{materialBindingIndex}
+        materialBindingIndex{materialBindingIndex},
+        ambientStrength{1},
+        diffuseStrength{1},
+        specularStrength{1}
+    {
+
+    }
+
+    GLTFMaterial(
+        const int materialBindingIndex,
+        float ambientStrength,
+        float diffuseStrength,
+        float specularStrength
+    )
+        :
+        materialBindingIndex{ materialBindingIndex },
+        ambientStrength{ ambientStrength },
+        diffuseStrength{ diffuseStrength },
+        specularStrength{ specularStrength }
     {
 
     }
@@ -206,7 +224,10 @@ public:
         const std::string& modelName,
         const GLTFModelOrientation& orientation,
         bool isAnimationNeeded,
-        std::vector<glm::mat4> boneMatrices = std::vector<glm::mat4>(MAX_JOINTS, glm::mat4(1.f))
+        std::vector<glm::mat4> boneMatrices,
+        float ambientStrength,
+        float diffuseStrength,
+        float specularStrength
     );
 
     bool AddLightToTheRenderer(const GLTFLight& light);
@@ -279,6 +300,9 @@ private:
         tinygltf::Model& model, 
         const GLTFModelOrientation& gltfModelOrientation,
         bool isAnimationNeeded,
-        std::vector<glm::mat4> boneMatrices
+        std::vector<glm::mat4> boneMatrices,
+        float ambientStrength,
+        float diffuseStrength,
+        float specularStrength
     );
 };

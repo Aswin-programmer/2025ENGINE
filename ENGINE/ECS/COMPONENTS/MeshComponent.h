@@ -14,7 +14,12 @@ struct ENGINE_API MeshComponent
 {
 public:
 	MeshComponent() = default;
-	MeshComponent(std::string MeshName_);
+	MeshComponent(
+		std::string MeshName_,
+		float ambientStrength,
+		float diffuseStrength,
+		float specularStrength
+	);
 	~MeshComponent() = default;
 
 	void UpdateMeshName(std::string MeshName_);
@@ -22,4 +27,7 @@ public:
 	std::string GetStrippedMeshName();
 public:
 	std::string MeshName = "NIL";
+	float ambientStrength;
+	float diffuseStrength;
+	float specularStrength;
 };

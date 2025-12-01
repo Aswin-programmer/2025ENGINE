@@ -95,6 +95,11 @@ void DebugMenuUISystem::RenderUIMenu()
                     mu_label(ctx, "Scale Y:"); mu_slider(ctx, &transform.Scale.y, -(myMaxMin + fabsf(transform.Scale.y)), myMaxMin + fabsf(transform.Scale.y));
                     mu_label(ctx, "Scale Z:"); mu_slider(ctx, &transform.Scale.z, -(myMaxMin + fabsf(transform.Scale.z)), myMaxMin + fabsf(transform.Scale.z));
 
+                    // -- Material Sliders--
+                    mu_label(ctx, "Ambient:");  mu_slider(ctx, &mesh.ambientStrength, -(myMaxMin + fabsf(mesh.ambientStrength)), myMaxMin + fabsf(mesh.ambientStrength));
+                    mu_label(ctx, "Diffuse:");  mu_slider(ctx, &mesh.diffuseStrength, -(myMaxMin + fabsf(mesh.diffuseStrength)), myMaxMin + fabsf(mesh.diffuseStrength));
+                    mu_label(ctx, "Specular:"); mu_slider(ctx, &mesh.specularStrength, -(myMaxMin + fabsf(mesh.specularStrength)), myMaxMin + fabsf(mesh.specularStrength));
+
                     mu_end_treenode(ctx);
                 }
                 });
@@ -149,6 +154,11 @@ void DebugMenuUISystem::RenderUIMenu()
                     mu_label(ctx, "Scale X:"); mu_slider(ctx, &transform.Scale.x, -(myMaxMin + fabsf(transform.Scale.x)), myMaxMin + fabsf(transform.Scale.x));
                     mu_label(ctx, "Scale Y:"); mu_slider(ctx, &transform.Scale.y, -(myMaxMin + fabsf(transform.Scale.y)), myMaxMin + fabsf(transform.Scale.y));
                     mu_label(ctx, "Scale Z:"); mu_slider(ctx, &transform.Scale.z, -(myMaxMin + fabsf(transform.Scale.z)), myMaxMin + fabsf(transform.Scale.z));
+
+                    // -- Material Sliders--
+                    mu_label(ctx, "Ambient:");  mu_slider(ctx, &mesh.ambientStrength, -(myMaxMin + fabsf(mesh.ambientStrength)), myMaxMin + fabsf(mesh.ambientStrength));
+                    mu_label(ctx, "Diffuse:");  mu_slider(ctx, &mesh.diffuseStrength, -(myMaxMin + fabsf(mesh.diffuseStrength)), myMaxMin + fabsf(mesh.diffuseStrength));
+                    mu_label(ctx, "Specular:"); mu_slider(ctx, &mesh.specularStrength, -(myMaxMin + fabsf(mesh.specularStrength)), myMaxMin + fabsf(mesh.specularStrength));
 
                     mu_end_treenode(ctx);
                 }
@@ -313,7 +323,10 @@ void DebugMenuUISystem::EntityManagerMenu()
                 }
                 if (isMeshComponentPresent)
                 {
-                    newE.set<MeshComponent>({ meshName });
+                    newE.set<MeshComponent>({ 
+                        meshName,
+                        1, 1, 1
+                });
                 }
                 if (isAnimationComponentPresent)
                 {

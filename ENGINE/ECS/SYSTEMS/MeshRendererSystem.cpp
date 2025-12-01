@@ -75,7 +75,10 @@ void MeshRendererSystem::MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm:
                         -1, -1
                     ),
                     true,
-                    std::vector<glm::mat4>(MAX_JOINTS, glm::mat4(1.f))
+                    std::vector<glm::mat4>(MAX_JOINTS, glm::mat4(1.f)),
+                    mesh.ambientStrength,
+                    mesh.diffuseStrength,
+                    mesh.specularStrength
                 );
             }
             catch (const std::exception& ex) {
@@ -100,7 +103,10 @@ void MeshRendererSystem::MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm:
                         -1, -1
                     ),
                     true,
-                    jointMatrices
+                    jointMatrices,
+                    mesh.ambientStrength,
+                    mesh.diffuseStrength,
+                    mesh.specularStrength
                 );
             }
             catch (const std::exception& ex) {

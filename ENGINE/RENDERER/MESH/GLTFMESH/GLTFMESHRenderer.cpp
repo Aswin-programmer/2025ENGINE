@@ -125,6 +125,7 @@ void GLTFMESHRenderer::CleanUp()
     primitivesOrientationPerMesh.clear();
     GlobalMaterialTextureBindingIndex = 0;
     gltfMaterialMapping.clear();
+    gltfMaterialContainer.clear();
     gltfAnimationMapping.clear();
     gltfAnimationsContainer.clear();
     gltfLightsContainer.clear();
@@ -149,7 +150,10 @@ void GLTFMESHRenderer::ProcessNode(
     tinygltf::Model& model, 
     const GLTFModelOrientation& gltfModelOrientation,
     bool isAnimationNeeded,
-    std::vector<glm::mat4> boneMatrices
+    std::vector<glm::mat4> boneMatrices,
+    float ambientStrength,
+    float diffuseStrength,
+    float specularStrength
 )
 {
     const tinygltf::Node& node = model.nodes[nodeIdx];
@@ -309,7 +313,12 @@ void GLTFMESHRenderer::ProcessNode(
                                 std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
                                 texture->Bind(GlobalMaterialTextureBindingIndex);
                                 gltfMaterialMapping[modelName] = GlobalMaterialTextureBindingIndex;
-                                gltfMaterialContainer.push_back(GLTFMaterial(GlobalMaterialTextureBindingIndex));
+                                gltfMaterialContainer.push_back(GLTFMaterial(
+                                    GlobalMaterialTextureBindingIndex,
+                                    ambientStrength,
+                                    diffuseStrength,
+                                    specularStrength
+                                ));
                                 //std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
                                 GlobalMaterialTextureBindingIndex++;
                             }
@@ -330,7 +339,17 @@ void GLTFMESHRenderer::ProcessNode(
             }
             else
             {
-                ProcessNode(childIdx, modelName, model, gltfModelOrientation, isAnimationNeeded, boneMatrices);
+                ProcessNode(
+                    childIdx, 
+                    modelName, 
+                    model, 
+                    gltfModelOrientation, 
+                    isAnimationNeeded, 
+                    boneMatrices,
+                    ambientStrength,
+                    diffuseStrength,
+                    specularStrength
+                );
                 continue;
             }
         }
@@ -401,7 +420,17 @@ void GLTFMESHRenderer::ProcessNode(
 
         for (int childChildIdx : childNode.children)
         {
-            ProcessNode(childChildIdx, modelName, model, gltfModelOrientation, isAnimationNeeded, boneMatrices);
+            ProcessNode(
+                childChildIdx, 
+                modelName, 
+                model, 
+                gltfModelOrientation, 
+                isAnimationNeeded, 
+                boneMatrices,
+                ambientStrength,
+                diffuseStrength,
+                specularStrength
+            );
         }
     } // node loop
 }
@@ -411,7 +440,10 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
     const std::string& modelName, 
     const GLTFModelOrientation& gltfModelOrientation,
     bool isAnimationNeeded,
-    std::vector<glm::mat4> boneMatrices
+    std::vector<glm::mat4> boneMatrices,
+    float ambientStrength,
+    float diffuseStrength,
+    float specularStrength
 )
 {
     // Get model by reference (no copy)
@@ -579,7 +611,12 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
                                 std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
                                 texture->Bind(GlobalMaterialTextureBindingIndex);
                                 gltfMaterialMapping[modelName] = GlobalMaterialTextureBindingIndex;
-                                gltfMaterialContainer.push_back(GLTFMaterial(GlobalMaterialTextureBindingIndex));
+                                gltfMaterialContainer.push_back(GLTFMaterial(
+                                    GlobalMaterialTextureBindingIndex,
+                                    ambientStrength,
+                                    diffuseStrength,
+                                    specularStrength
+                                ));
                                 //std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
                                 GlobalMaterialTextureBindingIndex++;
                             }
@@ -600,7 +637,17 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
             }
             else
             {
-                ProcessNode(nodeIdx, modelName, model, gltfModelOrientation, isAnimationNeeded, boneMatrices);
+                ProcessNode(
+                    nodeIdx, 
+                    modelName, 
+                    model, 
+                    gltfModelOrientation, 
+                    isAnimationNeeded, 
+                    boneMatrices,
+                    ambientStrength,
+                    diffuseStrength,
+                    specularStrength
+                );
                 continue;
             }
         }
@@ -669,7 +716,17 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
         // Always push orientation for this instance
         primitivesOrientationPerMesh[key].push_back(primOrient);
 
-        ProcessNode(nodeIdx, modelName, model, gltfModelOrientation, isAnimationNeeded, boneMatrices);
+        ProcessNode(
+            nodeIdx, 
+            modelName, 
+            model, 
+            gltfModelOrientation, 
+            isAnimationNeeded, 
+            boneMatrices,
+            ambientStrength,
+            diffuseStrength,
+            specularStrength
+        );
 
     } // node loop
 

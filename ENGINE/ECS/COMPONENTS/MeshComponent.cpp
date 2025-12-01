@@ -1,8 +1,16 @@
 #include "MeshComponent.h"
 
-MeshComponent::MeshComponent(std::string MeshName_)
+MeshComponent::MeshComponent(
+	std::string MeshName_,
+	float ambientStrength,
+	float diffuseStrength,
+	float specularStrength
+)
 	:
-	MeshName{MeshName_}
+	MeshName{MeshName_},
+	ambientStrength{ ambientStrength },
+	diffuseStrength{ diffuseStrength },
+	specularStrength{ specularStrength }
 {
 }
 
