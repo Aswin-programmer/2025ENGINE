@@ -6,7 +6,12 @@ LightingComponent::LightingComponent(
 	glm::vec3 lightColor, 
 	float ambientStrength, 
 	float diffuseStrength, 
-	float specularStrength
+	float specularStrength,
+	float constant,
+	float linear,
+	float quadratic,
+	glm::vec3 direction,
+	float cutOff
 )
 	:
 	lightType{ gltfLightType },
@@ -14,6 +19,11 @@ LightingComponent::LightingComponent(
 	lightColor{ lightColor },
 	ambientStrength{ ambientStrength },
 	diffuseStrength{ diffuseStrength },
-	specularStrength{ specularStrength }
+	specularStrength{ specularStrength },
+	constant{constant},
+	linear{linear},
+	quadratic{quadratic},
+	direction{direction},
+	cutOff{cutOff}
 {
 }

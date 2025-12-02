@@ -118,16 +118,26 @@ int main()
 	{
 		std::cout << "Failed to load the sample model!\n";
 	}
-
+	 
 	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_3/AnimatedTesting3.gltf", true))
 	{
-		std::cout << "Failed to load the sample model!\n";
+		std::cout << "Failed to load the sample model!\n";  
 	}
 	 
 	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/AVOCADO/Avocado.gltf"))
 	{
 		std::cout << "Failed to load the sample model!\n";
 	} 
+
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/LIGHT/light.gltf"))
+	{
+		std::cout << "Failed to load the sample model!\n";
+	}
+
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/CUBE/cube.gltf"))
+	{
+		std::cout << "Failed to load the sample model!\n";
+	}
 
 	// ######### Setting Up The ECS      ##########
 
@@ -166,9 +176,9 @@ int main()
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(50.f, 50.f, 50.f) })
 		.set<MeshComponent>({ 
 			"Avocado.gltf",
-			1, 1, 1
+			1, 1, 1  
 		});
-
+	   
 	flecs::entity e2 = ecsWorld->CreateEntity("Test2");
 	e2
 		.set<TransfromComponent>({ glm::vec3(0.f, 2.f, 0.f)
@@ -202,13 +212,13 @@ int main()
 	e5 
 		.set<TransfromComponent>({ glm::vec3(10.f, 0.f, 0.f)  
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) }) 
-		.set<MeshComponent>({ 
-			"AnimatedTesting3.gltf",
+		.set<MeshComponent>({  
+			"AnimatedTesting3.gltf", 
 			1, 1, 1
 		})
 		.set<AnimationComponent>({ true });
 	 
-	flecs::entity e6 = ecsWorld->CreateEntity("Test6"); 
+	flecs::entity e6 = ecsWorld->CreateEntity("Test6");  
 	e6
 		.set<TransfromComponent>({ glm::vec3(15.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) })
@@ -218,16 +228,23 @@ int main()
 		}) 
 		.set<AnimationComponent>({ true });   
 
-	/*flecs::entity e7 = ecsWorld->CreateEntity("Test7");
-	e7  
+	flecs::entity e7 = ecsWorld->CreateEntity("Test7");
+	e7   
+		.set<TransfromComponent>({ glm::vec3(15.f, 0.f, 0.f)
+		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) })
 		.set<LightingComponent>({
 				GLTFLightType::Directional,   
-				glm::vec3(12.0f, 45.0f, 78.0f),   
+				glm::vec3(12.0f, 45.0f, 78.0f),     
 				glm::vec3(0.8f, 0.1f, 0.3f), 
 				0.15f, 
-				0.75f,
-				1.25f
-			});*/
+				0.75f,    
+				1.25f,
+				1.0f,
+				0.7f,
+				1.8f,
+				glm::vec3{1.f},
+				1.f
+			}); 
 	 
 	// ## Testing some Scripting Stuff ##
 	 
@@ -259,14 +276,14 @@ int main()
 
 		processKeyInput(Window::getGLFWWindow()); 
 
-		// Create projection matrices [PERSPECTIVE]
+		// Create projection matrices [PERSPECTIVE] 
 		glm::mat4 projectionP = glm::mat4(1.0f);
 		projectionP = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 200.0f);
 
 		// Camera or View transformation
 		glm::mat4 view = camera.GetViewMatrix();
 		shader3.setMat4("view", view);
-
+		 
 		meshRenderSystem->MeshRendererUpdate(view, projectionP, camera.GetPosition());        
 		     
 		/*nativeCPPScriptManager->UpdateScript();*/

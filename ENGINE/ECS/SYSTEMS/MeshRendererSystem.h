@@ -44,5 +44,5 @@ private:
 
     flecs::query<TransfromComponent, MeshComponent> staticMeshRendererQuery;
     flecs::query<TransfromComponent, MeshComponent, AnimationComponent> animatedMeshRendererQuery;
-    flecs::query<LightingComponent> lightingQuery;
+    flecs::query<TransfromComponent, LightingComponent> lightingQuery;
 };

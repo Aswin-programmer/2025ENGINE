@@ -34,7 +34,7 @@ constexpr size_t MAX_JOINTS_PER_VERTEX = MAX_TRIANGLES * 4;
 constexpr size_t MAX_WEIGHTS_PER_VERTEX = MAX_TRIANGLES * 4;
 
 constexpr size_t MAX_GLTF_MODEL_ORENTATIONS = 20000;
-constexpr size_t MAX_GLTF_MATERIALS = 2000;
+constexpr size_t MAX_GLTF_MATERIALS = 20000;
 constexpr size_t MAX_GLTF_ANIMATIONS = 200;
 constexpr size_t MAX_GLTF_LIGHTS = 100;
 constexpr size_t MAX_INDIRECT_DRAWCALLS = 4096;
@@ -98,16 +98,6 @@ struct GLTFMaterial
     float specularStrength;
 
     GLTFMaterial() = default;
-    GLTFMaterial(const int materialBindingIndex)
-        :
-        materialBindingIndex{materialBindingIndex},
-        ambientStrength{1},
-        diffuseStrength{1},
-        specularStrength{1}
-    {
-
-    }
-
     GLTFMaterial(
         const int materialBindingIndex,
         float ambientStrength,
@@ -115,10 +105,10 @@ struct GLTFMaterial
         float specularStrength
     )
         :
-        materialBindingIndex{ materialBindingIndex },
-        ambientStrength{ ambientStrength },
-        diffuseStrength{ diffuseStrength },
-        specularStrength{ specularStrength }
+        materialBindingIndex{materialBindingIndex},
+        ambientStrength{ambientStrength},
+        diffuseStrength{diffuseStrength},
+        specularStrength{specularStrength}
     {
 
     }
@@ -159,7 +149,7 @@ struct GLTFAnimations
     }
 };
 
-struct GLTFLight
+struct alignas(16) GLTFLight
 {
     glm::vec3 position;
     int gltfLightType;
@@ -167,7 +157,18 @@ struct GLTFLight
     float ambientStrength;
     float diffuseStrength;
     float specularStrength;
-    glm::vec2 padding;//Temp
+    
+    float constant; // For the PointLight
+    float linear;   // For the PointLight
+
+    glm::vec3 direction; // For the SpotLight[values in range 0-1]
+
+    float quadratic;// For the PointLight
+
+    
+    float cutOff; // For the StopLight
+
+    char padding[12];
 
     GLTFLight() = default;
     GLTFLight(
@@ -176,7 +177,12 @@ struct GLTFLight
         glm::vec3 lightColor,
         float ambientStrength,
         float diffuseStrength,
-        float specularStrength
+        float specularStrength,
+        float constant,
+        float linear,
+        float quadratic,
+        glm::vec3 direction,
+        float cutOff
     )
         :
         gltfLightType{ (int)gltfLightType },
@@ -185,19 +191,11 @@ struct GLTFLight
         ambientStrength{ ambientStrength },
         diffuseStrength{ diffuseStrength },
         specularStrength{ specularStrength },
-        padding{ glm::vec2(1.f) }
-    {
-
-    }
-    GLTFLight(GLTFLightType type)
-        : 
-        gltfLightType{ (int)type },
-        position{ glm::vec3(1.0f) },
-        lightColor{ glm::vec3(1.0f) },
-        ambientStrength{ 0.0f },
-        diffuseStrength{ 0.0f },
-        specularStrength{ 0.0f },
-        padding{ 0.0f, 0.0f }
+        constant{constant},
+        linear{linear},
+        quadratic{quadratic},
+        direction{direction},
+        cutOff{cutOff}
     {
 
     }

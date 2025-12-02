@@ -35,6 +35,8 @@ out vec2 vTexCoord;
 out vec3 vNormal;
 flat out int materialIndex;
 
+out vec3 worldPosition;
+
 mat4 translate(vec3 t) {
     return mat4(
         1.0, 0.0, 0.0, 0.0,
@@ -144,6 +146,9 @@ void main()
     vec4 localPos = vec4(aPos, 1.0);
     vec4 skinnedPos = skinMatrix * localPos;
     vec4 worldPos = model * skinnedPos;
+
+    worldPosition = vec3(worldPos);
+
     gl_Position = projection * view * worldPos;
 
     vTexCoord = aTexCoord;

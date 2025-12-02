@@ -36,7 +36,7 @@ void MeshRendererSystem::InitMeshRendererSystem()
         .build();
 
     // Build lighting query
-    lightingQuery = ecsWorld->query_builder<LightingComponent>()
+    lightingQuery = ecsWorld->query_builder<TransfromComponent, LightingComponent>()
         .build();
 
     std::cout << "MeshRendererSystem initialized successfully!" << std::endl;
@@ -115,18 +115,23 @@ void MeshRendererSystem::MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm:
         });
 
     lightingQuery.each(
-        [this](flecs::entity e,const LightingComponent& lightingComponent)
+        [this](flecs::entity e, const TransfromComponent& transfromComponent,const LightingComponent& lightingComponent)
         {
             try
             {
                 gltfMeshRenderer->AddLightToTheRenderer(
                     GLTFLight(
                         lightingComponent.lightType,
-                        lightingComponent.position,
+                        transfromComponent.Position,
                         lightingComponent.lightColor,
                         lightingComponent.ambientStrength,
                         lightingComponent.diffuseStrength,
-                        lightingComponent.specularStrength
+                        lightingComponent.specularStrength,
+                        lightingComponent.constant,
+                        lightingComponent.linear,
+                        lightingComponent.quadratic,
+                        lightingComponent.direction,
+                        lightingComponent.cutOff
                     )
                 ); 
             }

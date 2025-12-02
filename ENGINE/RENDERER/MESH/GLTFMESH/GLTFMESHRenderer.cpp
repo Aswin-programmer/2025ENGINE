@@ -313,12 +313,6 @@ void GLTFMESHRenderer::ProcessNode(
                                 std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
                                 texture->Bind(GlobalMaterialTextureBindingIndex);
                                 gltfMaterialMapping[modelName] = GlobalMaterialTextureBindingIndex;
-                                gltfMaterialContainer.push_back(GLTFMaterial(
-                                    GlobalMaterialTextureBindingIndex,
-                                    ambientStrength,
-                                    diffuseStrength,
-                                    specularStrength
-                                ));
                                 //std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
                                 GlobalMaterialTextureBindingIndex++;
                             }
@@ -358,7 +352,14 @@ void GLTFMESHRenderer::ProcessNode(
         int currentMaterialIndex = -1;
         if (gltfMaterialMapping.find(modelName) != gltfMaterialMapping.end())
         {
-            currentMaterialIndex = gltfMaterialContainer[gltfMaterialMapping[modelName]].materialBindingIndex;
+            //currentMaterialIndex = gltfMaterialContainer[gltfMaterialMapping[modelName]].materialBindingIndex;
+            gltfMaterialContainer.push_back(GLTFMaterial(
+                gltfMaterialMapping[modelName],
+                ambientStrength,
+                diffuseStrength,
+                specularStrength
+            ));
+            currentMaterialIndex = gltfMaterialContainer.size() - 1;
         }
 
         // Add Animation index to the model orientation
@@ -611,12 +612,6 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
                                 std::shared_ptr<TextureKTX2> texture = TextureLoader::GetKTX2Texture(image.uri.substr(0, image.uri.find_last_of('.')));
                                 texture->Bind(GlobalMaterialTextureBindingIndex);
                                 gltfMaterialMapping[modelName] = GlobalMaterialTextureBindingIndex;
-                                gltfMaterialContainer.push_back(GLTFMaterial(
-                                    GlobalMaterialTextureBindingIndex,
-                                    ambientStrength,
-                                    diffuseStrength,
-                                    specularStrength
-                                ));
                                 //std::cout << "[GlobalMaterialTextureBindingIndex] : " << GlobalMaterialTextureBindingIndex << std::endl;
                                 GlobalMaterialTextureBindingIndex++;
                             }
@@ -656,7 +651,14 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
         int currentMaterialIndex = -1;
         if (gltfMaterialMapping.find(modelName) != gltfMaterialMapping.end())
         {
-            currentMaterialIndex = gltfMaterialContainer[gltfMaterialMapping[modelName]].materialBindingIndex;
+            //currentMaterialIndex = gltfMaterialContainer[gltfMaterialMapping[modelName]].materialBindingIndex;
+            gltfMaterialContainer.push_back(GLTFMaterial(
+                gltfMaterialMapping[modelName],
+                ambientStrength,
+                diffuseStrength,
+                specularStrength
+            ));
+            currentMaterialIndex = gltfMaterialContainer.size() - 1;
         }
 
         // Add Animation index to the model orientation
@@ -1069,7 +1071,19 @@ void GLTFMESHRenderer::ExperimentalHelper()
 
     // Uploading the Lights Struct Here!.
     // Uploading the final one to mark the end of the GLTFLights SSBO.
-    gltfLightsContainer.push_back(GLTFLight(GLTFLightType::Ending));
+    gltfLightsContainer.push_back(
+        GLTFLight(GLTFLightType::Ending,
+        glm::vec3{1.f},
+        glm::vec3{1.f},
+        1.f,
+        1.f,
+        1.f,
+        1.f,
+        1.f,
+        1.f,
+        glm::vec3{1.f},
+        1.f
+    ));
     if (!gltfLightsContainer.empty())
     {
         glNamedBufferSubData(LightSSBO, 0, gltfLightsContainer.size() * sizeof(GLTFLight), gltfLightsContainer.data());

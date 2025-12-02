@@ -29,7 +29,7 @@ void DebugMenuUISystem::InitDebugMenuUISystem()
         .build();
 
     // Build lighting query
-    lightingQuery = ecsWorld->query_builder<LightingComponent>()
+    lightingQuery = ecsWorld->query_builder<TransfromComponent, LightingComponent>()
         .build();
 
     std::cout << "DebugMenuUISystem initialized successfully!" << std::endl;
@@ -96,9 +96,9 @@ void DebugMenuUISystem::RenderUIMenu()
                     mu_label(ctx, "Scale Z:"); mu_slider(ctx, &transform.Scale.z, -(myMaxMin + fabsf(transform.Scale.z)), myMaxMin + fabsf(transform.Scale.z));
 
                     // -- Material Sliders--
-                    mu_label(ctx, "Ambient:");  mu_slider(ctx, &mesh.ambientStrength, -(myMaxMin + fabsf(mesh.ambientStrength)), myMaxMin + fabsf(mesh.ambientStrength));
-                    mu_label(ctx, "Diffuse:");  mu_slider(ctx, &mesh.diffuseStrength, -(myMaxMin + fabsf(mesh.diffuseStrength)), myMaxMin + fabsf(mesh.diffuseStrength));
-                    mu_label(ctx, "Specular:"); mu_slider(ctx, &mesh.specularStrength, -(myMaxMin + fabsf(mesh.specularStrength)), myMaxMin + fabsf(mesh.specularStrength));
+                    mu_label(ctx, "Ambient:");  mu_slider(ctx, &mesh.ambientStrength, 0, 2);
+                    mu_label(ctx, "Diffuse:");  mu_slider(ctx, &mesh.diffuseStrength, 0, 5);
+                    mu_label(ctx, "Specular:"); mu_slider(ctx, &mesh.specularStrength, 0, 5);
 
                     mu_end_treenode(ctx);
                 }
@@ -156,9 +156,9 @@ void DebugMenuUISystem::RenderUIMenu()
                     mu_label(ctx, "Scale Z:"); mu_slider(ctx, &transform.Scale.z, -(myMaxMin + fabsf(transform.Scale.z)), myMaxMin + fabsf(transform.Scale.z));
 
                     // -- Material Sliders--
-                    mu_label(ctx, "Ambient:");  mu_slider(ctx, &mesh.ambientStrength, -(myMaxMin + fabsf(mesh.ambientStrength)), myMaxMin + fabsf(mesh.ambientStrength));
-                    mu_label(ctx, "Diffuse:");  mu_slider(ctx, &mesh.diffuseStrength, -(myMaxMin + fabsf(mesh.diffuseStrength)), myMaxMin + fabsf(mesh.diffuseStrength));
-                    mu_label(ctx, "Specular:"); mu_slider(ctx, &mesh.specularStrength, -(myMaxMin + fabsf(mesh.specularStrength)), myMaxMin + fabsf(mesh.specularStrength));
+                    mu_label(ctx, "Ambient:");  mu_slider(ctx, &mesh.ambientStrength, 0, 5);
+                    mu_label(ctx, "Diffuse:");  mu_slider(ctx, &mesh.diffuseStrength, 0, 5);
+                    mu_label(ctx, "Specular:"); mu_slider(ctx, &mesh.specularStrength, 0, 5);
 
                     mu_end_treenode(ctx);
                 }
@@ -168,7 +168,7 @@ void DebugMenuUISystem::RenderUIMenu()
         // Lighting Entities
         if (mu_header(ctx, "Lighting Entities"))
         {
-            lightingQuery.each([this](flecs::entity e, LightingComponent& light)
+            lightingQuery.each([this](flecs::entity e, TransfromComponent& transfrom ,LightingComponent& light)
                 {
                     if (mu_begin_treenode(ctx, e.name()))
                     {
@@ -189,41 +189,48 @@ void DebugMenuUISystem::RenderUIMenu()
                         }
 
                         char buf[64];
-
-                        // Light Type
-                        sprintf(buf, "Type: %s",
-                            light.lightType == GLTFLightType::Directional ? "Directional" : "Ending");
-                        mu_label(ctx, buf);
-
-                        // --- Light Type Toggle ---
-                        int widths[] = { 80, -1 };
-                        mu_layout_row(ctx, 2, widths, 0);
-
-                        mu_label(ctx, "Directional:");
-                        int typeValue = (int)light.lightType;
-
-                        if (mu_checkbox(ctx, "##lightType", &typeValue)) {
-                            // Clamp to valid enum range
-                            if (typeValue < 0) typeValue = 0;
-                            if (typeValue > 1) typeValue = 1;
-
-                            light.lightType = (GLTFLightType)typeValue;
+                        GLTFLightType gltfLightType = light.lightType;
+                        if (gltfLightType == GLTFLightType::NoLight)
+                        {
+                            sprintf(buf, "Type: %s", "NoLight");
                         }
-
+                        else if (gltfLightType == GLTFLightType::Directional)
+                        {
+                            sprintf(buf, "Type: %s", "Directional");
+                        }
+                        mu_label(ctx, buf);
+                        int widths[] = { 50, -1 };
+                        mu_layout_row(ctx, 2, widths, 0);
                         // --- Position sliders ---
-                        mu_label(ctx, "Pos X:"); mu_slider(ctx, &light.position.x, -(myMaxMin+fabsf(light.position.x)), myMaxMin+fabsf(light.position.x));
-                        mu_label(ctx, "Pos Y:"); mu_slider(ctx, &light.position.y, -(myMaxMin+fabsf(light.position.y)), myMaxMin+fabsf(light.position.y));
-                        mu_label(ctx, "Pos Z:"); mu_slider(ctx, &light.position.z, -(myMaxMin+fabsf(light.position.z)), myMaxMin+fabsf(light.position.z));
+                        mu_label(ctx, "Pos X:"); mu_slider(ctx, &transfrom.Position.x, -(myMaxMin+fabsf(transfrom.Position.x)), myMaxMin+fabsf(transfrom.Position.x));
+                        mu_label(ctx, "Pos Y:"); mu_slider(ctx, &transfrom.Position.y, -(myMaxMin+fabsf(transfrom.Position.y)), myMaxMin+fabsf(transfrom.Position.y));
+                        mu_label(ctx, "Pos Z:"); mu_slider(ctx, &transfrom.Position.z, -(myMaxMin+fabsf(transfrom.Position.z)), myMaxMin+fabsf(transfrom.Position.z));
 
                         // --- Color sliders ---
-                        mu_label(ctx, "Color R:"); mu_slider(ctx, &light.lightColor.r, 0, myMaxMin+fabsf(light.lightColor.r));
-                        mu_label(ctx, "Color G:"); mu_slider(ctx, &light.lightColor.g, 0, myMaxMin+fabsf(light.lightColor.r));
-                        mu_label(ctx, "Color B:"); mu_slider(ctx, &light.lightColor.b, 0, myMaxMin+fabsf(light.lightColor.r));
+                        mu_label(ctx, "Color R:"); mu_slider(ctx, &light.lightColor.r, 0, 1);
+                        mu_label(ctx, "Color G:"); mu_slider(ctx, &light.lightColor.g, 0, 1);
+                        mu_label(ctx, "Color B:"); mu_slider(ctx, &light.lightColor.b, 0, 1);
 
                         // --- Strength sliders ---
-                        mu_label(ctx, "Ambient:");  mu_slider(ctx, &light.ambientStrength, -(myMaxMin+fabsf(light.ambientStrength)), myMaxMin+fabsf(light.ambientStrength));
-                        mu_label(ctx, "Diffuse:");  mu_slider(ctx, &light.diffuseStrength, -(myMaxMin+fabsf(light.diffuseStrength)), myMaxMin+fabsf(light.diffuseStrength));
-                        mu_label(ctx, "Specular:"); mu_slider(ctx, &light.specularStrength,-(myMaxMin+fabsf(light.specularStrength)),myMaxMin+fabsf(light.specularStrength));
+                        mu_label(ctx, "Ambient:");  mu_slider(ctx, &light.ambientStrength, 0.0f, 2.0f);
+                        mu_label(ctx, "Diffuse:");  mu_slider(ctx, &light.diffuseStrength, 0.0f, 5.0f);
+                        mu_label(ctx, "Specular:"); mu_slider(ctx, &light.specularStrength, 0.0f, 5.0f);
+
+                        // --- Point Light Parameters sliders ---
+                        mu_label(ctx, "Constant:");  mu_slider(ctx, &light.constant, 1.0f, 1.0f);     // FIXED
+                        mu_label(ctx, "Linear:");    mu_slider(ctx, &light.linear, 0.0f, 1.0f);
+                        mu_label(ctx, "Quadratic:"); mu_slider(ctx, &light.quadratic, 0.0f, 2.0f);
+
+                        // -- Stop Light Parameters sliders --
+                        static glm::vec3 tempLightDirection = glm::vec3{ 1.f };
+                        mu_label(ctx, "Direction X:"); mu_slider(ctx, &tempLightDirection.x, -1.0f, 1.0f);
+                        mu_label(ctx, "Direction Y:"); mu_slider(ctx, &tempLightDirection.y, -1.0f, 1.0f);
+                        mu_label(ctx, "Direction Z:"); mu_slider(ctx, &tempLightDirection.z, -1.0f, 1.0f);
+                        light.direction = tempLightDirection;
+
+                        static float temp = 0;
+                        mu_label(ctx, "CutOff:"); mu_slider(ctx, &temp, 0, 90);
+                        light.cutOff = cos(glm::radians(temp));
 
                         mu_end_treenode(ctx);
                     }
@@ -318,7 +325,7 @@ void DebugMenuUISystem::EntityManagerMenu()
                     newE.set<TransfromComponent>({
                         glm::vec3(0.f, 0.f, 0.f),
                         glm::vec3(0.f, 0.f, 0.f),
-                        glm::vec3(50.f, 50.f, 50.f)
+                        glm::vec3(1.f, 1.f, 1.f)
                     });
                 }
                 if (isMeshComponentPresent)
@@ -343,6 +350,14 @@ void DebugMenuUISystem::EntityManagerMenu()
                     {
                         gltfLightType = GLTFLightType::Directional;
                     }
+                    else if (strcmp(lightingType, "PointLight") == 0)
+                    {
+                        gltfLightType = GLTFLightType::PointLight;
+                    }
+                    else if (strcmp(lightingType, "SpotLight") == 0)
+                    {
+                        gltfLightType = GLTFLightType::SpotLight;
+                    }
 
                     newE.set<LightingComponent>({
                         gltfLightType,
@@ -350,7 +365,12 @@ void DebugMenuUISystem::EntityManagerMenu()
                         glm::vec3(0.8f, 0.1f, 0.3f),
                         0.15f,
                         0.75f,
-                        1.25f
+                        1.25f,
+                        1,
+                        0.7,
+                        1.8,
+                        glm::vec3{1.f},
+                        10.f
                     });
                 }
 

@@ -15,13 +15,13 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Cube"
+			"name":"Icosphere"
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material",
+			"name":"Material.001",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
@@ -33,7 +33,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube",
+			"name":"Icosphere",
 			"primitives":[
 				{
 					"attributes":{
@@ -56,69 +56,69 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"cube_baseColor",
-			"uri":"cube_baseColor.png"
+			"name":"light_baseColor",
+			"uri":"light_baseColor.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":24,
+			"count":1200,
 			"max":[
-				1,
-				1,
-				1
+				1.6802085638046265,
+				1.598410964012146,
+				1.6120009422302246
 			],
 			"min":[
-				-1,
-				-1,
-				-1
+				-1.6802085638046265,
+				-1.598410964012146,
+				-1.6120009422302246
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":24,
+			"count":1200,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":24,
+			"count":1200,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":36,
+			"count":1680,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":288,
+			"byteLength":14400,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":288,
-			"byteOffset":288,
+			"byteLength":14400,
+			"byteOffset":14400,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":192,
-			"byteOffset":576,
+			"byteLength":9600,
+			"byteOffset":28800,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":72,
-			"byteOffset":768,
+			"byteLength":3360,
+			"byteOffset":38400,
 			"target":34963
 		}
 	],
@@ -130,8 +130,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":840,
-			"uri":"cube.bin"
+			"byteLength":41760,
+			"uri":"light.bin"
 		}
 	]
 }
