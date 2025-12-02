@@ -42,7 +42,12 @@ void MeshRendererSystem::InitMeshRendererSystem()
     std::cout << "MeshRendererSystem initialized successfully!" << std::endl;
 }
 
-void MeshRendererSystem::MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm::vec3 cameraPos)
+void MeshRendererSystem::MeshRendererUpdate(
+    glm::mat4 view, 
+    glm::mat4 proj, 
+    glm::vec3 cameraPos,
+    Shader& meshShader
+)
 {
     if (!ecsWorld) {
         std::cerr << "ECS World is null in MeshRendererUpdate!" << std::endl;
@@ -146,10 +151,14 @@ void MeshRendererSystem::MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm:
 
     // Render all collected models
     gltfMeshRenderer->ExperimentalHelper();
-    meshRendererShader->use();
+    /*meshRendererShader->use();
     meshRendererShader->setMat4("view", view);
     meshRendererShader->setMat4("projection", proj);
-    meshRendererShader->setVec3("viewPos", cameraPos);
+    meshRendererShader->setVec3("viewPos", cameraPos);*/
+    meshShader.use();
+    meshShader.setMat4("view", view);
+    meshShader.setMat4("projection", proj);
+    meshShader.setVec3("viewPos", cameraPos);
     gltfMeshRenderer->GLTFMESHRender();
 }
 

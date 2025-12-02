@@ -32,7 +32,7 @@ public:
     ~MeshRendererSystem();
 
     void InitMeshRendererSystem();
-    void MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm::vec3 cameraPos);
+    void MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm::vec3 cameraPos, Shader& meshShader);
 
 private:
     std::string vertexShaderPath;

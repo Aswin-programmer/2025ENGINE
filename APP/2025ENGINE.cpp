@@ -21,6 +21,8 @@ extern "C" {
 #include <RENDERER/MESH/GLTFMESH/GLTFMESHLoader.h>
 #include <RENDERER/MESH/GLTFMESH/GLTFMESHRenderer.h>
 
+#include <RENDERER/FRAME_BUFFER/DepthMap.h>
+
 #include <ECS/ECSWorld.h>
 #include <ECS/COMPONENTS/MeshComponent.h>
 #include <ECS/COMPONENTS/TransfromComponent.h>
@@ -167,6 +169,29 @@ int main()
 
 	// #################################################
 
+	// #################################################
+	Shader shaderDepthMap = Shader(
+		(std::string(RESOURCES_PATH) + "SHADER/SHADOW_MAP/depth_vert.glsl").c_str(),
+		(std::string(RESOURCES_PATH) + "SHADER/SHADOW_MAP/depth_frag.glsl").c_str(),
+		nullptr,
+		nullptr,
+		nullptr
+	);
+
+	Shader shaderDepthDebugMap = Shader(
+		(std::string(RESOURCES_PATH) + "SHADER/SHADOW_MAP/depth_debug_vert.glsl").c_str(),
+		(std::string(RESOURCES_PATH) + "SHADER/SHADOW_MAP/depth_debug_frag.glsl").c_str(),
+		nullptr,
+		nullptr,
+		nullptr
+	);
+
+	std::shared_ptr<DepthMap> depthMap = std::make_shared<DepthMap>(640, 480);
+	depthMap->DepthMapInit();
+	//depthMap->BindDepthTextureToTextureUnit(20);
+
+	// #################################################
+
 
 	// ##          ##      
 
@@ -284,7 +309,11 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		shader3.setMat4("view", view);
 		 
-		meshRenderSystem->MeshRendererUpdate(view, projectionP, camera.GetPosition());        
+		depthMap->DepthMapBind();
+		meshRenderSystem->MeshRendererUpdate(view, projectionP, camera.GetPosition(), shaderDepthMap);   
+		depthMap->DepthMapUnBind();
+
+		depthMap->RenderDebugDepthMap(shaderDepthDebugMap);
 		     
 		/*nativeCPPScriptManager->UpdateScript();*/
 
@@ -300,7 +329,7 @@ int main()
 			debugMenuUISystem->StartRenderMenuUISystem();
 			debugMenuUISystem->RenderUIMenu();
 			debugMenuUISystem->PerformanceUIMenu();
-			debugMenuUISystem->EntityManagerMenu();
+			debugMenuUISystem->EntityManagerMenu(); 
 			debugMenuUISystem->EndRenderMenuUISystem();
 		}  
 		  
