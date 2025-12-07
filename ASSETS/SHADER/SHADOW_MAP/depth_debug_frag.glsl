@@ -1,6 +1,6 @@
 #version 460 core
 
-layout (binding = 0) uniform sampler2D depthMap;
+layout (binding = 20) uniform sampler2D depthMap;
 
 in vec2 TexCoord;
 

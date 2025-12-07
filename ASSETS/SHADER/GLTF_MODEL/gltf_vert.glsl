@@ -29,6 +29,7 @@ layout(std430, binding = 2) buffer Animations {
 
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 lightViewMatrix;
 uniform uint u_NumInstances; // defensive bound check
 
 out vec2 vTexCoord;
@@ -36,6 +37,8 @@ out vec3 vNormal;
 flat out int materialIndex;
 
 out vec3 worldPosition;
+
+out vec4 fragPosLightSpace;
 
 mat4 translate(vec3 t) {
     return mat4(
@@ -150,6 +153,8 @@ void main()
     worldPosition = vec3(worldPos);
 
     gl_Position = projection * view * worldPos;
+
+    fragPosLightSpace = projection * lightViewMatrix * worldPos;
 
     vTexCoord = aTexCoord;
 

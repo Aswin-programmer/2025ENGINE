@@ -386,136 +386,32 @@ void DebugMenuUISystem::EntityManagerMenu()
 
         mu_end_window(ctx);
     }
+}
 
-    //if (mu_begin_window(ctx, "Entity Manager", mu_rect(800, 10, 350, 400)))
-    //{
-    //    static char entityName[64] = "NewEntity";
-    //    static int entityType = 0; // 0 = Static Mesh, 1 = Animated Mesh, 2 = Light
+void DebugMenuUISystem::GlobalMenu()
+{
+    if (mu_begin_window(ctx, "Global Menu", mu_rect(320, 240, 200, 200)))
+    {
+        mu_label(ctx, "Sun Position : ");
+        int widths[] = { 40, -1 };
+        mu_layout_row(ctx, 2, widths, 0);
+        mu_label(ctx, "X : "); mu_slider(ctx, &GlobalInformation::sunLightDirection.x, -1, 1);
+        mu_label(ctx, "Y : "); mu_slider(ctx, &GlobalInformation::sunLightDirection.y, -1, 1);
+        mu_label(ctx, "Z : "); mu_slider(ctx, &GlobalInformation::sunLightDirection.z, -1, 1);
+        mu_label(ctx, "Distance Factor : "); mu_slider(ctx, &GlobalInformation::sunLightDistanceFactor, 0, 100);
 
-    //    static char meshName[128] = "Avocado.gltf"; // default mesh
-    //    static bool addAnimation = false;
 
-    //    // For Light creation
-    //    static glm::vec3 lightPos = glm::vec3(0.f, 5.f, 0.f);
-    //    static glm::vec3 lightColor = glm::vec3(1.f, 1.f, 1.f);
-    //    static float amb = 0.2f, diff = 1.f, spec = 1.f;
+        int width[] = { 140, -1 };
+        mu_layout_row(ctx, 2, width, 0);
 
-    //    // ------------------------------
-    //    // Entity Type Selection
-    //    // ------------------------------
-    //    mu_label(ctx, "Entity Name:");
-    //    mu_textbox(ctx, entityName, sizeof(entityName));
+        mu_label(ctx, "Render Shadow Pass:");
+        int temp = GlobalInformation::renderShadowPass ? 1 : 0;
+        if (mu_checkbox(ctx, "", &temp)) {
+            GlobalInformation::renderShadowPass = (temp != 0);
+        }
 
-    //    const char* typeNames[] = { "Static Mesh", "Animated Mesh", "Light" };
-
-    //    mu_label(ctx, "Entity Type:");
-    //    mu_layout_row(ctx, 1, nullptr, 0);
-    //    for (int i = 0; i < 3; i++)
-    //    {
-    //        if (mu_button(ctx, typeNames[i]))
-    //            entityType = i;
-    //    }
-
-    //    // ------------------------------
-    //    // Static & Animated Mesh Options
-    //    // ------------------------------
-    //    if (entityType == 0 || entityType == 1)
-    //    {
-    //        mu_label(ctx, "Mesh File:");
-    //        mu_textbox(ctx, meshName, sizeof(meshName));
-
-    //        if (entityType == 1)
-    //        {
-    //            mu_label(ctx, "Animated Mesh");
-    //            mu_checkbox(ctx, "Add Animation Component", (int*)&addAnimation);
-    //        }
-    //    }
-
-    //    // ------------------------------
-    //    // Light Creation Options
-    //    // ------------------------------
-    //    if (entityType == 2)
-    //    {
-    //        mu_label(ctx, "Light Position:");
-    //        mu_slider(ctx, &lightPos.x, -100.f, 100.f);
-    //        mu_slider(ctx, &lightPos.y, -100.f, 100.f);
-    //        mu_slider(ctx, &lightPos.z, -100.f, 100.f);
-
-    //        mu_label(ctx, "Light Color:");
-    //        mu_slider(ctx, &lightColor.r, 0.f, 1.f);
-    //        mu_slider(ctx, &lightColor.g, 0.f, 1.f);
-    //        mu_slider(ctx, &lightColor.b, 0.f, 1.f);
-
-    //        mu_label(ctx, "Ambient:");  mu_slider(ctx, &amb, 0.f, 5.f);
-    //        mu_label(ctx, "Diffuse:");  mu_slider(ctx, &diff, 0.f, 5.f);
-    //        mu_label(ctx, "Specular:"); mu_slider(ctx, &spec, 0.f, 5.f);
-    //    }
-
-    //    mu_layout_row(ctx, 1, nullptr, 10);  // 10px vertical spacing
-
-    //    // ------------------------------
-    //    // Create Entity Button
-    //    // ------------------------------
-    //    if (mu_button(ctx, "Create Entity"))
-    //    {
-    //        flecs::entity e = ecsWorld->entity(entityName);
-
-    //        if (entityType == 0) // Static Mesh
-    //        {
-    //            e.set<TransfromComponent>({
-    //                glm::vec3(0.f, 0.f, 0.f),
-    //                glm::vec3(0.f, 0.f, 0.f),
-    //                glm::vec3(5.f, 5.f, 5.f)
-    //                })
-    //                .set<MeshComponent>({
-    //                    std::string(meshName)
-    //                    });
-    //        }
-    //        else if (entityType == 1) // Animated Mesh
-    //        {
-    //            e.set<TransfromComponent>({
-    //                glm::vec3(0.f, 0.f, 0.f),
-    //                glm::vec3(0.f, 0.f, 0.f),
-    //                glm::vec3(5.f, 5.f, 5.f)
-    //                })
-    //                .set<MeshComponent>({ std::string(meshName) });
-
-    //            if (addAnimation)
-    //                e.set<AnimationComponent>({ true });
-    //        }
-    //        else if (entityType == 2) // Light
-    //        {
-    //            e.set<LightingComponent>({
-    //                GLTFLightType::Directional,
-    //                lightPos,
-    //                lightColor,
-    //                amb,
-    //                diff,
-    //                spec
-    //                });
-    //        }
-    //    }
-
-    //    mu_layout_row(ctx, 1, nullptr, 10);  // 10px vertical spacing
-
-    //    // ------------------------------
-    //    // Delete Entities
-    //    // ------------------------------
-    //    mu_label(ctx, "Delete Existing Entities:");
-
-    //    ecsWorld->each([this](flecs::entity e)
-    //        {
-    //            char deleteName[128];
-    //            sprintf(deleteName, "Delete %s", e.name());
-
-    //            if (mu_button(ctx, deleteName))
-    //            {
-    //                e.destruct();
-    //            }
-    //        });
-
-    //    mu_end_window(ctx);
-    //}
+        mu_end_window(ctx);
+    }
 }
 
 void DebugMenuUISystem::EndRenderMenuUISystem()

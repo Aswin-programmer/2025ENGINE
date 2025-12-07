@@ -47,6 +47,43 @@ uniform vec3 viewPos; // camera world position
 
 in vec3 worldPosition;
 
+in vec4 fragPosLightSpace;
+
+float ShadowCalculation(vec4 fragPosLightSpace_)
+{
+    vec3 projCoords = fragPosLightSpace_.xyz / fragPosLightSpace_.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    if(projCoords.z > 1.0)
+        return 0.0;
+
+    float bias = 0.001;
+
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(uTextures[20], 0);
+
+    float currentDepth = projCoords.z;
+
+    // 3×3 PCF kernel
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float closestDepth = texture(
+                uTextures[20],
+                projCoords.xy + vec2(x, y) * texelSize
+            ).r;
+
+            if(currentDepth - bias > closestDepth)
+                shadow += 1.0;
+        }
+    }
+
+    shadow /= 9.0;
+
+    return shadow;
+}
+
 void main()
 {
     vec3 color;
@@ -76,7 +113,7 @@ void main()
             else if(L.gltfLightType == 1) // Directional Lighting
             {
                 // Directional Light: assume position is direction
-                vec3 lightDir = normalize(-L.position); // Directional lights point from light to object
+                vec3 lightDir = normalize(L.position); // Directional lights point from light to object
 
                 // Ambient
                 vec3 ambient = L.ambientStrength * L.lightColor * currentMaterial.ambientStrength;
@@ -91,7 +128,12 @@ void main()
                 vec3 specular = spec * L.specularStrength * L.lightColor* currentMaterial.specularStrength;
 
                 // Accumulate
-                result += ambient + diffuse + specular;
+                float shadow = ShadowCalculation(fragPosLightSpace);
+
+                vec3 lighting = ambient + (1 - shadow) * (diffuse + specular);
+                
+                result += lighting;
+
             }  
             else if(L.gltfLightType == 2) // Point Light
             {

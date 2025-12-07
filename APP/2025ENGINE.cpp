@@ -3,7 +3,7 @@ extern "C" {
 
 	__declspec(dllexport) unsigned long NvOptimusEnablement = 0x00000001;
 }
- 
+  
 #include <iostream>              
 #include <memory>
 
@@ -48,6 +48,9 @@ void char_callback(GLFWwindow* window, unsigned int codepoint);
 // Editor Camera Setup
 EditorCamera camera(45.0f, 640.f / 480.f, 0.1f, 200.0f);
 
+// Shadow Map Camera Setup
+EditorCamera shadowCamera(45.0f, 640.f / 480.f, 0.1f, 200.0f);
+
 // Mouse Setup
 float GlobalMousePosX = 0.f;
 float GlobalMousePosY = 0.f; 
@@ -56,9 +59,7 @@ float GlobalMousePosY = 0.f;
 float GlobalDebugWindowShow = false;
 
 int main() 
-{
-	std::shared_ptr<GlobalInformation> globalInformation = std::make_shared<GlobalInformation>();
-	
+{	
 	Window::init("TESTING");
 
 	Keyboard::Init();
@@ -170,7 +171,7 @@ int main()
 	// #################################################
 
 	// #################################################
-	Shader shaderDepthMap = Shader(
+	std::shared_ptr<Shader> shaderDepthMap = std::make_shared<Shader>(
 		(std::string(RESOURCES_PATH) + "SHADER/SHADOW_MAP/depth_vert.glsl").c_str(),
 		(std::string(RESOURCES_PATH) + "SHADER/SHADOW_MAP/depth_frag.glsl").c_str(),
 		nullptr,
@@ -192,6 +193,12 @@ int main()
 
 	// #################################################
 
+	// ##################################################
+
+	GlobalInformation::InitSun();
+
+	// #################################################
+	 
 
 	// ##          ##      
 
@@ -308,13 +315,36 @@ int main()
 		// Camera or View transformation
 		glm::mat4 view = camera.GetViewMatrix();
 		shader3.setMat4("view", view);
-		 
-		depthMap->DepthMapBind();
-		meshRenderSystem->MeshRendererUpdate(view, projectionP, camera.GetPosition(), shaderDepthMap);   
-		depthMap->DepthMapUnBind();
 
-		depthMap->RenderDebugDepthMap(shaderDepthDebugMap);
-		     
+		
+
+		//glm::vec3 lightTarget = glm::vec3(0.0f, 0.0f, 0.0f); // Look at scene center
+		//glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+		//glm::mat4 lightViewMatrix = glm::lookAt(shadowCamera.GetPosition(), lightTarget, worldUp);
+
+		flecs::entity e = ecsWorld->GetWorld()->entity("Test7");
+		auto& transfrom = e.get_mut<TransfromComponent>();
+
+		transfrom.Position = shadowCamera.GetPosition();
+
+		meshRenderSystem->MeshRendererUpdate();
+		    
+		depthMap->DepthMapBind();
+		meshRenderSystem->MeshRendererFinalDrawCall(shadowCamera.GetViewMatrix() , projectionP, camera.GetPosition(), shaderDepthMap, shadowCamera.GetViewMatrix());
+		depthMap->DepthMapUnBind();
+		 
+		 
+
+		if (GlobalInformation::renderShadowPass)
+		{
+			depthMap->RenderDebugDepthMap(shaderDepthDebugMap);
+		}
+		else
+		{ 
+			depthMap->BindDepthTextureToTextureUnit(20);
+			meshRenderSystem->MeshRendererFinalDrawCall(view, projectionP, camera.GetPosition(), nullptr, shadowCamera.GetViewMatrix());
+		}
+		           
 		/*nativeCPPScriptManager->UpdateScript();*/
 
 		//std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;
@@ -323,18 +353,19 @@ int main()
 		{
 			GlobalDebugWindowShow = !GlobalDebugWindowShow;
 		}
-
+		 
 		if (GlobalDebugWindowShow)
 		{
 			debugMenuUISystem->StartRenderMenuUISystem();
 			debugMenuUISystem->RenderUIMenu();
 			debugMenuUISystem->PerformanceUIMenu();
 			debugMenuUISystem->EntityManagerMenu(); 
+			debugMenuUISystem->GlobalMenu();
 			debugMenuUISystem->EndRenderMenuUISystem();
-		}  
+		}   
 		  
 		if (GlobalDebugWindowShow)
-		{    
+		{     
 			MicroUIRenderer::render_debug_ui();  
 		}
 		 
@@ -394,12 +425,26 @@ void mouse_pos_callback(GLFWwindow* window, double xposIn, double yposIn)
 	// Right click = Orbit
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 	{
-		camera.OnMouseRotate(deltaX, deltaY);
+		if (GlobalInformation::renderShadowPass)
+		{
+			shadowCamera.OnMouseRotate(deltaX, deltaY);
+		}
+		else
+		{
+			camera.OnMouseRotate(deltaX, deltaY);
+		}
 	}
 	// Middle click = Pan
 	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS)
 	{
-		camera.OnMousePan(deltaX, deltaY);
+		if (GlobalInformation::renderShadowPass)
+		{
+			shadowCamera.OnMousePan(deltaX, deltaY);
+		}
+		else
+		{
+			camera.OnMousePan(deltaX, deltaY);
+		}
 	}
 
 	Mouse::SetMouseMoving(true);
@@ -413,7 +458,14 @@ void mouse_pos_callback(GLFWwindow* window, double xposIn, double yposIn)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera.OnMouseScroll((float)yoffset);
+	if (GlobalInformation::renderShadowPass)
+	{
+		shadowCamera.OnMouseScroll((float)yoffset);
+	}
+	else
+	{
+		camera.OnMouseScroll((float)yoffset);
+	}
 
 	Mouse::SetMouseWheelX(static_cast<int>(xoffset));
 	Mouse::SetMouseWheelY(static_cast<int>(yoffset));

@@ -16,6 +16,8 @@
 #include "../../ECS/COMPONENTS/AnimationComponent.h"
 #include "../../ECS/COMPONENTS/LightingComponent.h"
 
+#include "../../GlobalInformation/GlobalInformation.h"
+
 #include "../../DEBUGUI/MicroUI.h"
 
 class ENGINE_API DebugMenuUISystem
@@ -31,6 +33,7 @@ public:
     void RenderUIMenu();
     void PerformanceUIMenu();
     void EntityManagerMenu();
+    void GlobalMenu();
     void EndRenderMenuUISystem();
 
 private:

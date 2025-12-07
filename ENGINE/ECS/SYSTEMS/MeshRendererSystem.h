@@ -22,6 +22,8 @@
 
 #include "../../Window/Window.h"
 
+#include "../../GlobalInformation/GlobalInformation.h"
+
 #include "../../DEBUGUI/MicroUI.h"
 
 class ENGINE_API MeshRendererSystem
@@ -32,7 +34,15 @@ public:
     ~MeshRendererSystem();
 
     void InitMeshRendererSystem();
-    void MeshRendererUpdate(glm::mat4 view, glm::mat4 proj, glm::vec3 cameraPos, Shader& meshShader);
+    void MeshRendererUpdate();
+
+    void MeshRendererFinalDrawCall(
+        glm::mat4 view,
+        glm::mat4 proj,
+        glm::vec3 cameraPos,
+        std::shared_ptr<Shader> customShader,
+        glm::mat4 tempShadowCameraMatrix
+    );
 
 private:
     std::string vertexShaderPath;

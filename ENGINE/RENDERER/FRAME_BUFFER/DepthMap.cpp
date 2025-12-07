@@ -49,6 +49,9 @@ void DepthMap::DepthMapBind()
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glViewport(0, 0, depthMapWidth, depthMapHeight);
     glClear(GL_DEPTH_BUFFER_BIT);
+
+    /*glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);*/
 }
 
 void DepthMap::DepthMapUnBind()
@@ -61,6 +64,6 @@ void DepthMap::RenderDebugDepthMap(Shader& depthDebugShader)
 {
     depthDebugShader.use();
     glBindVertexArray(fullScreenVAO);
-    BindDepthTextureToTextureUnit(0);
+    BindDepthTextureToTextureUnit(20);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 }
