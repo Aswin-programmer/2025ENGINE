@@ -33,6 +33,7 @@ enable_testing()
 
 # Options
 option(RP3D_COMPILE_LIBRARY "Select this if you want to build the ReactPhysics3D library" ON)
+option(RP3D_COMPILE_LIBRARY_DYNAMIC "Select this if you want to build the ReactPhysics3D library as a Dynamic LIbrary" ON)
 option(RP3D_COMPILE_TESTBED "Select this if you want to build the testbed application with demos" OFF)
 option(RP3D_COMPILE_TESTS "Select this if you want to build the unit tests" OFF)
 option(RP3D_PROFILING_ENABLED "Select this if you want to compile for performanace profiling" OFF)
@@ -254,22 +255,48 @@ if(RP3D_COMPILE_LIBRARY)
 	    "src/utils/quickhull/QHHalfEdgeStructure.cpp"
 	)
 
-	# Create the library
-	add_library(reactphysics3d ${REACTPHYSICS3D_HEADERS} ${REACTPHYSICS3D_SOURCES})
+	if(RP3D_COMPILE_LIBRARY_DYNAMIC)
 
-	# Creates an Alias Target, such that "ReactPhysics3D::reactphysics3d" can be used
-	# to refer to "reactphysics3d" in subsequent commands
-	add_library(ReactPhysics3D::reactphysics3d ALIAS reactphysics3d)
+		# Create Library First
+		add_library(reactphysics3d SHARED
+			${REACTPHYSICS3D_HEADERS}
+			${REACTPHYSICS3D_SOURCES}
+		)
 
-	# C++11 compiler features
-	target_compile_features(reactphysics3d PUBLIC cxx_std_17)
-	set_target_properties(reactphysics3d PROPERTIES CXX_EXTENSIONS OFF)
+		# Apply DLL export preprocessor define
+		target_compile_definitions(reactphysics3d
+			PRIVATE REACTPHYSICS3D_EXPORTS
+		)
 
-	# Library headers
-	target_include_directories(reactphysics3d PUBLIC
-		      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-		      $<INSTALL_INTERFACE:include>
-	)
+		target_include_directories(reactphysics3d
+			PUBLIC
+				$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+				$<INSTALL_INTERFACE:include>
+		)
+
+		target_compile_options(reactphysics3d PRIVATE -include vector)
+
+		add_library(ReactPhysics3D::reactphysics3d ALIAS reactphysics3d)
+
+	else()
+
+		add_library(reactphysics3d STATIC
+			${REACTPHYSICS3D_HEADERS}
+			${REACTPHYSICS3D_SOURCES}
+		)
+
+		target_include_directories(reactphysics3d
+			PUBLIC
+				$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+				$<INSTALL_INTERFACE:include>
+		)
+
+		target_compile_options(reactphysics3d PRIVATE -include vector)
+
+		add_library(ReactPhysics3D::reactphysics3d ALIAS reactphysics3d)
+
+	endif()
+
 endif()
 
 # If we need to compile the testbed application
@@ -352,3 +379,4 @@ if(RP3D_COMPILE_LIBRARY)
     )
 
 endif()
+

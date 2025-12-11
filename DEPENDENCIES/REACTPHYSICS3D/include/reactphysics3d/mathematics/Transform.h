@@ -30,6 +30,12 @@
 #include <reactphysics3d/mathematics/Vector3.h>
 #include <reactphysics3d/mathematics/Quaternion.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 // ReactPhysiscs3D namespace
 namespace reactphysics3d {
 
@@ -38,7 +44,7 @@ namespace reactphysics3d {
  * This class represents a position and an orientation in 3D. It can
  * also be seen as representing a translation and a rotation.
  */
-class Transform {
+class REACTPHYSICS3D Transform {
 
     private :
 

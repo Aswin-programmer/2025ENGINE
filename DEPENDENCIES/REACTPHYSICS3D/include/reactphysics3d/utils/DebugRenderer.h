@@ -32,6 +32,12 @@
 #include <reactphysics3d/mathematics/mathematics.h>
 #include <reactphysics3d/engine/EventListener.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -52,7 +58,7 @@ class PhysicsWorld;
  * you should use this only for debugging purpose and you should disable it when you compile the final release
  * version of your application because computing/rendering phyiscs debug information can be expensive.
  */
-class DebugRenderer : public EventListener {
+class REACTPHYSICS3D DebugRenderer : public EventListener {
 
     public:
 
@@ -92,7 +98,7 @@ class DebugRenderer : public EventListener {
         };
 
 		/// Struture that represents a line of the DebugRenderer
-		struct DebugLine {
+		struct REACTPHYSICS3D DebugLine {
 			
 			/// Constructor
             DebugLine(const Vector3& point1, const Vector3& point2, uint32 color)
@@ -114,7 +120,7 @@ class DebugRenderer : public EventListener {
 		};
 
 		/// Struture that represents a triangle of the DebugRenderer
-		struct DebugTriangle {
+		struct REACTPHYSICS3D DebugTriangle {
 			
 			/// Constructor
 			DebugTriangle(const Vector3& point1, const Vector3& point2, const Vector3& point3, uint32 color)

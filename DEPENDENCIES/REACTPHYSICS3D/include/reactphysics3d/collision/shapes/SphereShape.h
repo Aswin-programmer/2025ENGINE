@@ -31,6 +31,12 @@
 #include <reactphysics3d/mathematics/mathematics.h>
 #include <reactphysics3d/collision/shapes/AABB.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 // ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -45,7 +51,7 @@ class Body;
  * radius of the sphere. Therefore, no need to specify an object margin
  * for a sphere shape.
  */
-class SphereShape : public ConvexShape {
+class REACTPHYSICS3D SphereShape : public ConvexShape {
 
     protected :
 

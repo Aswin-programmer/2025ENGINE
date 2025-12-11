@@ -31,6 +31,12 @@
 #include <reactphysics3d/body/RigidBody.h>
 #include <reactphysics3d/constraint/Joint.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Declarations
@@ -41,7 +47,7 @@ class ConstraintSolverSystem;
  * This structure is used to gather the information needed to create a slider
  * joint. This structure will be used to create the actual slider joint.
  */
-struct SliderJointInfo : public JointInfo {
+struct REACTPHYSICS3D SliderJointInfo : public JointInfo {
 
     public :
 
@@ -227,7 +233,7 @@ struct SliderJointInfo : public JointInfo {
  * It only allows relative translation of the bodies along a single direction and no
  * rotation.
  */
-class SliderJoint : public Joint {
+class REACTPHYSICS3D SliderJoint : public Joint {
 
     private :
 

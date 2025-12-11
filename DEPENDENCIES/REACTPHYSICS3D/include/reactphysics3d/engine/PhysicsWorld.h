@@ -53,6 +53,12 @@
 #include <reactphysics3d/utils/DebugRenderer.h>
 #include <sstream>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// Namespace ReactPhysics3D
 namespace reactphysics3d {
 
@@ -66,7 +72,7 @@ struct JointInfo;
 /**
  * This class represents a physics world.
  */
-class PhysicsWorld {
+class REACTPHYSICS3D PhysicsWorld {
 
     public:
 

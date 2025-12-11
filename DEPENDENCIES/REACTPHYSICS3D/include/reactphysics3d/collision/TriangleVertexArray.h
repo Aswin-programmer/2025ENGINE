@@ -29,6 +29,12 @@
 // Libraries
 #include <reactphysics3d/configuration.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Declarations
@@ -43,7 +49,7 @@ struct Vector3;
  * part. Therefore, make sure that the data pointed by a TriangleVertexArray
  * remains valid during the TriangleVertexArray life.
  */
-class TriangleVertexArray {
+class REACTPHYSICS3D TriangleVertexArray {
 
     public:
 

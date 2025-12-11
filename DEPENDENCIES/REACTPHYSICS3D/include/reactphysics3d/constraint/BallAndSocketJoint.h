@@ -30,6 +30,12 @@
 #include <reactphysics3d/constraint/Joint.h>
 #include <reactphysics3d/mathematics/mathematics.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Structure BallAndSocketJointInfo
@@ -37,7 +43,7 @@ namespace reactphysics3d {
  * This structure is used to gather the information needed to create a ball-and-socket
  * joint. This structure will be used to create the actual ball-and-socket joint.
  */
-struct BallAndSocketJointInfo : public JointInfo {
+struct REACTPHYSICS3D BallAndSocketJointInfo : public JointInfo {
 
     public :
 
@@ -90,7 +96,7 @@ struct BallAndSocketJointInfo : public JointInfo {
  * between two bodies. This joint has three degrees of freedom. It can be used to
  * create a chain of bodies for instance.
  */
-class BallAndSocketJoint : public Joint {
+class REACTPHYSICS3D BallAndSocketJoint : public Joint {
 
     private :
 

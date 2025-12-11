@@ -31,6 +31,12 @@
 #include <reactphysics3d/collision/HeightField.h>
 #include <reactphysics3d/collision/shapes/AABB.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 class HeightFieldShape;
@@ -48,7 +54,7 @@ class TriangleShape;
  * that for instance, if the minimum height value is -200 and the maximum value is 400, the final
  * minimum height of the field in the simulation will be -300 and the maximum height will be 300.
  */
-class HeightFieldShape : public ConcaveShape {
+class REACTPHYSICS3D HeightFieldShape : public ConcaveShape {
 
     public:
 

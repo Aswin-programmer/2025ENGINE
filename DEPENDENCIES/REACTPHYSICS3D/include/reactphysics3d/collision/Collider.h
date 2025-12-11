@@ -32,6 +32,12 @@
 #include <reactphysics3d/engine/Material.h>
 #include <reactphysics3d/utils/Logger.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace  reactphysics3d {
 
 // Declarations
@@ -44,7 +50,7 @@ class MemoryManager;
  * with many physics parameters like friction or bounciness. When you create a body, you need to attach
  * at least one collider to it if you want that body to be able to collide in the physics world.
  */
-class Collider {
+class REACTPHYSICS3D Collider {
 
     protected:
 

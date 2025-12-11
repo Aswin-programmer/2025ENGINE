@@ -31,6 +31,12 @@
 #include <cmath>
 #include <reactphysics3d/configuration.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Class Material
@@ -39,7 +45,7 @@ namespace reactphysics3d {
  * the dynamics simulation like the friction coefficient or the bounciness of the rigid
  * body.
  */
-class Material {
+class REACTPHYSICS3D Material {
 
     private :
 

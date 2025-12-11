@@ -30,6 +30,12 @@
 #include <reactphysics3d/decimal.h>
 #include <reactphysics3d/mathematics/Vector3.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -41,7 +47,7 @@ class Matrix3x3;
  * This class represents a quaternion. We use the notation :
  * q = (x*i, y*j, z*k, w) to represent a quaternion.
  */
-struct Quaternion {
+struct REACTPHYSICS3D Quaternion {
 
     public :
 

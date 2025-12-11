@@ -32,6 +32,12 @@
 #include <reactphysics3d/collision/shapes/AABB.h>
 #include "HalfEdgeStructure.h"
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Declarations
@@ -44,7 +50,7 @@ struct Message;
  * This class describes a convex mesh made of faces and vertices.
  * The faces are made of polygons (not only triangles).
  */
-class ConvexMesh {
+class REACTPHYSICS3D ConvexMesh {
 
     private:
 

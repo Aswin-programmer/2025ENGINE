@@ -30,6 +30,12 @@
 #include <reactphysics3d/collision/shapes/CollisionShape.h>
 #include <reactphysics3d/collision/shapes/TriangleShape.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 // ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -38,7 +44,7 @@ namespace reactphysics3d {
  * This class is used to encapsulate a callback method for
  * a single triangle of a ConcaveMesh.
  */
-class TriangleCallback {
+class REACTPHYSICS3D TriangleCallback {
 
     public:
 
@@ -56,7 +62,7 @@ class TriangleCallback {
  * This abstract class represents a concave collision shape associated with a
  * body that is used during the narrow-phase collision detection.
  */
-class ConcaveShape : public CollisionShape {
+class REACTPHYSICS3D ConcaveShape : public CollisionShape {
 
     protected :
 

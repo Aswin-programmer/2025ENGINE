@@ -34,6 +34,14 @@
 #include <reactphysics3d/collision/Collider.h>
 #include <reactphysics3d/collision/HalfEdgeStructure.h>
 
+#include <vector>
+
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Declarations
@@ -49,7 +57,7 @@ struct Message;
  * that for instance, if the minimum height value is -200 and the maximum value is 400, the final
  * minimum height of the field in the simulation will be -300 and the maximum height will be 300.
  */
-class HeightField {
+class REACTPHYSICS3D HeightField {
 
     public:
 

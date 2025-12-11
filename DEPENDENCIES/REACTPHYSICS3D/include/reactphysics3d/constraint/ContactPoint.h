@@ -31,6 +31,12 @@
 #include <reactphysics3d/mathematics/mathematics.h>
 #include <reactphysics3d/collision/ContactPointInfo.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -42,7 +48,7 @@ class Body;
  * This class represents a collision contact point between two
  * bodies in the physics engine.
  */
-class ContactPoint {
+class REACTPHYSICS3D ContactPoint {
 
     private :
 

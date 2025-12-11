@@ -42,6 +42,12 @@
 #include <reactphysics3d/collision/PolygonVertexArray.h>
 #include <reactphysics3d/collision/VertexArray.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -53,7 +59,7 @@ class VertexArray;
  * Then this class is used by the user as a factory to create the physics world and
  * other objects.
  */
-class PhysicsCommon {
+class REACTPHYSICS3D PhysicsCommon {
 
     private :
 

@@ -30,6 +30,12 @@
 #include <reactphysics3d/collision/shapes/ConvexPolyhedronShape.h>
 #include <reactphysics3d/mathematics/mathematics.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -46,7 +52,7 @@ class AABB;
  * axis x, y, z local axis. The "transform" of the corresponding
  * body will give an orientation and a position to the box.
  */
-class BoxShape : public ConvexPolyhedronShape {
+class REACTPHYSICS3D BoxShape : public ConvexPolyhedronShape {
 
     protected :
 

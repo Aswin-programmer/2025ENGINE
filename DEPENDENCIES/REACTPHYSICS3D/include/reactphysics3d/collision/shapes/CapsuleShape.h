@@ -30,6 +30,12 @@
 #include <reactphysics3d/collision/shapes/ConvexShape.h>
 #include <reactphysics3d/mathematics/mathematics.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 // ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -46,7 +52,7 @@ class Body;
  * and height of the shape. Therefore, no need to specify an object margin for a
  * capsule shape.
  */
-class CapsuleShape : public ConvexShape {
+class REACTPHYSICS3D CapsuleShape : public ConvexShape {
 
     protected :
 

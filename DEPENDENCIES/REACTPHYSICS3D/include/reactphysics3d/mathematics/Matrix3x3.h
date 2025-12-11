@@ -31,6 +31,12 @@
 #include <cassert>
 #include <reactphysics3d/mathematics/Vector3.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -38,7 +44,7 @@ namespace reactphysics3d {
 /**
  * This class represents a 3x3 matrix.
  */
-class Matrix3x3 {
+class REACTPHYSICS3D Matrix3x3 {
 
     private :
 

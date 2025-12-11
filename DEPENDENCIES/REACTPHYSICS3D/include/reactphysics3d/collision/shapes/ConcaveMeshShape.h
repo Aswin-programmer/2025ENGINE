@@ -31,6 +31,12 @@
 #include <reactphysics3d/collision/broadphase/DynamicAABBTree.h>
 #include <reactphysics3d/containers/Array.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Declarations
@@ -43,7 +49,7 @@ class TriangleMesh;
 /**
  * This class represents a callback when an overlap occurs
  */
-class ConvexTriangleAABBOverlapCallback : public DynamicAABBTreeOverlapCallback {
+class REACTPHYSICS3D ConvexTriangleAABBOverlapCallback : public DynamicAABBTreeOverlapCallback {
 
     private:
 
@@ -67,7 +73,7 @@ class ConvexTriangleAABBOverlapCallback : public DynamicAABBTreeOverlapCallback 
 };
 
 /// Class ConcaveMeshRaycastCallback
-class ConcaveMeshRaycastCallback : public DynamicAABBTreeRaycastCallback {
+class REACTPHYSICS3D ConcaveMeshRaycastCallback : public DynamicAABBTreeRaycastCallback {
 
     private :
 
@@ -123,7 +129,7 @@ class ConcaveMeshRaycastCallback : public DynamicAABBTreeRaycastCallback {
  * with a concave mesh shape can be very expensive. You should only use
  * this shape for a static mesh.
  */
-class ConcaveMeshShape : public ConcaveShape {
+class REACTPHYSICS3D ConcaveMeshShape : public ConcaveShape {
 
     protected:
 

@@ -30,6 +30,12 @@
 #include <reactphysics3d/containers/Array.h>
 #include <reactphysics3d/collision/ContactPair.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -44,7 +50,7 @@ struct Entity;
  * This class can be used to register a callback for collision overlap queries between bodies.
  * You should implement your own class inherited from this one and implement the onOverlap() method.
  */
-class OverlapCallback {
+class REACTPHYSICS3D OverlapCallback {
 
     public:
 
@@ -52,7 +58,7 @@ class OverlapCallback {
         /**
          * This class represents the contact between two colliders of the physics world.
          */
-        class OverlapPair {
+        class REACTPHYSICS3D OverlapPair {
 
             public:
 
@@ -125,7 +131,7 @@ class OverlapCallback {
         /**
          * This class contains data about overlap between bodies
          */
-        class CallbackData {
+        class REACTPHYSICS3D CallbackData {
 
             private:
 

@@ -30,6 +30,12 @@
 #include <reactphysics3d/configuration.h>
 #include <cassert>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Declarations
@@ -41,7 +47,7 @@ struct Vector3;
  * A PolygonVertexArray represents an array of vertices and polygon faces
  * of a mesh. When you create a PolygonVertexArray, no data is copied
  * into the array. It only stores pointer to the data.  */
-class PolygonVertexArray {
+class REACTPHYSICS3D PolygonVertexArray {
 
     public:
 

@@ -31,6 +31,12 @@
 #include <reactphysics3d/mathematics/mathematics_functions.h>
 #include <reactphysics3d/decimal.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -38,7 +44,7 @@ namespace reactphysics3d {
 /**
  * This class represents a 2D vector.
  */
-struct Vector2 {
+struct REACTPHYSICS3D Vector2 {
 
     public:
 

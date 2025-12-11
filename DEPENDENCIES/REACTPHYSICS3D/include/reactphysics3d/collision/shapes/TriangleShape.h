@@ -31,6 +31,12 @@
 #include <reactphysics3d/collision/shapes/AABB.h>
 #include <reactphysics3d/collision/shapes/ConvexPolyhedronShape.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -58,7 +64,7 @@ enum class TriangleRaycastSide {
  * of this class are created when the user creates an HeightFieldShape and
  * a ConcaveMeshShape
  */
-class TriangleShape : public ConvexPolyhedronShape {
+class REACTPHYSICS3D TriangleShape : public ConvexPolyhedronShape {
 
     protected:
 

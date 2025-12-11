@@ -30,6 +30,12 @@
 #include <reactphysics3d/collision/shapes/ConvexShape.h>
 #include <reactphysics3d/collision/HalfEdgeStructure.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -38,7 +44,7 @@ namespace reactphysics3d {
  * This abstract class represents a convex polyhedron collision shape associated with a
  * body that is used during the narrow-phase collision detection.
  */
-class ConvexPolyhedronShape : public ConvexShape {
+class REACTPHYSICS3D ConvexPolyhedronShape : public ConvexShape {
 
     protected :
 

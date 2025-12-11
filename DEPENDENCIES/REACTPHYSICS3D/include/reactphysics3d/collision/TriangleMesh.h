@@ -33,6 +33,12 @@
 #include <reactphysics3d/collision/broadphase/DynamicAABBTree.h>
 #include <reactphysics3d/containers/Map.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Declarations
@@ -45,7 +51,7 @@ struct Message;
  * A single TriangleMesh object can be used to create one or many ConcaveMeshShape (with
  * different scaling for instance).
  */
-class TriangleMesh {
+class REACTPHYSICS3D TriangleMesh {
 
     protected:
 

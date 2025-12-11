@@ -31,6 +31,12 @@
 #include <reactphysics3d/body/Body.h>
 #include <reactphysics3d/mathematics/mathematics.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// Namespace reactphysics3d
 namespace reactphysics3d {
 
@@ -47,7 +53,7 @@ enum class BodyType;
  * has a constant mass. This class inherits from the
  * Body class.
   */
-class RigidBody : public Body {
+class REACTPHYSICS3D RigidBody : public Body {
 
     protected :
 

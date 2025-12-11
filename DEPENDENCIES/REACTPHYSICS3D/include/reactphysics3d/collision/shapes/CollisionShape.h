@@ -32,6 +32,12 @@
 #include <reactphysics3d/utils/Profiler.h>
 #include <reactphysics3d/containers/Array.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -61,7 +67,7 @@ class Body;
  * This abstract class represents the collision shape associated with a
  * body that is used during the narrow-phase collision detection.
  */
-class CollisionShape {
+class REACTPHYSICS3D CollisionShape {
         
     protected :
 

@@ -31,6 +31,12 @@
 #include <reactphysics3d/mathematics/mathematics.h>
 #include <reactphysics3d/collision/ConvexMesh.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -45,7 +51,7 @@ class PhysicsWorld;
  * of the shape will be at the origin of the local-space geometry that you use to create
  * the mesh.
  */
-class ConvexMeshShape : public ConvexPolyhedronShape {
+class REACTPHYSICS3D ConvexMeshShape : public ConvexPolyhedronShape {
 
     protected :
 

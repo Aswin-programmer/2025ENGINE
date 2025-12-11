@@ -29,6 +29,12 @@
 // Libraries
 #include <reactphysics3d/mathematics/Vector3.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -38,7 +44,7 @@ namespace reactphysics3d {
  * The ray goes from point1 to point1 + maxFraction * (point2 - point1).
  * The points are specified in world-space coordinates.
  */
-struct Ray {
+struct REACTPHYSICS3D Ray {
 
     public:
 

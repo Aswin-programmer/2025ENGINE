@@ -31,6 +31,12 @@
 #include <reactphysics3d/collision/ContactPair.h>
 #include <reactphysics3d/constraint/ContactPoint.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -48,7 +54,7 @@ class MemoryManager;
  * the notifyContact() method. This method will called each time a contact
  * point is reported.
  */
-class CollisionCallback {
+class REACTPHYSICS3D CollisionCallback {
 
     public:
 
@@ -56,7 +62,7 @@ class CollisionCallback {
         /**
          * This class represents a contact point between two colliders of the physics world.
          */
-        class ContactPoint {
+        class REACTPHYSICS3D ContactPoint {
 
             private:
 
@@ -116,7 +122,7 @@ class CollisionCallback {
          * This class represents the contact between two colliders of the physics world.
          * A contact pair contains an array of contact points.
          */
-        class ContactPair {
+        class REACTPHYSICS3D ContactPair {
 
             public:
 
@@ -220,7 +226,7 @@ class CollisionCallback {
         /**
          * This class contains data about contacts between bodies
          */
-        class CallbackData {
+        class REACTPHYSICS3D CallbackData {
 
             private:
 

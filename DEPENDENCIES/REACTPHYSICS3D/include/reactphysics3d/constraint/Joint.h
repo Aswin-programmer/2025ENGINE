@@ -31,6 +31,12 @@
 #include <reactphysics3d/body/RigidBody.h>
 #include <reactphysics3d/mathematics/mathematics.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 // ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -46,7 +52,7 @@ class RigidBody;
 /**
  * This structure is used to gather the information needed to create a joint.
  */
-struct JointInfo {
+struct REACTPHYSICS3D JointInfo {
 
     public :
 
@@ -92,7 +98,7 @@ struct JointInfo {
 /**
  * This abstract class represents a joint between two bodies.
  */
-class Joint {
+class REACTPHYSICS3D Joint {
 
     protected :
 

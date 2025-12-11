@@ -30,6 +30,12 @@
 #include <reactphysics3d/collision/CollisionCallback.h>
 #include <reactphysics3d/collision/OverlapCallback.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Class EventListener
@@ -39,7 +45,7 @@ namespace reactphysics3d {
  * this one and you must override the methods that you need. Then, you will need to register your
  * new event listener class to the physics world using the PhysicsWorld::setEventListener() method.
  */
-class EventListener : public CollisionCallback {
+class REACTPHYSICS3D EventListener : public CollisionCallback {
 
     public :
 

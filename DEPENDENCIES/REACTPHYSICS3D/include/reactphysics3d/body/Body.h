@@ -33,6 +33,12 @@
 #include <reactphysics3d/mathematics/Transform.h>
 #include <reactphysics3d/configuration.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// Namespace reactphysics3d
 namespace reactphysics3d {
 
@@ -49,7 +55,7 @@ class Logger;
 /**
  * This class represents a body
  */
-class Body {
+class REACTPHYSICS3D Body {
 
     protected :
 

@@ -30,6 +30,12 @@
 #include <reactphysics3d/configuration.h>
 #include <cassert>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Declarations
@@ -39,7 +45,7 @@ struct Vector3;
 /**
  * This class is used to describe an array of vertices.
  */
-class VertexArray {
+class REACTPHYSICS3D VertexArray {
 
     public:
 

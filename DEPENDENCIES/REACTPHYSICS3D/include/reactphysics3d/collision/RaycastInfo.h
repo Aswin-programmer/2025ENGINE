@@ -29,6 +29,12 @@
 // Libraries
 #include <reactphysics3d/mathematics/Vector3.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -42,7 +48,7 @@ struct Ray;
 /**
  * This structure contains the information about a raycast hit.
  */
-struct RaycastInfo {
+struct REACTPHYSICS3D RaycastInfo {
 
     private:
 
@@ -93,7 +99,7 @@ struct RaycastInfo {
  * the notifyRaycastHit() method. This method will be called for each collider
  * that is hit by the ray.
  */
-class RaycastCallback {
+class REACTPHYSICS3D RaycastCallback {
 
     public:
 
@@ -124,7 +130,7 @@ class RaycastCallback {
 };
 
 /// Structure RaycastTest
-struct RaycastTest {
+struct REACTPHYSICS3D RaycastTest {
 
     public:
 

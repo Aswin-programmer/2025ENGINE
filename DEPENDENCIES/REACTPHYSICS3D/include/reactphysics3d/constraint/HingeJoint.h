@@ -30,6 +30,12 @@
 #include <reactphysics3d/constraint/Joint.h>
 #include <reactphysics3d/mathematics/mathematics.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Structure HingeJointInfo
@@ -37,7 +43,7 @@ namespace reactphysics3d {
  * This structure is used to gather the information needed to create a hinge joint.
  * This structure will be used to create the actual hinge joint.
  */
-struct HingeJointInfo : public JointInfo {
+struct REACTPHYSICS3D HingeJointInfo : public JointInfo {
 
     public :
 
@@ -239,7 +245,7 @@ struct HingeJointInfo : public JointInfo {
  * between two bodies around a single axis. This joint has one degree of freedom. It
  * can be useful to simulate doors or pendulumns.
  */
-class HingeJoint : public Joint {
+class REACTPHYSICS3D HingeJoint : public Joint {
 
     private :
 

@@ -29,6 +29,12 @@
 // Libraries
 #include <reactphysics3d/collision/shapes/CollisionShape.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
 
@@ -37,7 +43,7 @@ namespace reactphysics3d {
  * This abstract class represents a convex collision shape associated with a
  * body that is used during the narrow-phase collision detection.
  */
-class ConvexShape : public CollisionShape {
+class REACTPHYSICS3D ConvexShape : public CollisionShape {
 
     protected :
 

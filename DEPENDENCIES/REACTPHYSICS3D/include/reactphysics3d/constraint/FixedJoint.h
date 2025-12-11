@@ -30,6 +30,12 @@
 #include <reactphysics3d/constraint/Joint.h>
 #include <reactphysics3d/mathematics/mathematics.h>
 
+#ifdef REACTPHYSICS3D_EXPORTS
+#define REACTPHYSICS3D __declspec(dllexport)
+#else
+#define REACTPHYSICS3D __declspec(dllimport)
+#endif
+
 namespace reactphysics3d {
 
 // Structure FixedJointInfo
@@ -37,7 +43,7 @@ namespace reactphysics3d {
  * This structure is used to gather the information needed to create a fixed
  * joint. This structure will be used to create the actual fixed joint.
  */
-struct FixedJointInfo : public JointInfo {
+struct REACTPHYSICS3D FixedJointInfo : public JointInfo {
 
     public :
 
@@ -89,7 +95,7 @@ struct FixedJointInfo : public JointInfo {
  * This class represents a fixed joint that is used to forbid any translation or rotation
  * between two bodies.
  */
-class FixedJoint : public Joint {
+class REACTPHYSICS3D FixedJoint : public Joint {
 
     private :
 
