@@ -1,6 +1,6 @@
 # 2025ENGINE
 
-## 🎮 Overview
+## Overview
 
 **2025ENGINE** is a modern, experimental **C++ game engine** focused on learning, performance, and low-level graphics programming. The engine is being developed with a strong emphasis on **modern OpenGL 4.6**, data-oriented design, and real-time rendering techniques typically found in professional engines.
 
@@ -10,11 +10,11 @@ The current goal of the project is to **complete a stable basic version of the e
 
 ---
 
-## ▶️ Engine Demo
+## Engine Demo
 
 [![Engine Demo Video](https://img.youtube.com/vi/Je9Aj9f1vdE/0.jpg)](https://www.youtube.com/watch?v=Je9Aj9f1vdE)
 
-🎥 **Full Demo Video (YouTube):**  
+**Full Demo Video (YouTube):**  
 https://www.youtube.com/watch?v=Je9Aj9f1vdE
 
 This video demonstrates the current state of **2025ENGINE**, including:
@@ -25,9 +25,9 @@ This video demonstrates the current state of **2025ENGINE**, including:
 - In-engine debug and editor tooling
 
 
-## ✨ Key Features Implemented So Far
+## Key Features Implemented So Far
 
-### 🔹 Rendering & Graphics
+### Rendering & Graphics
 
 * **Optimized Rendering Pipeline**
 
@@ -55,7 +55,7 @@ This video demonstrates the current state of **2025ENGINE**, including:
 
 ---
 
-### 🔹 Animation
+### Animation
 
 * **Skeletal Animation Support**
 
@@ -64,7 +64,7 @@ This video demonstrates the current state of **2025ENGINE**, including:
 
 ---
 
-### 🔹 Engine Architecture & ECS
+### Engine Architecture & ECS
 
 * **Entity-Component System (ECS)**
 
@@ -74,7 +74,7 @@ This video demonstrates the current state of **2025ENGINE**, including:
 
 ---
 
-### 🔹 Scripting & Runtime Systems
+### Scripting & Runtime Systems
 
 * **Native C++ Scripting System**
 
@@ -84,7 +84,7 @@ This video demonstrates the current state of **2025ENGINE**, including:
 
 ---
 
-### 🔹 Tools & Debugging
+### Tools & Debugging
 
 * **Embedded Debug UI**
 
@@ -93,9 +93,9 @@ This video demonstrates the current state of **2025ENGINE**, including:
 
 ---
 
-## 🛠 Build Information
+## Build Information
 
-⚠️ **Current Platform Support**
+**Current Platform Support**
 
 * **Windows only** (for now)
 
@@ -109,7 +109,7 @@ Detailed build instructions will be added once the engine architecture stabilize
 
 ---
 
-## 🧬 Engine Lineage (Previous Projects)
+## Engine Lineage (Previous Projects)
 
 This engine is the **third major iteration** in my engine-development journey. The knowledge and architecture choices in 2025ENGINE are heavily influenced by the following predecessor projects:
 
@@ -123,7 +123,7 @@ Each engine was built from scratch and served as a learning platform for renderi
 
 ---
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 Special thanks to:
 
@@ -134,17 +134,17 @@ For inspiration, guidance, and contributions that helped shape parts of the engi
 
 ---
 
-## 🚧 Project Status
+## Project Status
 
-* 🔄 Actively under development
-* 🧪 Experimental and educational in nature
-* 🛠 APIs and internal systems are subject to change
+* Actively under development
+* Experimental and educational in nature
+* APIs and internal systems are subject to change
 
 This project is intended as both a **learning exercise** and a **long-term foundation** for exploring advanced game engine concepts.
 
 ---
 
-## 📌 Future Plans (High-Level)
+## Future Plans (High-Level)
 
 * Improved shadow quality and cascaded shadow maps
 * Editor tooling and asset pipeline improvements
