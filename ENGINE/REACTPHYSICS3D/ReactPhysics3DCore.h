@@ -19,7 +19,8 @@ public:
 
 	void InitReactPhysics3DCore();
 
-	rp3d::PhysicsWorld* GetPhysicsWorld() { return physicsWorld; }
+	rp3d::PhysicsWorld* GetPhysicsWorld() const { return physicsWorld; }
+	std::shared_ptr< rp3d::PhysicsCommon> GetPhysicsCommon() const { return physicsCommon; }
 
 	bool IsDebugEnabled();
 

@@ -38,4 +38,9 @@ void ReactPhysics3DCore::EnableDebug()
 	}
 
 	physicsWorld->setIsDebugRenderingEnabled(true);
+	rp3d::DebugRenderer& dbg = physicsWorld->getDebugRenderer();
+
+	dbg.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::COLLISION_SHAPE, true);
+	dbg.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::COLLIDER_AABB, true);
+	dbg.setIsDebugItemDisplayed(rp3d::DebugRenderer::DebugItem::CONTACT_POINT, true);
 }

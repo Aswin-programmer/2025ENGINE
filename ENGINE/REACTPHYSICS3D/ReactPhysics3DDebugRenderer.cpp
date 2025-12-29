@@ -10,8 +10,8 @@ ReactPhysicsDebugRenderer::ReactPhysicsDebugRenderer(
     std::shared_ptr<ReactPhysics3DCore> reactPhysics3DCore
 )
     : 
-    reactPhysics3DCore{ reactPhysics3DCore }
-    //debugShader(std::make_shared<Shader>(vertPath, fragPath))
+    reactPhysics3DCore{ reactPhysics3DCore },
+    debugShader(std::make_shared<Shader>(vertPath.c_str(), fragPath.c_str(), nullptr, nullptr, nullptr))
 {
     // Create VAO
     glCreateVertexArrays(1, &debugVAO);
@@ -64,7 +64,7 @@ ReactPhysicsDebugRenderer::ReactPhysicsDebugRenderer(
 ReactPhysicsDebugRenderer::~ReactPhysicsDebugRenderer()
 {
 	if (debugVBO) glDeleteBuffers(1, &debugVBO);
-	if (debugVAO) glDeleteBuffers(1, &debugVAO);
+	if (debugVAO) glDeleteVertexArrays(1, &debugVAO);
 }
 
 void ReactPhysicsDebugRenderer::ReactPhysicsRendererRender(glm::mat4 view, glm::mat4 proj)
@@ -75,15 +75,27 @@ void ReactPhysicsDebugRenderer::ReactPhysicsRendererRender(glm::mat4 view, glm::
     {
         // -- Lines -- //
         const unsigned int numLines = debugRenderer.getNbLines();
+        size_t vertexSize = sizeof(rp3d::Vector3) + sizeof(uint32_t);
+
         if (numLines > 0)
         {
-            glNamedBufferSubData(debugVBO, 0, numLines, debugRenderer.getLinesArray());
+            glNamedBufferSubData(
+                debugVBO, 
+                0, 
+                static_cast<unsigned long long>(numLines) * 2 * vertexSize,
+                debugRenderer.getLinesArray()
+            );
         }
 
-        const unsigned int numTrianges = debugRenderer.getNbTriangles();
-        if (numTrianges > 0)
+        const unsigned int numTriangles = debugRenderer.getNbTriangles();
+        if (numTriangles > 0)
         {
-            glNamedBufferSubData(debugVBO, numLines, numTrianges, debugRenderer.getTrianglesArray());
+            glNamedBufferSubData(
+                debugVBO, 
+                static_cast<unsigned long long>(numLines) * 2 * vertexSize,
+                static_cast<unsigned long long>(numTriangles) * 3 * vertexSize,
+                debugRenderer.getTrianglesArray()
+            );
         }
 
         debugShader->use();
@@ -94,7 +106,7 @@ void ReactPhysicsDebugRenderer::ReactPhysicsRendererRender(glm::mat4 view, glm::
 
         glBindVertexArray(debugVAO);
         glDrawArrays(GL_LINES, 0, numLines * 2);
-        glDrawArrays(GL_TRIANGLES, numLines * 2, numTrianges * 3);
+        glDrawArrays(GL_TRIANGLES, numLines * 2, numTriangles * 3);
         
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     } 
