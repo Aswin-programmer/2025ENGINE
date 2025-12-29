@@ -33,6 +33,14 @@ add_custom_command(TARGET 2025ENGINE_EXE POST_BUILD
     COMMENT "Copying flecs.dll next to 2025ENGINE_EXE"
 )
 
+# Copy reactphysics3d.dll if it exists
+add_custom_command(TARGET 2025ENGINE_EXE POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_BINARY_DIR}/DEPENDENCIES/REACTPHYSICS3D/reactphysics3d.dll"
+        "$<TARGET_FILE_DIR:2025ENGINE_EXE>/"
+    COMMENT "Copying reactphysics3d.dll next to 2025ENGINE_EXE"
+)
+
 
 target_compile_definitions(2025ENGINE_EXE PRIVATE 
 	RESOURCES_PATH="${CMAKE_SOURCE_DIR}/ASSETS/"

@@ -46,7 +46,8 @@ void MeshRendererSystem::MeshRendererFinalDrawCall(
     glm::mat4 view, glm::mat4 proj, 
     glm::vec3 cameraPos, 
     std::shared_ptr<Shader> customShader, 
-    glm::mat4 tempShadowCameraMatrix
+    glm::mat4 tempShadowCameraMatrix,
+    glm::mat4 projectionShadowMatrix
 )
 {
     if (customShader == nullptr)
@@ -58,6 +59,7 @@ void MeshRendererSystem::MeshRendererFinalDrawCall(
         meshRendererShader->setMat4("projection", proj);
         meshRendererShader->setVec3("viewPos", cameraPos);
         meshRendererShader->setMat4("lightViewMatrix", tempShadowCameraMatrix);
+        meshRendererShader->setMat4("projectionShadowMatrix", projectionShadowMatrix);
         gltfMeshRenderer->GLTFMESHRender();
     }
     else

@@ -57,7 +57,9 @@ float ShadowCalculation(vec4 fragPosLightSpace_)
     if(projCoords.z > 1.0)
         return 0.0;
 
-    float bias = 0.001;
+    // Inside ShadowCalculation
+    vec3 lightDir = normalize(lights[0].position); // Or passed in as argument
+    float bias = max(0.005 * (1.0 - dot(normalize(vNormal), lightDir)), 0.0005);
 
     float shadow = 0.0;
     vec2 texelSize = 1.0 / textureSize(uTextures[20], 0);

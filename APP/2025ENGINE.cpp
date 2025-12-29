@@ -46,10 +46,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void char_callback(GLFWwindow* window, unsigned int codepoint);
 
 // Editor Camera Setup
-EditorCamera camera(45.0f, 640.f / 480.f, 0.1f, 200.0f);
+EditorCamera camera(45.0f, 640.f / 480.f, 0.1f, 2000.0f);
 
-// Shadow Map Camera Setup
-EditorCamera shadowCamera(45.0f, 640.f / 480.f, 0.1f, 200.0f);
+// Shadow Map Camera Setup   
+EditorCamera shadowCamera(45.0f, 640.f / 480.f, 0.1f, 2000.0f);
 
 // Mouse Setup
 float GlobalMousePosX = 0.f;
@@ -310,7 +310,12 @@ int main()
 
 		// Create projection matrices [PERSPECTIVE] 
 		glm::mat4 projectionP = glm::mat4(1.0f);
-		projectionP = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 200.0f);
+		projectionP = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 2000.0f);
+
+		// Create A Orthogonal Projection Matrix [ORTHOGONAL]
+		glm::mat4 projectionO = glm::mat4(1.f);
+		projectionO = glm::ortho(-32.f, 32.f, -24.f, 24.f, 0.1f, 200.f);
+
 
 		// Camera or View transformation
 		glm::mat4 view = camera.GetViewMatrix();
@@ -330,7 +335,14 @@ int main()
 		meshRenderSystem->MeshRendererUpdate();
 		    
 		depthMap->DepthMapBind();
-		meshRenderSystem->MeshRendererFinalDrawCall(shadowCamera.GetViewMatrix() , projectionP, camera.GetPosition(), shaderDepthMap, shadowCamera.GetViewMatrix());
+		meshRenderSystem->MeshRendererFinalDrawCall(
+			shadowCamera.GetViewMatrix() , 
+			projectionO, 
+			camera.GetPosition(), 
+			shaderDepthMap, 
+			shadowCamera.GetViewMatrix(),
+			projectionO
+		);
 		depthMap->DepthMapUnBind();
 		 
 		 
@@ -342,7 +354,14 @@ int main()
 		else
 		{ 
 			depthMap->BindDepthTextureToTextureUnit(20);
-			meshRenderSystem->MeshRendererFinalDrawCall(view, projectionP, camera.GetPosition(), nullptr, shadowCamera.GetViewMatrix());
+			meshRenderSystem->MeshRendererFinalDrawCall(
+				view, 
+				projectionP, 
+				camera.GetPosition(), 
+				nullptr, 
+				shadowCamera.GetViewMatrix(),
+				projectionO
+			);
 		}
 		           
 		/*nativeCPPScriptManager->UpdateScript();*/

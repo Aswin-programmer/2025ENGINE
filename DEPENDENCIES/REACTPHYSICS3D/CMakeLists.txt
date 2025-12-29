@@ -261,7 +261,7 @@ if(RP3D_COMPILE_LIBRARY)
 		add_library(reactphysics3d SHARED
 			${REACTPHYSICS3D_HEADERS}
 			${REACTPHYSICS3D_SOURCES}
-		)
+		 "Precompiled.h")
 
 		# Apply DLL export preprocessor define
 		target_compile_definitions(reactphysics3d
@@ -274,7 +274,7 @@ if(RP3D_COMPILE_LIBRARY)
 				$<INSTALL_INTERFACE:include>
 		)
 
-		target_compile_options(reactphysics3d PRIVATE -include vector)
+		# target_compile_options(reactphysics3d PRIVATE -include vector)
 
 		add_library(ReactPhysics3D::reactphysics3d ALIAS reactphysics3d)
 
@@ -291,11 +291,13 @@ if(RP3D_COMPILE_LIBRARY)
 				$<INSTALL_INTERFACE:include>
 		)
 
-		target_compile_options(reactphysics3d PRIVATE -include vector)
+		# target_compile_options(reactphysics3d PRIVATE -include vector)
 
 		add_library(ReactPhysics3D::reactphysics3d ALIAS reactphysics3d)
 
 	endif()
+
+	target_precompile_headers(reactphysics3d PRIVATE precompiled.h)
 
 endif()
 

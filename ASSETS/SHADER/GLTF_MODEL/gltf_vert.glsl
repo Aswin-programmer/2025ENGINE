@@ -29,6 +29,7 @@ layout(std430, binding = 2) buffer Animations {
 
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 projectionShadowMatrix;
 uniform mat4 lightViewMatrix;
 uniform uint u_NumInstances; // defensive bound check
 
@@ -154,7 +155,7 @@ void main()
 
     gl_Position = projection * view * worldPos;
 
-    fragPosLightSpace = projection * lightViewMatrix * worldPos;
+    fragPosLightSpace = projectionShadowMatrix * lightViewMatrix * worldPos;
 
     vTexCoord = aTexCoord;
 

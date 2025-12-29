@@ -41,7 +41,8 @@ public:
         glm::mat4 proj,
         glm::vec3 cameraPos,
         std::shared_ptr<Shader> customShader,
-        glm::mat4 tempShadowCameraMatrix
+        glm::mat4 tempShadowCameraMatrix,
+        glm::mat4 projectionShadowMatrix
     );
 
 private:
