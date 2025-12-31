@@ -50,6 +50,8 @@ void MeshRendererSystem::MeshRendererFinalDrawCall(
     glm::mat4 projectionShadowMatrix
 )
 {
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     if (customShader == nullptr)
     {
         glEnable(GL_CULL_FACE);

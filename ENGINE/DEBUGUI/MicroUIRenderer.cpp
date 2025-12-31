@@ -1062,13 +1062,13 @@ static GLuint compile_shader(GLenum type, const char* src) {
 void MicroUIRenderer::flush(void) {
     if (buf_idx == 0) return;
 
-    GLStateBackup backup; // A modern RAII style OpenGL context restorer.
+    //GLStateBackup backup; // A modern RAII style OpenGL context restorer.
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
-    //glEnable(GL_SCISSOR_TEST);
+    glEnable(GL_SCISSOR_TEST);
 
     glUseProgram(program);
 
@@ -1086,10 +1086,12 @@ void MicroUIRenderer::flush(void) {
 
     glUniformMatrix4fv(u_proj, 1, GL_FALSE, &ortho[0][0]);
 
-    // Bind Texture
+    // Bind Texture 
     glBindTextureUnit(0, atlas_tex);
 
     // Update Buffers
+    // Orphan buffer first
+
     glNamedBufferSubData(vbo, 0, buf_idx * 4 * sizeof(Vertex), vert_buf);
     glNamedBufferSubData(ebo, 0, buf_idx * 6 * sizeof(unsigned int), index_buf);
 
@@ -1154,24 +1156,36 @@ void MicroUIRenderer::push_quad(mu_Rect dst, mu_Rect src, mu_Color color) {
 
 void MicroUIRenderer::render_debug_ui()
 {
-    /* Render */
+    /* 1. Setup/Clear Phase */
     r_clear();
 
+    /* 2. Command Processing Phase */
     mu_Command* cmd = NULL;
     while (mu_next_command(ctx, &cmd)) {
         switch (cmd->type) {
-        case MU_COMMAND_TEXT: r_draw_text(cmd->text.str, cmd->text.pos, cmd->text.color); break;
-        case MU_COMMAND_RECT: r_draw_rect(cmd->rect.rect, cmd->rect.color); break;
-        case MU_COMMAND_ICON: r_draw_icon(cmd->icon.id, cmd->icon.rect, cmd->icon.color); break;
-        case MU_COMMAND_CLIP: r_set_clip_rect(cmd->clip.rect); break;
+        case MU_COMMAND_TEXT:
+            r_draw_text(cmd->text.str, cmd->text.pos, cmd->text.color);
+            break;
+        case MU_COMMAND_RECT:
+            r_draw_rect(cmd->rect.rect, cmd->rect.color);
+            break;
+        case MU_COMMAND_ICON:
+            r_draw_icon(cmd->icon.id, cmd->icon.rect, cmd->icon.color);
+            break;
+        case MU_COMMAND_CLIP:
+            r_set_clip_rect(cmd->clip.rect);
+            break;
         }
     }
+    /* 3. Presentation Phase */
     r_present();
 }
 
 void MicroUIRenderer::InitMicroUIRenderer()
 {
     std::cout << "[MicroUI] Initializing context\n";
+
+    if (ctx != nullptr) return;
 
     ctx = (mu_Context*)malloc(sizeof(mu_Context));
     if (!ctx)
@@ -1297,8 +1311,7 @@ int MicroUIRenderer::r_get_text_height(void)
 }
 
 void MicroUIRenderer::r_set_clip_rect(mu_Rect rect)
-{
-    flush();
+{    
     // OpenGL scissor is Bottom-Left, but microui is Top-Left
     glScissor(rect.x, win_height - (rect.y + rect.h), rect.w, rect.h);
 }
@@ -1307,7 +1320,6 @@ void MicroUIRenderer::r_clear()
 {
     win_width = Window::getWidth();
     win_height = Window::getHeight();
-    flush();
     /*glClearColor(clr.r / 255.0f, clr.g / 255.0f, clr.b / 255.0f, clr.a / 255.0f);
     glClear(GL_COLOR_BUFFER_BIT);*/
 }

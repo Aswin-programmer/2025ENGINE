@@ -40,7 +40,6 @@ extern "C" {
 #include <REACTPHYSICS3D/ReactPhysics3DCore.h>
 #include <REACTPHYSICS3D/ReactPhysics3DDebugRenderer.h>  
 
-
 // Opengl Callbacks
 void processKeyInput(GLFWwindow* window);
 void mouse_pos_callback(GLFWwindow* window, double xposIn, double yposIn);
@@ -145,6 +144,10 @@ int main()
 	{
 		std::cout << "Failed to load the sample model!\n";
 	}
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/PHYSICS1/box.gltf"))
+	{
+		std::cout << "Failed to load the sample model!\n";
+	}
 
 	// ######### Setting Up The ECS      ##########
 
@@ -206,7 +209,7 @@ int main()
 
 	// ##          ##      
 
-	/*flecs::entity e1 = ecsWorld->CreateEntity("Test1");
+	flecs::entity e1 = ecsWorld->CreateEntity("Test1");
 	e1
 		.set<TransfromComponent>({ glm::vec3(0.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(50.f, 50.f, 50.f) })
@@ -262,7 +265,7 @@ int main()
 			"AnimatedTesting3.gltf",
 			1, 1, 1
 		}) 
-		.set<AnimationComponent>({ true }); */  
+		.set<AnimationComponent>({ true });   
 
 	flecs::entity e7 = ecsWorld->CreateEntity("Test7");
 	e7   
@@ -311,40 +314,38 @@ int main()
 	rp3d::PhysicsWorld* world = physicsCore->GetPhysicsWorld();
 	std::shared_ptr< rp3d::PhysicsCommon> physicsCommon = physicsCore->GetPhysicsCommon();
 	
-	// --- GROUND ---
-	rp3d::Transform groundTransforom(
-		rp3d::Vector3(0.f, -1.f, 0.f),
-		rp3d::Quaternion::identity()
-	);
-	rp3d::RigidBody* ground = world->createRigidBody(groundTransforom);
-	ground->setType(rp3d::BodyType::STATIC);
-	rp3d::BoxShape* groundBox = physicsCommon->createBoxShape({ 10, 1, 10 });
-	ground->addCollider(groundBox, rp3d::Transform::identity());
-	ground->setIsDebugEnabled(true);
+	//// --- GROUND ---
+	//rp3d::Transform groundTransforom(
+	//	rp3d::Vector3(0.f, -1.f, 0.f),
+	//	rp3d::Quaternion::identity()
+	//);
+	//rp3d::RigidBody* ground = world->createRigidBody(groundTransforom);
+	//ground->setType(rp3d::BodyType::STATIC);
+	//rp3d::BoxShape* groundBox = physicsCommon->createBoxShape({ 10, 1, 10 });
+	//ground->addCollider(groundBox, rp3d::Transform::identity());
+	//ground->setIsDebugEnabled(true); 
+	  
+	//// --Falling Box---
+	//rp3d::Transform boxTransform(
+	//	rp3d::Vector3(0.f, 5.f, 0.f), 
+	//	rp3d::Quaternion::identity()
+	//);
+	//rp3d::RigidBody* box = world->createRigidBody(boxTransform);
+	//box->setType(rp3d::BodyType::DYNAMIC);
+	//rp3d::BoxShape* boxShape = physicsCommon->createBoxShape({ 1.f, 1.f, 1.f });
+	//box->addCollider(boxShape, rp3d::Transform::identity());
+	//box->setIsDebugEnabled(true);  
 
-	// --Falling Box---
-	rp3d::Transform boxTransform(
-		rp3d::Vector3(0.f, 5.f, 0.f), 
-		rp3d::Quaternion::identity()
-	);
-	rp3d::RigidBody* box = world->createRigidBody(boxTransform);
-	box->setType(rp3d::BodyType::DYNAMIC);
-	rp3d::BoxShape* boxShape = physicsCommon->createBoxShape({ 1.f, 1.f, 1.f });
-	box->addCollider(boxShape, rp3d::Transform::identity());
-	box->setIsDebugEnabled(true);
-
-	for (int i = 0; i < 20; i++)
-	{
-		rp3d::Transform t(
-			rp3d::Vector3(0.f, 2.f + i * 2.2f, 0.f),
-			rp3d::Quaternion::identity()
-		);
-
-		rp3d::RigidBody* b = world->createRigidBody(t);
-		b->setType(rp3d::BodyType::DYNAMIC);
-		b->addCollider(boxShape, rp3d::Transform::identity());
-		b->setIsDebugEnabled(true);
-	}
+	//// --Falling Sphere--
+	//rp3d::Transform circleTransfrom(
+	//	rp3d::Vector3(0.f, 10.f, 0.f),
+	//	rp3d::Quaternion::identity()
+	//);
+	//rp3d::RigidBody* sphere = world->createRigidBody(circleTransfrom);
+	//sphere->setType(rp3d::BodyType::DYNAMIC);
+	//rp3d::SphereShape* sphereShape = physicsCommon->createSphereShape({ 1.f });
+	//sphere->addCollider(sphereShape, rp3d::Transform::identity());
+	//sphere->setIsDebugEnabled(true);
 
 	std::shared_ptr<ReactPhysicsDebugRenderer> debugRenderer = std::make_shared<ReactPhysicsDebugRenderer>(
 		(std::string(RESOURCES_PATH) + "SHADER/REACTDEBUG/debug_vert.glsl").c_str(),
@@ -355,12 +356,14 @@ int main()
 	 
 	while (!Window::shouldClose())
 	{
+		
+
 		ecsWorld->GetWorld()->progress();
 		Window::clearScreen();
-		Window::processInput(); 
+		Window::processInput();
 
 
-		processKeyInput(Window::getGLFWWindow()); 
+		processKeyInput(Window::getGLFWWindow());
 
 		// Create projection matrices [PERSPECTIVE] 
 		glm::mat4 projectionP = glm::mat4(1.0f);
@@ -375,7 +378,7 @@ int main()
 		glm::mat4 view = camera.GetViewMatrix();
 		shader3.setMat4("view", view);
 
-		
+
 
 		//glm::vec3 lightTarget = glm::vec3(0.0f, 0.0f, 0.0f); // Look at scene center
 		//glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -387,32 +390,32 @@ int main()
 		transfrom.Position = shadowCamera.GetPosition();
 
 		meshRenderSystem->MeshRendererUpdate();
-		    
+
 		depthMap->DepthMapBind();
 		meshRenderSystem->MeshRendererFinalDrawCall(
-			shadowCamera.GetViewMatrix() , 
-			projectionO, 
-			camera.GetPosition(), 
-			shaderDepthMap, 
+			shadowCamera.GetViewMatrix(),
+			projectionO,
+			camera.GetPosition(),
+			shaderDepthMap,
 			shadowCamera.GetViewMatrix(),
 			projectionO
 		);
 		depthMap->DepthMapUnBind();
-		 
-		 
+
+
 
 		if (GlobalInformation::renderShadowPass)
 		{
 			depthMap->RenderDebugDepthMap(shaderDepthDebugMap);
 		}
 		else
-		{ 
+		{
 			depthMap->BindDepthTextureToTextureUnit(20);
 			meshRenderSystem->MeshRendererFinalDrawCall(
-				view, 
-				projectionP, 
-				camera.GetPosition(), 
-				nullptr, 
+				view,
+				projectionP,
+				camera.GetPosition(),
+				nullptr,
 				shadowCamera.GetViewMatrix(),
 				projectionO
 			);
@@ -421,7 +424,7 @@ int main()
 		// Handling the physics debug rendering:
 		world->update(1.f / 60.f);
 		debugRenderer->ReactPhysicsRendererRender(view, projectionP);
-		           
+
 		/*nativeCPPScriptManager->UpdateScript();*/
 
 		//std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;
@@ -430,20 +433,24 @@ int main()
 		{
 			GlobalDebugWindowShow = !GlobalDebugWindowShow;
 		}
-		 
+
 		if (GlobalDebugWindowShow)
 		{
+
 			debugMenuUISystem->StartRenderMenuUISystem();
 			debugMenuUISystem->RenderUIMenu();
 			debugMenuUISystem->PerformanceUIMenu();
-			debugMenuUISystem->EntityManagerMenu(); 
+			debugMenuUISystem->EntityManagerMenu();
 			debugMenuUISystem->GlobalMenu();
 			debugMenuUISystem->EndRenderMenuUISystem();
-		}   
-		  
-		if (GlobalDebugWindowShow)
-		{     
-			MicroUIRenderer::render_debug_ui();  
+
+			// Snapshot 3
+			MicroUIRenderer::render_debug_ui();
+		}           
+
+		if (Keyboard::IsKeyJustPressed(KEY_0))
+		{
+			std::cout << "The key 0 is pressed!." << std::endl;
 		}
 		 
 		Mouse::Update();

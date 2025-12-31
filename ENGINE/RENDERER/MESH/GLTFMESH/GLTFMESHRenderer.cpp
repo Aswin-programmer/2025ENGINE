@@ -463,6 +463,8 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
     {
         const tinygltf::Node& node = model.nodes[nodeIdx];
 
+        if (node.name == "BoxColloider") continue;
+
         // build a key per node (could be per primitive if you prefer)
         std::string key = modelName + "_" + node.name;
 
