@@ -469,37 +469,44 @@ void DebugMenuUISystem::EntityManagerMenu()
 
 void DebugMenuUISystem::GlobalMenu()
 {
-    if (mu_begin_window(ctx, "Global Menu", mu_rect(320, 240, 200, 200)))
+    if (mu_begin_window(ctx, "Global Menu", mu_rect(320, 240, 200, 260)))
     {
+        // ---- Sun ----
         mu_label(ctx, "Sun Position : ");
         int widths[] = { 40, -1 };
         mu_layout_row(ctx, 2, widths, 0);
+
         mu_label(ctx, "X : "); mu_slider(ctx, &GlobalInformation::sunLightDirection.x, -1, 1);
         mu_label(ctx, "Y : "); mu_slider(ctx, &GlobalInformation::sunLightDirection.y, -1, 1);
         mu_label(ctx, "Z : "); mu_slider(ctx, &GlobalInformation::sunLightDirection.z, -1, 1);
-        mu_label(ctx, "Distance Factor : "); mu_slider(ctx, &GlobalInformation::sunLightDistanceFactor, 0, 100);
+        mu_label(ctx, "Distance : "); mu_slider(ctx, &GlobalInformation::sunLightDistanceFactor, 0, 100);
 
-
+        // ---- Toggles ----
         int width[] = { 140, -1 };
         mu_layout_row(ctx, 2, width, 0);
 
+        static int renderShadow = GlobalInformation::renderShadowPass;
         mu_label(ctx, "Render Shadow Pass:");
-        int temp = GlobalInformation::renderShadowPass ? 1 : 0;
-        if (mu_checkbox(ctx, "", &temp)) {
-            GlobalInformation::renderShadowPass = (temp != 0);
-        }
+        mu_checkbox(ctx, "", &renderShadow);
+        GlobalInformation::renderShadowPass = (renderShadow != 0);
 
-        mu_label(ctx, "ReactPhysics3D Debug : ");
-        int debug = GlobalInformation::IsReactPhysics3DDebuggerEnabled ? 1 : 0;
-        if (mu_checkbox(ctx, "", &debug)) {
-            GlobalInformation::IsReactPhysics3DDebuggerEnabled = (debug != 0);
-        }
+        static int physicsDebug = GlobalInformation::IsReactPhysics3DDebuggerEnabled;
+        mu_label(ctx, "ReactPhysics3D Debug:");
+        mu_checkbox(ctx, "", &physicsDebug);
+        GlobalInformation::IsReactPhysics3DDebuggerEnabled = (physicsDebug != 0);
 
+        // ---- Commit ----
         GlobalInformation::IsReactPhysics3DStateCommited = false;
-        mu_label(ctx, "ReactPhysics3d Commit : ");
-        if(mu_button(ctx, "COMMIT")) {
+        mu_label(ctx, "ReactPhysics3D Commit:");
+        if (mu_button(ctx, "COMMIT")) {
             GlobalInformation::IsReactPhysics3DStateCommited = true;
         }
+
+        // ---- Scene ----
+        static int scenePlaying = 0;
+        mu_label(ctx, "START SCENE:");
+        mu_checkbox(ctx, "", &scenePlaying);
+        GlobalInformation::IsScenePlaying = (scenePlaying != 0);
 
         mu_end_window(ctx);
     }

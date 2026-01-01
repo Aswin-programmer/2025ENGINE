@@ -321,8 +321,8 @@ int main()
 
 	// Setting up the ReactPhysics3DSystem
 	std::shared_ptr<ReactPhysics3DSystem> physicsSystem = std::make_shared<ReactPhysics3DSystem>(
-		physicsCore,
-		ecsWorld->GetWorld()
+		physicsCore, 
+		ecsWorld->GetWorld()   
 	);
 
 	rp3d::PhysicsWorld* world = physicsCore->GetPhysicsWorld();
@@ -333,9 +333,9 @@ int main()
 		.set<TransfromComponent>({ glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f) })
 		.set<MeshComponent>({ "AnimatedColloider.gltf", 1, 1, 1 })
 		.set<AnimationComponent>({ true })
-		.set<PhysicsComponent>({  
+		.set<PhysicsComponent>({      
 			PHYSICSCOLLOIDERTYPE::BOXCOLLOIDER, 
-			PHYSICSBODYTYPE::STATICMESH, 
+			PHYSICSBODYTYPE::STATICMESH,       
 			true  
 			});
 
@@ -361,14 +361,14 @@ int main()
 	while (!Window::shouldClose())
 	{
 		
-
+		  
 		ecsWorld->GetWorld()->progress();
 		Window::clearScreen();
 		Window::processInput();
 
 
 		processKeyInput(Window::getGLFWWindow());
-
+		 
 		// Create projection matrices [PERSPECTIVE] 
 		glm::mat4 projectionP = glm::mat4(1.0f);
 		projectionP = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 2000.0f);
@@ -424,13 +424,16 @@ int main()
 				projectionO
 			);
 		}
-
+		 
 		// Handling the physics debug rendering:
-		world->update(1.f / 60.f);
-		debugRenderer->ReactPhysicsRendererRender(view, projectionP);
-		physicsSystem->UpdateReactPhysics3DSystem();
-
-		/*nativeCPPScriptManager->UpdateScript();*/
+		if (GlobalInformation::IsScenePlaying)  
+		{
+			world->update(1.f / 60.f);
+			debugRenderer->ReactPhysicsRendererRender(view, projectionP);
+			physicsSystem->UpdateReactPhysics3DSystem();
+		}
+		 
+		/*nativeCPPScriptManager->UpdateScript();*/  
 
 		//std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;
 
@@ -438,7 +441,7 @@ int main()
 		{
 			GlobalDebugWindowShow = !GlobalDebugWindowShow;
 		}
-
+		 
 		if (GlobalDebugWindowShow)
 		{
 
@@ -638,5 +641,5 @@ void char_callback(GLFWwindow* window, unsigned int codepoint) {
 		mu_input_text(ctx, buf);
 	}
 }
-
+ 
  

@@ -8,6 +8,7 @@ float GlobalInformation::sunLightDistanceFactor = 20.f;
 bool GlobalInformation::renderShadowPass = false;
 bool GlobalInformation::IsReactPhysics3DDebuggerEnabled = false;
 bool GlobalInformation::IsReactPhysics3DStateCommited = false;
+bool GlobalInformation::IsScenePlaying = false;
 
 void GlobalInformation::InitSun()
 {
