@@ -4,7 +4,7 @@
 // Define the static member
 std::unordered_map<std::string, tinygltf::Model> GLTFMESHLoader::GLTFModels;
 
-bool GLTFMESHLoader::LoadGLTFModel(std::string filePath, bool IsAnimationPresent)
+bool GLTFMESHLoader::LoadGLTFModel(std::string filePath, bool IsAnimationPresent, bool IsBoxColloiderPresent)
 {
     tinygltf::TinyGLTF loader;
     tinygltf::Model model;
@@ -69,6 +69,14 @@ bool GLTFMESHLoader::LoadGLTFModel(std::string filePath, bool IsAnimationPresent
         if (!GLTFMESHSkeletalAnimationLoader::LoadSkeletalAnimationsFromGLTFModel(fileName, model))
         {
             std::cout << "[GLTFMESHLoader] Failed to load the Animations!." << std::endl;
+        }
+    }
+
+    if (IsBoxColloiderPresent)
+    {
+        if (!ReactPhysics3DLoader::LoadReactPhysics3DBoxColloiderFromGLTFModel(fileName, model))
+        {
+            std::cout << "[GLTFMESHLoader] Failed to load the ReactPhysics3DBoxColloider!." << std::endl;
         }
     }
 

@@ -1313,6 +1313,7 @@ int MicroUIRenderer::r_get_text_height(void)
 void MicroUIRenderer::r_set_clip_rect(mu_Rect rect)
 {    
     // OpenGL scissor is Bottom-Left, but microui is Top-Left
+    //flush(); //This line is causing Memory Spike but hasn't figured out yet
     glScissor(rect.x, win_height - (rect.y + rect.h), rect.w, rect.h);
 }
 

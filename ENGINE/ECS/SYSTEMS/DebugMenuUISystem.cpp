@@ -1,9 +1,14 @@
 #include "DebugMenuUISystem.h"
 
-DebugMenuUISystem::DebugMenuUISystem(mu_Context* ctx, std::shared_ptr<flecs::world> ecsWorld)
+DebugMenuUISystem::DebugMenuUISystem(
+    mu_Context* ctx, 
+    std::shared_ptr<flecs::world> ecsWorld,
+    std::shared_ptr<ReactPhysics3DCore> reactPhysics3DCore
+)
 	:
 	ctx{ctx},
-	ecsWorld{ecsWorld}
+	ecsWorld{ecsWorld},
+    reactPhysics3DCore{ reactPhysics3DCore }
 {
 }
 
@@ -277,111 +282,185 @@ void DebugMenuUISystem::EntityManagerMenu()
 {
     if (mu_begin_window(ctx, "Entity Manager", mu_rect(800, 10, 350, 500)))
     {
-        static char entityName[64] = "NewEntity";
-        static char meshName[64] = "NewMesh";
-        static char lightingType[64] = "NoLighting";
-        static int isTranformCompontentPresent = false;
-        static int isMeshComponentPresent = false;
-        static int isAnimationComponentPresent = false;
-        static int isLightingComponentPresent = false;
-
-        int widths[] = { 100, -1 };
-        mu_layout_row(ctx, 2, widths, 0);
-        mu_label(ctx, "Entity Name:");
-        mu_textbox(ctx, entityName, sizeof(entityName));
-
-        mu_label(ctx, "Mesh Name:");
-        mu_textbox(ctx, meshName, sizeof(meshName));
-
-        mu_label(ctx, "Lighting Type: ");
-        mu_textbox(ctx, lightingType, sizeof(lightingType));
-
-
-        // --- Switch back to single-column layout ---
-        mu_layout_row(ctx, 1, nullptr, 0);   // 1 column = full-width items
-
-        // Now everything becomes vertical (top-to-bottom)
-        mu_label(ctx, "Components:");
-        mu_checkbox(ctx, "Transform Component", &isTranformCompontentPresent);
-        mu_checkbox(ctx, "Mesh Component", &isMeshComponentPresent);
-        mu_checkbox(ctx, "Animation Component", &isAnimationComponentPresent);
-        mu_checkbox(ctx, "Lighting Component", &isLightingComponentPresent);
-
-        // Creating the Entity
-        if (mu_button(ctx, "CREATE ENTITY"))
+        if (mu_header(ctx, "CREATE ENTITIES"))
         {
-            ecsWorld->defer_begin();             // <-- Safe region
+            static char entityName[64] = "NewEntity";
+            static char meshName[64] = "NewMesh";
+            static char lightingType[64] = "NoLighting";
+            static char physicsType[64] = "BoxStatic";
+            static int isTranformCompontentPresent = false;
+            static int isMeshComponentPresent = false;
+            static int isAnimationComponentPresent = false;
+            static int isLightingComponentPresent = false;
+            static int isPhysicsComponentPresent = false;
 
-            flecs::entity e = ecsWorld->lookup(entityName);
+            int widths[] = { 100, -1 };
+            mu_layout_row(ctx, 2, widths, 0);
+            mu_label(ctx, "Entity Name:");
+            mu_textbox(ctx, entityName, sizeof(entityName));
 
-            if (!e.is_valid())
+            mu_label(ctx, "Mesh Name:");
+            mu_textbox(ctx, meshName, sizeof(meshName));
+
+            mu_label(ctx, "Lighting Type: ");
+            mu_textbox(ctx, lightingType, sizeof(lightingType));
+
+            mu_label(ctx, "Physics Type: ");
+            mu_textbox(ctx, physicsType, sizeof(physicsType));
+
+
+            // --- Switch back to single-column layout ---
+            mu_layout_row(ctx, 1, nullptr, 0);   // 1 column = full-width items
+
+            // Now everything becomes vertical (top-to-bottom)
+            mu_label(ctx, "Components:");
+            mu_checkbox(ctx, "Transform Component", &isTranformCompontentPresent);
+            mu_checkbox(ctx, "Mesh Component", &isMeshComponentPresent);
+            mu_checkbox(ctx, "Animation Component", &isAnimationComponentPresent);
+            mu_checkbox(ctx, "Lighting Component", &isLightingComponentPresent);
+            mu_checkbox(ctx, "Physics Component", &isPhysicsComponentPresent);
+
+            // Creating the Entity
+            if (mu_button(ctx, "CREATE ENTITY"))
             {
-                // Now safe to create entity
-                flecs::entity newE = ecsWorld->entity().set_name(entityName);
+                ecsWorld->defer_begin();             // <-- Safe region
 
-                // Add components
-                if (isTranformCompontentPresent)
+                flecs::entity e = ecsWorld->lookup(entityName);
+
+                if (!e.is_valid())
                 {
-                    newE.set<TransfromComponent>({
-                        glm::vec3(0.f, 0.f, 0.f),
-                        glm::vec3(0.f, 0.f, 0.f),
-                        glm::vec3(1.f, 1.f, 1.f)
-                    });
-                }
-                if (isMeshComponentPresent)
-                {
-                    newE.set<MeshComponent>({ 
-                        meshName,
-                        1, 1, 1
-                });
-                }
-                if (isAnimationComponentPresent)
-                {
-                    newE.set<AnimationComponent>({ true });
-                }
-                if (isLightingComponentPresent)
-                {
-                    GLTFLightType gltfLightType = GLTFLightType::NoLight;
-                    if (strcmp(lightingType, "NoLighting") == 0)
+                    // Now safe to create entity
+                    flecs::entity newE = ecsWorld->entity().set_name(entityName);
+
+                    // Add components
+                    if (isTranformCompontentPresent)
                     {
-                        gltfLightType = GLTFLightType::NoLight;
+                        newE.set<TransfromComponent>({
+                            glm::vec3(0.f, 0.f, 0.f),
+                            glm::vec3(0.f, 0.f, 0.f),
+                            glm::vec3(1.f, 1.f, 1.f)
+                            });
                     }
-                    else if (strcmp(lightingType, "Directional") == 0)
+                    if (isMeshComponentPresent)
                     {
-                        gltfLightType = GLTFLightType::Directional;
+                        newE.set<MeshComponent>({
+                            meshName,
+                            1, 1, 1
+                            });
                     }
-                    else if (strcmp(lightingType, "PointLight") == 0)
+                    if (isAnimationComponentPresent)
                     {
-                        gltfLightType = GLTFLightType::PointLight;
+                        newE.set<AnimationComponent>({ true });
                     }
-                    else if (strcmp(lightingType, "SpotLight") == 0)
+                    if (isLightingComponentPresent)
                     {
-                        gltfLightType = GLTFLightType::SpotLight;
+                        GLTFLightType gltfLightType = GLTFLightType::NoLight;
+                        if (strcmp(lightingType, "NoLighting") == 0)
+                        {
+                            gltfLightType = GLTFLightType::NoLight;
+                        }
+                        else if (strcmp(lightingType, "Directional") == 0)
+                        {
+                            gltfLightType = GLTFLightType::Directional;
+                        }
+                        else if (strcmp(lightingType, "PointLight") == 0)
+                        {
+                            gltfLightType = GLTFLightType::PointLight;
+                        }
+                        else if (strcmp(lightingType, "SpotLight") == 0)
+                        {
+                            gltfLightType = GLTFLightType::SpotLight;
+                        }
+
+                        newE.set<LightingComponent>({
+                            gltfLightType,
+                            glm::vec3(12.0f, 45.0f, 78.0f),
+                            glm::vec3(0.8f, 0.1f, 0.3f),
+                            0.15f,
+                            0.75f,
+                            1.25f,
+                            1,
+                            0.7,
+                            1.8,
+                            glm::vec3{1.f},
+                            10.f
+                            });
+                    }
+                    if (isPhysicsComponentPresent)
+                    {
+                        PHYSICSCOLLOIDERTYPE colloiderType = PHYSICSCOLLOIDERTYPE::BOXCOLLOIDER;
+                        PHYSICSBODYTYPE bodyType = PHYSICSBODYTYPE::STATICMESH;
+
+                        if (strcmp(physicsType, "BoxStatic") == 0) {
+                            colloiderType = PHYSICSCOLLOIDERTYPE::BOXCOLLOIDER;
+                            bodyType = PHYSICSBODYTYPE::STATICMESH;
+                        }
+                        else if (strcmp(physicsType, "BoxDynamic") == 0) {
+                            colloiderType = PHYSICSCOLLOIDERTYPE::BOXCOLLOIDER;
+                            bodyType = PHYSICSBODYTYPE::DYMAMICMESH;
+                        }
+                        else if (strcmp(physicsType, "BoxKinematic") == 0) {
+                            colloiderType = PHYSICSCOLLOIDERTYPE::BOXCOLLOIDER;
+                            bodyType = PHYSICSBODYTYPE::KINEMATICMESH;
+                        }
+                        else if (strcmp(physicsType, "SphereStatic") == 0) {
+                            colloiderType = PHYSICSCOLLOIDERTYPE::SPHERECOLLOIDER;
+                            bodyType = PHYSICSBODYTYPE::STATICMESH;
+                        }
+                        else if (strcmp(physicsType, "SphereDynamic") == 0) {
+                            colloiderType = PHYSICSCOLLOIDERTYPE::SPHERECOLLOIDER;
+                            bodyType = PHYSICSBODYTYPE::DYMAMICMESH;
+                        }
+                        else if (strcmp(physicsType, "SphereKinematic") == 0) {
+                            colloiderType = PHYSICSCOLLOIDERTYPE::SPHERECOLLOIDER;
+                            bodyType = PHYSICSBODYTYPE::KINEMATICMESH;
+                        }
+
+                        newE.set<PhysicsComponent>({
+                            colloiderType,
+                            bodyType,
+                            true
+                            });
+
                     }
 
-                    newE.set<LightingComponent>({
-                        gltfLightType,
-                        glm::vec3(12.0f, 45.0f, 78.0f),
-                        glm::vec3(0.8f, 0.1f, 0.3f),
-                        0.15f,
-                        0.75f,
-                        1.25f,
-                        1,
-                        0.7,
-                        1.8,
-                        glm::vec3{1.f},
-                        10.f
-                    });
+                    std::cout << "Created entity\n";
+                }
+                else
+                {
+                    std::cout << "[Failed] Entity Exists\n";
                 }
 
-                std::cout << "Created entity\n";
+                ecsWorld->defer_end();               // <-- Apply safely
             }
-            else
+        }
+
+        if (mu_header(ctx, "DESTROY ENTITIES"))
+        {
+            static char entityName[64] = "NewEntity";
+
+            int widths[] = { 100, -1 };
+            mu_layout_row(ctx, 2, widths, 0);
+            mu_label(ctx, "Entity Name:");
+            mu_textbox(ctx, entityName, sizeof(entityName));
+
+            if (mu_button(ctx, "DESTROY ENTITY"))
             {
-                std::cout << "[Failed] Entity Exists\n";
+                ecsWorld->defer_begin();
+
+                flecs::entity e = ecsWorld->lookup(entityName);
+                if (e.is_valid()) {
+                    std::string deletedEntityName = e.name().c_str();
+                    e.destruct();
+                    std::cout << "Deleted Entity " << deletedEntityName << "\n";
+                }
+                else {
+                    std::cout << "[Failed] Entity not found\n";
+                }
+
+                ecsWorld->defer_end();
             }
 
-            ecsWorld->defer_end();               // <-- Apply safely
         }
 
         mu_end_window(ctx);
@@ -408,6 +487,18 @@ void DebugMenuUISystem::GlobalMenu()
         int temp = GlobalInformation::renderShadowPass ? 1 : 0;
         if (mu_checkbox(ctx, "", &temp)) {
             GlobalInformation::renderShadowPass = (temp != 0);
+        }
+
+        mu_label(ctx, "ReactPhysics3D Debug : ");
+        int debug = GlobalInformation::IsReactPhysics3DDebuggerEnabled ? 1 : 0;
+        if (mu_checkbox(ctx, "", &debug)) {
+            GlobalInformation::IsReactPhysics3DDebuggerEnabled = (debug != 0);
+        }
+
+        GlobalInformation::IsReactPhysics3DStateCommited = false;
+        mu_label(ctx, "ReactPhysics3d Commit : ");
+        if(mu_button(ctx, "COMMIT")) {
+            GlobalInformation::IsReactPhysics3DStateCommited = true;
         }
 
         mu_end_window(ctx);

@@ -15,6 +15,9 @@
 #include "../../ECS/COMPONENTS/MeshComponent.h"
 #include "../../ECS/COMPONENTS/AnimationComponent.h"
 #include "../../ECS/COMPONENTS/LightingComponent.h"
+#include "../../ECS/COMPONENTS/PhysicsComponent.h"
+
+#include "../../REACTPHYSICS3D/ReactPhysics3DCore.h"
 
 #include "../../GlobalInformation/GlobalInformation.h"
 
@@ -24,7 +27,11 @@ class ENGINE_API DebugMenuUISystem
 {
 public:
     DebugMenuUISystem() = default;
-    DebugMenuUISystem(mu_Context* ctx, std::shared_ptr<flecs::world> ecsWorld);
+    DebugMenuUISystem(
+        mu_Context* ctx, 
+        std::shared_ptr<flecs::world> ecsWorld,
+        std::shared_ptr<ReactPhysics3DCore> reactPhysics3DCore
+    );
     ~DebugMenuUISystem();
     
     void InitDebugMenuUISystem();
@@ -39,6 +46,7 @@ public:
 private:
     mu_Context* ctx = nullptr;
     std::shared_ptr<flecs::world> ecsWorld;
+    std::shared_ptr<ReactPhysics3DCore> reactPhysics3DCore;
 
     flecs::query<TransfromComponent, MeshComponent> staticMeshRendererQuery;
     flecs::query<TransfromComponent, MeshComponent, AnimationComponent> animatedMeshRendererQuery;

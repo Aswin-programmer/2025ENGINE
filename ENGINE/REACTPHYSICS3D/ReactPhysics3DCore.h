@@ -25,6 +25,8 @@ public:
 	bool IsDebugEnabled();
 
 	void EnableDebug();
+	void DisableDebug();
+	void SetDebug(bool debug);
 
 private:
 	bool IsInitialized;

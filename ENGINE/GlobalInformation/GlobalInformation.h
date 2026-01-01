@@ -29,4 +29,7 @@ public:
 
     static bool renderShadowPass;
 
+    static bool IsReactPhysics3DDebuggerEnabled;
+    static bool IsReactPhysics3DStateCommited;
+
 };

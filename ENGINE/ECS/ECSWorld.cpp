@@ -17,6 +17,7 @@ void ECSWorld::InitECSWorld()
 	ecsWorld->component<MeshComponent>();
 	ecsWorld->component<AnimationComponent>();
 	ecsWorld->component<LightingComponent>();
+	ecsWorld->component<PhysicsComponent>();
 }
 
 flecs::entity ECSWorld::CreateEntity(const std::string& name)

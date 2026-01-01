@@ -28,6 +28,7 @@ extern "C" {
 #include <ECS/COMPONENTS/TransfromComponent.h>
 #include <ECS/COMPONENTS/AnimationComponent.h>
 #include <ECS/COMPONENTS/LightingComponent.h>
+#include <ECS/COMPONENTS/PhysicsComponent.h>
 
 #include <ECS/SYSTEMS/MeshRendererSystem.h>
 #include <ECS/SYSTEMS/DebugMenuUISystem.h>
@@ -39,6 +40,7 @@ extern "C" {
 
 #include <REACTPHYSICS3D/ReactPhysics3DCore.h>
 #include <REACTPHYSICS3D/ReactPhysics3DDebugRenderer.h>  
+#include <REACTPHYSICS3D/ReactPhysics3DSystem.h>
 
 // Opengl Callbacks
 void processKeyInput(GLFWwindow* window);
@@ -115,40 +117,48 @@ int main()
 	{
 		std::cout << "Failed to load the sample model!\n";
 	}*/      
-	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING/AnimatedTesting.gltf", true))
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING/AnimatedTesting.gltf", true, false))
 	{
 		std::cout << "Failed to load the sample model!\n"; 
 	}  
 
-	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_2/AnimatedTesting2.gltf", true))
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_2/AnimatedTesting2.gltf", true, false))
 	{
 		std::cout << "Failed to load the sample model!\n";
 	}
 	 
-	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_3/AnimatedTesting3.gltf", true))
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_3/AnimatedTesting3.gltf", true, false))
 	{
 		std::cout << "Failed to load the sample model!\n";  
 	}
 	 
-	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/AVOCADO/Avocado.gltf"))
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/AVOCADO/Avocado.gltf", false, false))
 	{
 		std::cout << "Failed to load the sample model!\n";
 	} 
 
-	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/LIGHT/light.gltf"))
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/LIGHT/light.gltf", false, false))
 	{
 		std::cout << "Failed to load the sample model!\n";
 	}
-
-	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/CUBE/cube.gltf"))
+	 
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/CUBE/cube.gltf", false, false))
 	{
 		std::cout << "Failed to load the sample model!\n";
 	}
-	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/PHYSICS1/box.gltf"))
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/PHYSICS1/box.gltf", false, true))
 	{
 		std::cout << "Failed to load the sample model!\n";
 	}
-
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/PHYSICS2/box2.gltf", false, true))
+	{
+		std::cout << "Failed to load the sample model!\n";  
+	}
+	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/PHYSICS3/AnimatedColloider.gltf", true, true))
+	{
+		std::cout << "Failed to load the sample model!\n";
+	}
+	 
 	// ######### Setting Up The ECS      ##########
 
 	std::shared_ptr<ECSWorld> ecsWorld = std::make_shared<ECSWorld>();
@@ -167,23 +177,13 @@ int main()
 
 	// ############################################
 
-	// ############################################
-
-	std::shared_ptr<DebugMenuUISystem> debugMenuUISystem = std::make_shared<DebugMenuUISystem>(
-		MicroUIRenderer::GetContext(),     
-		ecsWorld->GetWorld()
-	);
-	debugMenuUISystem->InitDebugMenuUISystem();
-
-	// #################################################
-
-	// #################################################
+	// #################################################  
 	std::shared_ptr<Shader> shaderDepthMap = std::make_shared<Shader>(
 		(std::string(RESOURCES_PATH) + "SHADER/SHADOW_MAP/depth_vert.glsl").c_str(),
 		(std::string(RESOURCES_PATH) + "SHADER/SHADOW_MAP/depth_frag.glsl").c_str(),
+		nullptr, 
 		nullptr,
-		nullptr,
-		nullptr
+		nullptr 
 	);
 
 	Shader shaderDepthDebugMap = Shader(
@@ -209,7 +209,7 @@ int main()
 
 	// ##          ##      
 
-	flecs::entity e1 = ecsWorld->CreateEntity("Test1");
+	/*flecs::entity e1 = ecsWorld->CreateEntity("Test1");
 	e1
 		.set<TransfromComponent>({ glm::vec3(0.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(50.f, 50.f, 50.f) })
@@ -223,7 +223,7 @@ int main()
 		.set<TransfromComponent>({ glm::vec3(0.f, 2.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(50.f, 50.f, 50.f) })
 		.set<MeshComponent>({ 
-			"Avocado.gltf",
+			"Avocado.gltf", 
 			1, 1, 1
 		});
 
@@ -265,7 +265,7 @@ int main()
 			"AnimatedTesting3.gltf",
 			1, 1, 1
 		}) 
-		.set<AnimationComponent>({ true });   
+		.set<AnimationComponent>({ true });*/    
 
 	flecs::entity e7 = ecsWorld->CreateEntity("Test7");
 	e7   
@@ -282,8 +282,16 @@ int main()
 				0.7f,
 				1.8f,
 				glm::vec3{1.f},
-				1.f
+				1.f 
 			}); 
+
+	
+
+	/*flecs::entity e9 = ecsWorld->CreateEntity("Test9");
+	e9
+		.set<TransfromComponent>({ glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f) })
+		.set<MeshComponent>({ "box.gltf", 1, 1, 1 })
+		.set<PhysicsComponent>({ PHYSICSCOLLOIDERTYPE::BOXCOLLOIDER, PHYSICSBODYTYPE::STATICMESH, true });*/
 	 
 	// ## Testing some Scripting Stuff ##
 	 
@@ -309,43 +317,39 @@ int main()
 	// Setting up the ReactPhysics3D
 	std::shared_ptr<ReactPhysics3DCore> physicsCore = std::make_shared<ReactPhysics3DCore>();
 	physicsCore->InitReactPhysics3DCore();
-	physicsCore->EnableDebug();
+	physicsCore->SetDebug(GlobalInformation::IsReactPhysics3DDebuggerEnabled);
+
+	// Setting up the ReactPhysics3DSystem
+	std::shared_ptr<ReactPhysics3DSystem> physicsSystem = std::make_shared<ReactPhysics3DSystem>(
+		physicsCore,
+		ecsWorld->GetWorld()
+	);
 
 	rp3d::PhysicsWorld* world = physicsCore->GetPhysicsWorld();
 	std::shared_ptr< rp3d::PhysicsCommon> physicsCommon = physicsCore->GetPhysicsCommon();
-	
-	//// --- GROUND ---
-	//rp3d::Transform groundTransforom(
-	//	rp3d::Vector3(0.f, -1.f, 0.f),
-	//	rp3d::Quaternion::identity()
-	//);
-	//rp3d::RigidBody* ground = world->createRigidBody(groundTransforom);
-	//ground->setType(rp3d::BodyType::STATIC);
-	//rp3d::BoxShape* groundBox = physicsCommon->createBoxShape({ 10, 1, 10 });
-	//ground->addCollider(groundBox, rp3d::Transform::identity());
-	//ground->setIsDebugEnabled(true); 
-	  
-	//// --Falling Box---
-	//rp3d::Transform boxTransform(
-	//	rp3d::Vector3(0.f, 5.f, 0.f), 
-	//	rp3d::Quaternion::identity()
-	//);
-	//rp3d::RigidBody* box = world->createRigidBody(boxTransform);
-	//box->setType(rp3d::BodyType::DYNAMIC);
-	//rp3d::BoxShape* boxShape = physicsCommon->createBoxShape({ 1.f, 1.f, 1.f });
-	//box->addCollider(boxShape, rp3d::Transform::identity());
-	//box->setIsDebugEnabled(true);  
 
-	//// --Falling Sphere--
-	//rp3d::Transform circleTransfrom(
-	//	rp3d::Vector3(0.f, 10.f, 0.f),
-	//	rp3d::Quaternion::identity()
-	//);
-	//rp3d::RigidBody* sphere = world->createRigidBody(circleTransfrom);
-	//sphere->setType(rp3d::BodyType::DYNAMIC);
-	//rp3d::SphereShape* sphereShape = physicsCommon->createSphereShape({ 1.f });
-	//sphere->addCollider(sphereShape, rp3d::Transform::identity());
-	//sphere->setIsDebugEnabled(true);
+	flecs::entity e8 = ecsWorld->CreateEntity("Test8");
+	e8
+		.set<TransfromComponent>({ glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f) })
+		.set<MeshComponent>({ "AnimatedColloider.gltf", 1, 1, 1 })
+		.set<AnimationComponent>({ true })
+		.set<PhysicsComponent>({  
+			PHYSICSCOLLOIDERTYPE::BOXCOLLOIDER, 
+			PHYSICSBODYTYPE::STATICMESH, 
+			true  
+			});
+
+	// ############################################
+
+	std::shared_ptr<DebugMenuUISystem> debugMenuUISystem = std::make_shared<DebugMenuUISystem>(
+		MicroUIRenderer::GetContext(),
+		ecsWorld->GetWorld(),
+		physicsCore
+	);
+	debugMenuUISystem->InitDebugMenuUISystem();
+
+	// #################################################
+
 
 	std::shared_ptr<ReactPhysicsDebugRenderer> debugRenderer = std::make_shared<ReactPhysicsDebugRenderer>(
 		(std::string(RESOURCES_PATH) + "SHADER/REACTDEBUG/debug_vert.glsl").c_str(),
@@ -424,6 +428,7 @@ int main()
 		// Handling the physics debug rendering:
 		world->update(1.f / 60.f);
 		debugRenderer->ReactPhysicsRendererRender(view, projectionP);
+		physicsSystem->UpdateReactPhysics3DSystem();
 
 		/*nativeCPPScriptManager->UpdateScript();*/
 
@@ -446,12 +451,7 @@ int main()
 
 			// Snapshot 3
 			MicroUIRenderer::render_debug_ui();
-		}           
-
-		if (Keyboard::IsKeyJustPressed(KEY_0))
-		{
-			std::cout << "The key 0 is pressed!." << std::endl;
-		}
+		}            
 		 
 		Mouse::Update();
 		Keyboard::Update();

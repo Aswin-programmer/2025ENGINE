@@ -16,6 +16,7 @@
 
 #include "../../TEXTURE_KTX/TextureLoader.h"
 #include "GLTFMESHSkeletalAnimationLoader.h"
+#include "../../../REACTPHYSICS3D/ReactPhysics3DLoader.h"
 
 class ENGINE_API GLTFMESHLoader
 {
@@ -23,7 +24,7 @@ public:
 	GLTFMESHLoader(const GLTFMESHLoader&) = delete;
 	GLTFMESHLoader& operator=(const GLTFMESHLoader) = delete;
 
-	static bool LoadGLTFModel(std::string filePath, bool IsAnimationPresent = false);
+	static bool LoadGLTFModel(std::string filePath, bool IsAnimationPresent, bool IsBoxColloiderPresent);
 	static tinygltf::Model& GetGLTFModel(std::string fileName);
 	static void ClearAllGLTFModels();
 

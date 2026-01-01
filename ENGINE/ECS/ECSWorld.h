@@ -15,6 +15,7 @@
 #include "COMPONENTS/MeshComponent.h"
 #include "COMPONENTS/AnimationComponent.h"
 #include "COMPONENTS/LightingComponent.h"
+#include "COMPONENTS/PhysicsComponent.h"
 
 class ENGINE_API ECSWorld
 {

@@ -6,7 +6,8 @@ glm::vec3 GlobalInformation::sunLightPos = glm::vec3(0.0f);
 glm::vec3 GlobalInformation::sunScreenCenter = glm::vec3(0.0f);
 float GlobalInformation::sunLightDistanceFactor = 20.f;
 bool GlobalInformation::renderShadowPass = false;
-
+bool GlobalInformation::IsReactPhysics3DDebuggerEnabled = false;
+bool GlobalInformation::IsReactPhysics3DStateCommited = false;
 
 void GlobalInformation::InitSun()
 {
@@ -23,3 +24,4 @@ glm::mat4 GlobalInformation::GetSunViewMatrix()
 
     return glm::lookAt(sunLightPos, sunScreenCenter, glm::vec3(0.f, 1.f, 0.f));
 }
+
