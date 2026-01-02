@@ -12,7 +12,6 @@ double AnimationComponent::GetCurrentOnTime()
 {
 	if (!isAnimationEnabled) return 0;
 
-	currentTime = glfwGetTime();
 	currentTime += Window::getdt();
 	return currentTime;
 }

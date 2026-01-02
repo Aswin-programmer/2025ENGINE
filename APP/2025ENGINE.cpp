@@ -125,7 +125,7 @@ int main()
 	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_2/AnimatedTesting2.gltf", true, false))
 	{
 		std::cout << "Failed to load the sample model!\n";
-	}
+	} 
 	 
 	if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/ANIMATED_TESTING_3/AnimatedTesting3.gltf", true, false))
 	{
@@ -417,11 +417,11 @@ int main()
 		// Handling the physics debug rendering:
 		if (GlobalInformation::IsScenePlaying)  
 		{
-			world->update(1.f / 60.f);
+			world->update(1.f / 60.f);         
 		}
 		debugRenderer->ReactPhysicsRendererRender(view, projectionP);
 		physicsSystem->UpdateReactPhysics3DSystem();
-		 
+		  
 		/*nativeCPPScriptManager->UpdateScript();*/  
 
 		//std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;

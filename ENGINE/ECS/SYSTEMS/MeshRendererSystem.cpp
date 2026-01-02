@@ -98,6 +98,8 @@ void MeshRendererSystem::MeshRendererUpdate()
     staticMeshRendererQuery.each([this](flecs::entity e, TransfromComponent& transform, MeshComponent& mesh)
         {
             try {
+                std::vector<glm::mat4> jointMatrices = std::vector<glm::mat4>(MAX_JOINTS, glm::mat4(1.f));
+                bool IsAnimated = false;
                 gltfMeshRenderer->AddGLTFModelToRenderer(
                     mesh.GetMeshName(),
                     GLTFModelOrientation(
@@ -106,8 +108,8 @@ void MeshRendererSystem::MeshRendererUpdate()
                         transform.GetScale(),
                         -1, -1
                     ),
-                    true,
-                    std::vector<glm::mat4>(MAX_JOINTS, glm::mat4(1.f)),
+                    IsAnimated,
+                    jointMatrices,
                     mesh.ambientStrength,
                     mesh.diffuseStrength,
                     mesh.specularStrength
@@ -122,9 +124,10 @@ void MeshRendererSystem::MeshRendererUpdate()
     animatedMeshRendererQuery.each([this](flecs::entity e, TransfromComponent& transform, MeshComponent& mesh, AnimationComponent& anim)
         {
             try {
-                auto jointMatrices = GLTFMESHSkeletalAnimationLoader::GetGLTFMESHSkeletalAnimations(
+                std::vector<glm::mat4> jointMatrices = GLTFMESHSkeletalAnimationLoader::GetGLTFMESHSkeletalAnimations(
                     mesh.GetStrippedMeshName()
                 ).getJointMatrices(anim.GetCurrentOnTime());
+                bool IsAnimated = true;
 
                 gltfMeshRenderer->AddGLTFModelToRenderer(
                     mesh.GetMeshName(),
@@ -134,7 +137,7 @@ void MeshRendererSystem::MeshRendererUpdate()
                         transform.GetScale(),
                         -1, -1
                     ),
-                    true,
+                    IsAnimated,
                     jointMatrices,
                     mesh.ambientStrength,
                     mesh.diffuseStrength,

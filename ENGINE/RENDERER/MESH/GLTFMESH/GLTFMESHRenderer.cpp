@@ -126,7 +126,6 @@ void GLTFMESHRenderer::CleanUp()
     GlobalMaterialTextureBindingIndex = 0;
     gltfMaterialMapping.clear();
     gltfMaterialContainer.clear();
-    gltfAnimationMapping.clear();
     gltfAnimationsContainer.clear();
     gltfLightsContainer.clear();
     GlobalAnimationBindingIndex = 0;
@@ -149,8 +148,8 @@ void GLTFMESHRenderer::ProcessNode(
     std::string modelName, 
     tinygltf::Model& model, 
     const GLTFModelOrientation& gltfModelOrientation,
-    bool isAnimationNeeded,
-    std::vector<glm::mat4> boneMatrices,
+    bool& isAnimationNeeded,
+    std::vector<glm::mat4>& boneMatrices,
     float ambientStrength,
     float diffuseStrength,
     float specularStrength
@@ -319,17 +318,6 @@ void GLTFMESHRenderer::ProcessNode(
                         }
                     }
                 }
-
-                // Adding the Animations:
-                if (isAnimationNeeded && !model.animations.empty())
-                {
-                    if (gltfAnimationMapping.find(modelName) == gltfAnimationMapping.end())
-                    {
-                        gltfAnimationMapping[modelName] = GlobalAnimationBindingIndex;
-                        gltfAnimationsContainer.push_back(GLTFAnimations(boneMatrices));
-                        GlobalAnimationBindingIndex++;
-                    }
-                }
             }
             else
             {
@@ -364,9 +352,11 @@ void GLTFMESHRenderer::ProcessNode(
 
         // Add Animation index to the model orientation
         int currentAnimationIndex = -1;
-        if (gltfAnimationMapping.find(modelName) != gltfAnimationMapping.end())
+        if (isAnimationNeeded && !model.animations.empty())
         {
-            currentAnimationIndex = gltfAnimationMapping[modelName];
+            gltfAnimationsContainer.push_back(GLTFAnimations(boneMatrices));
+            currentAnimationIndex = GlobalAnimationBindingIndex;
+            GlobalAnimationBindingIndex++;
         }
 
         // compute local transform (position/rotation/scale)
@@ -440,8 +430,8 @@ void GLTFMESHRenderer::ProcessNode(
 bool GLTFMESHRenderer::AddGLTFModelToRenderer(
     const std::string& modelName, 
     const GLTFModelOrientation& gltfModelOrientation,
-    bool isAnimationNeeded,
-    std::vector<glm::mat4> boneMatrices,
+    bool& isAnimationNeeded,
+    std::vector<glm::mat4>& boneMatrices,
     float ambientStrength,
     float diffuseStrength,
     float specularStrength
@@ -620,17 +610,6 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
                         }
                     }
                 }
-
-                // Adding the Animations:
-                if (isAnimationNeeded && !model.animations.empty())
-                {
-                    if (gltfAnimationMapping.find(modelName) == gltfAnimationMapping.end())
-                    {
-                        gltfAnimationMapping[modelName] = GlobalAnimationBindingIndex;
-                        gltfAnimationsContainer.push_back(GLTFAnimations(boneMatrices));
-                        GlobalAnimationBindingIndex++;
-                    }
-                }
             }
             else
             {
@@ -665,9 +644,11 @@ bool GLTFMESHRenderer::AddGLTFModelToRenderer(
 
         // Add Animation index to the model orientation
         int currentAnimationIndex = -1;
-        if (gltfAnimationMapping.find(modelName) != gltfAnimationMapping.end())
+        if (isAnimationNeeded && !model.animations.empty())
         {
-            currentAnimationIndex = gltfAnimationMapping[modelName];
+            gltfAnimationsContainer.push_back(GLTFAnimations(boneMatrices));
+            currentAnimationIndex = GlobalAnimationBindingIndex;
+            GlobalAnimationBindingIndex++;
         }
 
         // compute local transform (position/rotation/scale)

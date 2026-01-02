@@ -221,8 +221,8 @@ public:
     bool AddGLTFModelToRenderer(
         const std::string& modelName,
         const GLTFModelOrientation& orientation,
-        bool isAnimationNeeded,
-        std::vector<glm::mat4> boneMatrices,
+        bool& isAnimationNeeded,
+        std::vector<glm::mat4>& boneMatrices,
         float ambientStrength,
         float diffuseStrength,
         float specularStrength
@@ -275,7 +275,6 @@ private:
     std::unordered_map<std::string, std::vector<GLTFModelOrientation>> primitivesOrientationPerMesh;
     std::unordered_map<std::string, int> gltfMaterialMapping;
     std::vector<GLTFMaterial> gltfMaterialContainer;
-    std::unordered_map<std::string, int> gltfAnimationMapping;
     std::vector<GLTFAnimations> gltfAnimationsContainer;
     std::vector<GLTFLight> gltfLightsContainer;
 
@@ -297,8 +296,8 @@ private:
         std::string modelName, 
         tinygltf::Model& model, 
         const GLTFModelOrientation& gltfModelOrientation,
-        bool isAnimationNeeded,
-        std::vector<glm::mat4> boneMatrices,
+        bool& isAnimationNeeded,
+        std::vector<glm::mat4>& boneMatrices,
         float ambientStrength,
         float diffuseStrength,
         float specularStrength
