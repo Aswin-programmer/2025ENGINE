@@ -328,17 +328,6 @@ int main()
 	rp3d::PhysicsWorld* world = physicsCore->GetPhysicsWorld();
 	std::shared_ptr< rp3d::PhysicsCommon> physicsCommon = physicsCore->GetPhysicsCommon();
 
-	flecs::entity e8 = ecsWorld->CreateEntity("Test8");
-	e8
-		.set<TransfromComponent>({ glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f) })
-		.set<MeshComponent>({ "AnimatedColloider.gltf", 1, 1, 1 })
-		.set<AnimationComponent>({ true })
-		.set<PhysicsComponent>({      
-			PHYSICSCOLLOIDERTYPE::BOXCOLLOIDER, 
-			PHYSICSBODYTYPE::STATICMESH,       
-			true  
-			});
-
 	// ############################################
 
 	std::shared_ptr<DebugMenuUISystem> debugMenuUISystem = std::make_shared<DebugMenuUISystem>(
@@ -423,15 +412,15 @@ int main()
 				shadowCamera.GetViewMatrix(),
 				projectionO
 			);
-		}
+		} 
 		 
 		// Handling the physics debug rendering:
 		if (GlobalInformation::IsScenePlaying)  
 		{
 			world->update(1.f / 60.f);
-			debugRenderer->ReactPhysicsRendererRender(view, projectionP);
-			physicsSystem->UpdateReactPhysics3DSystem();
 		}
+		debugRenderer->ReactPhysicsRendererRender(view, projectionP);
+		physicsSystem->UpdateReactPhysics3DSystem();
 		 
 		/*nativeCPPScriptManager->UpdateScript();*/  
 

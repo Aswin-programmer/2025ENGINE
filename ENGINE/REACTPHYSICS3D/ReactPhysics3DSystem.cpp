@@ -107,8 +107,6 @@ ReactPhysics3DSystem::ReactPhysics3DSystem(
                     true
                 );
 
-                world->update(1.f / 60.f);
-
                 std::cout << "Number Of RigidBodies: "
                     << world->getNbRigidBodies() << std::endl;
             });
@@ -241,8 +239,6 @@ void ReactPhysics3DSystem::CommitReactPhysics3DState()
                 physics.rigidBody->setIsDebugEnabled(
                     physics.IsDebugEnabled
                 );
-
-                world->update(1.f / 60.f);
             }
             catch (const std::exception& ex)
             {
