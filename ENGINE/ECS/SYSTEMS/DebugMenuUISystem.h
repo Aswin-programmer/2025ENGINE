@@ -11,6 +11,7 @@
 
 #include <flecs.h>
 
+#include "../../ECS/COMPONENTS/IdentiferComponent.h"
 #include "../../ECS/COMPONENTS/TransfromComponent.h"
 #include "../../ECS/COMPONENTS/MeshComponent.h"
 #include "../../ECS/COMPONENTS/AnimationComponent.h"
@@ -22,6 +23,10 @@
 #include "../../GlobalInformation/GlobalInformation.h"
 
 #include "../../DEBUGUI/MicroUI.h"
+
+#include "../../SERIALIZATION/Serialization.h"
+
+#include "../../WINDOW/Window.h"
 
 class ENGINE_API DebugMenuUISystem
 {

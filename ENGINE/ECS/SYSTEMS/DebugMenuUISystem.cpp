@@ -332,6 +332,8 @@ void DebugMenuUISystem::EntityManagerMenu()
                     // Now safe to create entity
                     flecs::entity newE = ecsWorld->entity().set_name(entityName);
 
+                    newE.set<IdentiferComponent>({ entityName });
+
                     // Add components
                     if (isTranformCompontentPresent)
                     {
@@ -471,16 +473,6 @@ void DebugMenuUISystem::GlobalMenu()
 {
     if (mu_begin_window(ctx, "Global Menu", mu_rect(320, 240, 200, 260)))
     {
-        // ---- Sun ----
-        mu_label(ctx, "Sun Position : ");
-        int widths[] = { 40, -1 };
-        mu_layout_row(ctx, 2, widths, 0);
-
-        mu_label(ctx, "X : "); mu_slider(ctx, &GlobalInformation::sunLightDirection.x, -1, 1);
-        mu_label(ctx, "Y : "); mu_slider(ctx, &GlobalInformation::sunLightDirection.y, -1, 1);
-        mu_label(ctx, "Z : "); mu_slider(ctx, &GlobalInformation::sunLightDirection.z, -1, 1);
-        mu_label(ctx, "Distance : "); mu_slider(ctx, &GlobalInformation::sunLightDistanceFactor, 0, 100);
-
         // ---- Toggles ----
         int width[] = { 140, -1 };
         mu_layout_row(ctx, 2, width, 0);
@@ -507,6 +499,64 @@ void DebugMenuUISystem::GlobalMenu()
         mu_label(ctx, "START SCENE:");
         mu_checkbox(ctx, "", &scenePlaying);
         GlobalInformation::IsScenePlaying = (scenePlaying != 0);
+
+        // Serialization
+        mu_label(ctx, "SERIALIZATION");
+        static int isJSON = 1;
+        mu_checkbox(ctx, "JSON", &isJSON);
+        if (mu_button(ctx, "SAVE SCENE")) {
+            if (isJSON) {
+                Serialization::SaveScene(
+                    Serialization::serializationPath + "data.json",
+                    SerializationMode::JSON,
+                    ecsWorld
+                );
+                std::cout << "Data Saved to data.json!" << std::endl;
+            }
+            else {
+                Serialization::SaveScene(
+                    Serialization::serializationPath + "data.bin",
+                    SerializationMode::BINARY,
+                    ecsWorld
+                );
+                std::cout << "Data Saved to data.bin!" << std::endl;
+            }
+        }
+        if (mu_button(ctx, "LOAD SCENE")) {
+            if (isJSON) {
+                Serialization::LoadScene(
+                    Serialization::serializationPath + "data.json",
+                    SerializationMode::JSON,
+                    ecsWorld
+                );
+                std::cout << "Data Loaded from data.json!" << std::endl;
+            }
+            else {
+                Serialization::LoadScene(
+                    Serialization::serializationPath + "data.bin",
+                    SerializationMode::BINARY,
+                    ecsWorld
+                );
+                std::cout << "Data Loaded from data.bin" << std::endl;
+            }
+        }
+
+        // Clearing the Whole World
+        mu_label(ctx, "CLEAR WORLD");
+        if (mu_button(ctx, "CLEAR"))
+        {
+            ecsWorld->defer_begin();
+
+            ecsWorld->each<IdentiferComponent>([&](flecs::entity e, IdentiferComponent& transfromC) {
+                if (e.name() != "Test7")
+                {
+                    e.destruct();
+                }
+                });
+
+            ecsWorld->defer_end();
+            std::cout << "World Cleared!." << std::endl;
+        }
 
         mu_end_window(ctx);
     }

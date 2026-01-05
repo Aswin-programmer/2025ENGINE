@@ -1,15 +1,11 @@
 #pragma once
-
-#include <iostream>
-#pragma once
-
 #ifdef ENGINE_EXPORTS
 #define ENGINE_API __declspec(dllexport)
 #else
 #define ENGINE_API __declspec(dllimport)
 #endif
 
-
+#include <iostream>
 #include <vector>
 
 #include "../../ECS/ECSWorld.h"

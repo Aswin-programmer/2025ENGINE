@@ -7,6 +7,10 @@
 #endif
 
 #include <reactphysics3d/ReactPhysics3D.h>
+#include <cereal/cereal.hpp>
+#include <cereal/types/string.hpp>     // std::string
+#include <cereal/types/vector.hpp>     // std::vector
+#include <cereal/types/optional.hpp>
 
 
 enum class PHYSICSCOLLOIDERTYPE
@@ -17,9 +21,9 @@ enum class PHYSICSCOLLOIDERTYPE
 
 enum class PHYSICSBODYTYPE
 {
-	STATICMESH = rp3d::BodyType::STATIC,
-	DYMAMICMESH = rp3d::BodyType::DYNAMIC,
-	KINEMATICMESH = rp3d::BodyType::KINEMATIC
+	STATICMESH = static_cast<int>(rp3d::BodyType::STATIC),
+	DYMAMICMESH = static_cast<int>(rp3d::BodyType::DYNAMIC),
+	KINEMATICMESH = static_cast<int>(rp3d::BodyType::KINEMATIC)
 };
 
 struct ENGINE_API PhysicsComponent
@@ -37,5 +41,15 @@ public:
 	PHYSICSCOLLOIDERTYPE colloiderType;
 	PHYSICSBODYTYPE bodyType;
 	bool IsDebugEnabled;
+
+	template <class Archive>
+	void serialize(Archive& ar)
+	{
+		ar(
+			CEREAL_NVP(colloiderType),
+			CEREAL_NVP(bodyType),
+			CEREAL_NVP(IsDebugEnabled)
+		);
+	}
 };
 

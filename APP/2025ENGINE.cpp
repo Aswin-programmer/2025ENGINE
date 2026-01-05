@@ -11,9 +11,9 @@ extern "C" {
 
 #include <WINDOW/Window.h>
 
-#include <INPUT/KeyBoard.h>
+#include <INPUT/KeyBoard.h>   
 #include <INPUT/Mouse.h>
-
+  
 #include <CAMERA/EditorCamera.h>
 
 #include <RENDERER/TEXTURE_KTX/TextureKTX2.h>
@@ -24,6 +24,7 @@ extern "C" {
 #include <RENDERER/FRAME_BUFFER/DepthMap.h>
 
 #include <ECS/ECSWorld.h>
+#include <ECS/COMPONENTS/IdentiferComponent.h>
 #include <ECS/COMPONENTS/MeshComponent.h>
 #include <ECS/COMPONENTS/TransfromComponent.h>
 #include <ECS/COMPONENTS/AnimationComponent.h>
@@ -41,6 +42,8 @@ extern "C" {
 #include <REACTPHYSICS3D/ReactPhysics3DCore.h>
 #include <REACTPHYSICS3D/ReactPhysics3DDebugRenderer.h>  
 #include <REACTPHYSICS3D/ReactPhysics3DSystem.h>
+
+#include <SERIALIZATION/Serialization.h>
 
 // Opengl Callbacks
 void processKeyInput(GLFWwindow* window);
@@ -267,13 +270,14 @@ int main()
 		}) 
 		.set<AnimationComponent>({ true });*/    
 
-	flecs::entity e7 = ecsWorld->CreateEntity("Test7");
+	flecs::entity e7 = ecsWorld->CreateEntity("Test7");   
 	e7   
+		.set<IdentiferComponent>({ "Test7" })
 		.set<TransfromComponent>({ glm::vec3(15.f, 0.f, 0.f)
 		, glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f) })
 		.set<LightingComponent>({
-				GLTFLightType::Directional,   
-				glm::vec3(12.0f, 45.0f, 78.0f),     
+				GLTFLightType::Directional,      
+				glm::vec3(12.0f, 45.0f, 78.0f),       
 				glm::vec3(0.8f, 0.1f, 0.3f), 
 				0.15f, 
 				0.75f,    
@@ -295,12 +299,12 @@ int main()
 	 
 	// ## Testing some Scripting Stuff ##
 	 
-	// ## Testing some Scripting Stuff ##
+	// ## Testing some Scripting Stuff ##   
 	 
-	//std::shared_ptr<NativeCPPScriptManager> nativeCPPScriptManager
-	//	= std::make_shared<NativeCPPScriptManager>(SCRIPT_PATH + std::string("ScriptImpl.dll"));
-	//nativeCPPScriptManager->LoadDependencies(ecsWorld);
-	//nativeCPPScriptManager->LoadDLL();
+	std::shared_ptr<NativeCPPScriptManager> nativeCPPScriptManager
+		= std::make_shared<NativeCPPScriptManager>(SCRIPT_PATH + std::string("ScriptImpl.dll"));
+	nativeCPPScriptManager->LoadDependencies(ecsWorld);
+	nativeCPPScriptManager->LoadDLL();  
 
 	//auto world = ecsWorld->GetWorld();
 
@@ -328,16 +332,16 @@ int main()
 	rp3d::PhysicsWorld* world = physicsCore->GetPhysicsWorld();
 	std::shared_ptr< rp3d::PhysicsCommon> physicsCommon = physicsCore->GetPhysicsCommon();
 
-	// ############################################
+	// ############################################   
 
 	std::shared_ptr<DebugMenuUISystem> debugMenuUISystem = std::make_shared<DebugMenuUISystem>(
 		MicroUIRenderer::GetContext(),
 		ecsWorld->GetWorld(),
 		physicsCore
-	);
+	);  
 	debugMenuUISystem->InitDebugMenuUISystem();
 
-	// #################################################
+	// ################################################# 
 
 
 	std::shared_ptr<ReactPhysicsDebugRenderer> debugRenderer = std::make_shared<ReactPhysicsDebugRenderer>(
@@ -346,10 +350,12 @@ int main()
 		physicsCore
 	);
 
+	// Serialization Stuff
+	Serialization::SetSerializationPath(std::string(RESOURCES_PATH) + "SERIALIZATION/");
 	 
 	while (!Window::shouldClose())
 	{
-		
+		  
 		  
 		ecsWorld->GetWorld()->progress();
 		Window::clearScreen();
@@ -422,7 +428,7 @@ int main()
 		debugRenderer->ReactPhysicsRendererRender(view, projectionP);
 		physicsSystem->UpdateReactPhysics3DSystem();
 		  
-		/*nativeCPPScriptManager->UpdateScript();*/  
+		nativeCPPScriptManager->UpdateScript(); 
 
 		//std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;
 

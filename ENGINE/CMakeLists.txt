@@ -53,7 +53,7 @@ add_library(2025ENGINE SHARED
     "ECS/SYSTEMS/DebugMenuUISystem.cpp" 
     "RENDERER/FRAME_BUFFER/DepthMap.h" 
     "RENDERER/FRAME_BUFFER/DepthMap.cpp"
- "REACTPHYSICS3D/ReactPhysics3DSystem.h" "REACTPHYSICS3D/ReactPhysics3DSystem.cpp" "REACTPHYSICS3D/ReactPhysics3DCore.h" "REACTPHYSICS3D/ReactPhysics3DCore.cpp" "REACTPHYSICS3D/ReactPhysics3DDebugRenderer.h" "REACTPHYSICS3D/ReactPhysics3DDebugRenderer.cpp" "MEMORY/MemoryDebugger.h" "REACTPHYSICS3D/ReactPhysics3DLoader.h" "REACTPHYSICS3D/ReactPhysics3DLoader.cpp" "ECS/COMPONENTS/PhysicsComponent.h" "ECS/COMPONENTS/PhysicsComponent.cpp")
+ "REACTPHYSICS3D/ReactPhysics3DSystem.h" "REACTPHYSICS3D/ReactPhysics3DSystem.cpp" "REACTPHYSICS3D/ReactPhysics3DCore.h" "REACTPHYSICS3D/ReactPhysics3DCore.cpp" "REACTPHYSICS3D/ReactPhysics3DDebugRenderer.h" "REACTPHYSICS3D/ReactPhysics3DDebugRenderer.cpp" "MEMORY/MemoryDebugger.h" "REACTPHYSICS3D/ReactPhysics3DLoader.h" "REACTPHYSICS3D/ReactPhysics3DLoader.cpp" "ECS/COMPONENTS/PhysicsComponent.h" "ECS/COMPONENTS/PhysicsComponent.cpp" "SERIALIZATION/Serialization.h" "SERIALIZATION/Serialization.cpp" "SERIALIZATION/CerealGLM.h" "ECS/COMPONENTS/IdentiferComponent.h" "ECS/COMPONENTS/IdentiferComponent.cpp")
 
 target_include_directories(2025ENGINE PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
@@ -68,6 +68,7 @@ target_link_libraries(2025ENGINE PUBLIC
     tinygltf
     reactphysics3d
     flecs
+    cereal
 )
 
 # Ensure DLL exports work properly

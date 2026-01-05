@@ -53,10 +53,11 @@ void EditorCamera::UpdateCamera() {
     float yawRad = glm::radians(m_Yaw);
     float pitchRad = glm::radians(m_Pitch);
 
+    // Standard OpenGL camera - looks along negative Z when yaw=0, pitch=0
     glm::vec3 direction;
-    direction.x = cos(pitchRad) * cos(yawRad);
+    direction.x = cos(pitchRad) * sin(yawRad);
     direction.y = sin(pitchRad);
-    direction.z = cos(pitchRad) * sin(yawRad);
+    direction.z = -cos(pitchRad) * cos(yawRad);  // Negative for looking along -Z
 
     m_Position = m_Target - glm::normalize(direction) * m_Distance;
 }

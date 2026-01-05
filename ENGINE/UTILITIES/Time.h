@@ -7,7 +7,6 @@
 #endif
 
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 class ENGINE_API Time

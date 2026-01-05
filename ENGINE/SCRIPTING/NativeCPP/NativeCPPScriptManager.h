@@ -21,6 +21,7 @@
 #include <thread>
 
 #include "../../ECS/ECSWorld.h"
+#include "../../GlobalInformation/GlobalInformation.h"
 
 class ENGINE_API NativeCPPScriptManager
 {

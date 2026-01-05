@@ -27,6 +27,14 @@ add_subdirectory(DEPENDENCIES/TINYGLTF)
 add_subdirectory(DEPENDENCIES/REACTPHYSICS3D)
 add_subdirectory(DEPENDENCIES/GLYPHGL)
 
+# ---- control cereal here ----
+set(SKIP_PERFORMANCE_COMPARISON ON CACHE BOOL "" FORCE)
+set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_SANDBOX OFF CACHE BOOL "" FORCE)
+set(BUILD_DOC OFF CACHE BOOL "" FORCE)
+set(JUST_INSTALL_CEREAL ON CACHE BOOL "" FORCE)
+add_subdirectory(DEPENDENCIES/CEREAL)
+
 add_subdirectory(SCRIPT)
 
 # Engine library (shared)

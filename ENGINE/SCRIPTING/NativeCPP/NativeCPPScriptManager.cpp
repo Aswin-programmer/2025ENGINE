@@ -130,7 +130,10 @@ void NativeCPPScriptManager::UpdateScript()
 	ReloadIfUpdated();
 	if(scriptInstance)
 	{
-		scriptInstance->OnUpdate();
+		if(GlobalInformation::IsScenePlaying)
+		{
+			scriptInstance->OnUpdate();
+		}
 	}
 }
 

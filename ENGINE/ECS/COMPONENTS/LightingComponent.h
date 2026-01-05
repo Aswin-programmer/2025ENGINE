@@ -7,6 +7,12 @@
 #endif
 
 #include <glm/glm.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/string.hpp>     // std::string
+#include <cereal/types/vector.hpp>     // std::vector
+#include <cereal/types/optional.hpp>
+
+#include "../../SERIALIZATION/CerealGLM.h"
 
 enum class GLTFLightType : int
 {
@@ -46,6 +52,24 @@ public:
         glm::vec3 direction,
         float cutOff
     );
+
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(
+            CEREAL_NVP(lightType),
+            CEREAL_NVP(position),
+            CEREAL_NVP(lightColor),
+            CEREAL_NVP(ambientStrength),
+            CEREAL_NVP(diffuseStrength),
+            CEREAL_NVP(specularStrength),
+            CEREAL_NVP(constant),
+            CEREAL_NVP(linear),
+            CEREAL_NVP(quadratic),
+            CEREAL_NVP(direction),
+            CEREAL_NVP(cutOff)
+        );
+    }
 };      
 
 

@@ -9,6 +9,10 @@
 #include <string>
 
 #include <glm/glm.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/optional.hpp>
 
 struct ENGINE_API MeshComponent
 {
@@ -30,4 +34,15 @@ public:
 	float ambientStrength;
 	float diffuseStrength;
 	float specularStrength;
+
+	template <class Archive>
+	void serialize(Archive& ar)
+	{
+		ar(
+			CEREAL_NVP(MeshName),
+			CEREAL_NVP(ambientStrength),
+			CEREAL_NVP(diffuseStrength),
+			CEREAL_NVP(specularStrength)
+		);
+	}
 };
