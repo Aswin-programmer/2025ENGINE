@@ -26,6 +26,7 @@ add_subdirectory(DEPENDENCIES/KTX)
 add_subdirectory(DEPENDENCIES/TINYGLTF)
 add_subdirectory(DEPENDENCIES/REACTPHYSICS3D)
 add_subdirectory(DEPENDENCIES/GLYPHGL)
+add_subdirectory(DEPENDENCIES/OLIUI)
 
 # ---- control cereal here ----
 set(SKIP_PERFORMANCE_COMPARISON ON CACHE BOOL "" FORCE)

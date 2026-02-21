@@ -1329,6 +1329,7 @@ void MicroUIRenderer::r_present(void)
 {
     flush();
     /*glfwSwapBuffers(gl_window);*/
+    glFinish();
 }
 
 int MicroUIRenderer::text_width(mu_Font font, const char* text, int len)

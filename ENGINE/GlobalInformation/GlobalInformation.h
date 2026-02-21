@@ -29,6 +29,8 @@ public:
 
     static bool renderShadowPass;
 
+    static bool IsInGameUIRendered;
+
     static bool IsReactPhysics3DDebuggerEnabled;
     static bool IsReactPhysics3DStateCommited;
     static bool IsScenePlaying;

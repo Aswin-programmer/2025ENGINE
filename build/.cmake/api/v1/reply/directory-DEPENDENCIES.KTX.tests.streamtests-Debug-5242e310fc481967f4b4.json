@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "DEPENDENCIES/KTX/tests/streamtests",
+		"source" : "DEPENDENCIES/KTX/tests/streamtests"
+	}
+}

@@ -55,6 +55,7 @@ bool Window::init(const char* title) {
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
     glDepthFunc(GL_LESS);
+    glEnable(GL_FRAMEBUFFER_SRGB);
 
     glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
     glViewport(0, 0, m_width, m_height);

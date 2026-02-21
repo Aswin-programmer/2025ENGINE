@@ -1,0 +1,117 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"DEPENDENCIES/FLECS/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 88,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 95,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 101,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "include",
+			"paths" : 
+			[
+				{
+					"from" : "DEPENDENCIES/FLECS/include",
+					"to" : "."
+				}
+			],
+			"type" : "directory"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"DEPENDENCIES/FLECS/flecs.lib"
+			],
+			"targetId" : "flecs::@9055bde2fa155dd99831",
+			"targetIndex" : 34,
+			"targetIsImportLibrary" : true,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "bin",
+			"paths" : 
+			[
+				"DEPENDENCIES/FLECS/flecs.dll"
+			],
+			"targetId" : "flecs::@9055bde2fa155dd99831",
+			"targetIndex" : 34,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"DEPENDENCIES/FLECS/flecs_static.lib"
+			],
+			"targetId" : "flecs_static::@9055bde2fa155dd99831",
+			"targetIndex" : 35,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/flecs",
+			"exportName" : "flecs-export",
+			"exportTargets" : 
+			[
+				{
+					"id" : "flecs::@9055bde2fa155dd99831",
+					"index" : 34
+				},
+				{
+					"id" : "flecs_static::@9055bde2fa155dd99831",
+					"index" : 35
+				}
+			],
+			"paths" : 
+			[
+				"DEPENDENCIES/FLECS/CMakeFiles/Export/dd2a5a6f66f0d12b1be0feafeb08c769/flecs-config.cmake"
+			],
+			"type" : "export"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "DEPENDENCIES/FLECS",
+		"source" : "DEPENDENCIES/FLECS"
+	}
+}

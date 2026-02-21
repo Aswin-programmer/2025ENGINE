@@ -35,7 +35,7 @@ public:
     static bool IsBtnJustPressed(int btn);
     static bool IsBtnJustReleased(int btn);
 
-    static std::tuple<int, int> GetMouseScreenPosition(GLFWwindow* window);
+    static std::pair<int, int> GetMouseScreenPosition(GLFWwindow* window);
 
     static inline void SetMouseWheelX(double val) { s_WheelX = val; }
     static inline void SetMouseWheelY(double val) { s_WheelY = val; }

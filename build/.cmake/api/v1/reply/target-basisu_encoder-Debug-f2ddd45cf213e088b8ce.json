@@ -1,0 +1,814 @@
+{
+	"archive" : {},
+	"artifacts" : 
+	[
+		{
+			"path" : "DEPENDENCIES/KTX/lib/basisu-encoder/basisu_encoder.lib"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"install",
+			"add_compile_options",
+			"target_compile_options",
+			"add_compile_definitions",
+			"target_compile_features"
+		],
+		"files" : 
+		[
+			"DEPENDENCIES/KTX/external/basis_universal/CMakeLists.txt",
+			"DEPENDENCIES/KTX/lib/CMakeLists.txt",
+			"DEPENDENCIES/KTX/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 208,
+				"parent" : 0
+			},
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 701,
+				"parent" : 2
+			},
+			{
+				"file" : 2
+			},
+			{
+				"command" : 2,
+				"file" : 2,
+				"line" : 183,
+				"parent" : 4
+			},
+			{
+				"command" : 2,
+				"file" : 2,
+				"line" : 184,
+				"parent" : 4
+			},
+			{
+				"command" : 2,
+				"file" : 2,
+				"line" : 197,
+				"parent" : 4
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 104,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 0,
+				"line" : 221,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 123,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 120,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 216,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-O0 -std=gnu++20 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-Wall"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-Wextra"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-O0"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-g"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-ffp-model=precise"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-ffp-contract=off"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wno-overriding-option"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-fvisibility=hidden"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-fno-strict-aliasing"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-D_LARGEFILE64_SOURCE=1"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-D_FILE_OFFSET_BITS=64"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unused-local-typedefs"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unused-value"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unused-parameter"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unused-variable"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-misleading-indentation"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-maybe-uninitialized"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unused-function"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-stringop-overflow"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unknown-warning-option"
+				},
+				{
+					"backtrace" : 11,
+					"fragment" : "-Wno-reorder"
+				},
+				{
+					"backtrace" : 11,
+					"fragment" : "-Wno-class-memaccess"
+				},
+				{
+					"backtrace" : 11,
+					"fragment" : "-Wno-deprecated-copy"
+				},
+				{
+					"backtrace" : 9,
+					"fragment" : "-DBASISU_SUPPORT_SSE=0"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 10,
+					"define" : "_DEBUG"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					12
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22
+			]
+		},
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-O0 -D_DEBUG -D_DLL -D_MT -Xclang --dependent-lib=msvcrtd -g -Xclang -gcodeview"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-Wall"
+				},
+				{
+					"backtrace" : 5,
+					"fragment" : "-Wextra"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-O0"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-g"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-ffp-model=precise"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-ffp-contract=off"
+				},
+				{
+					"backtrace" : 7,
+					"fragment" : "-Wno-overriding-option"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-fvisibility=hidden"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-fno-strict-aliasing"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-D_LARGEFILE64_SOURCE=1"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-D_FILE_OFFSET_BITS=64"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unused-local-typedefs"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unused-value"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unused-parameter"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unused-variable"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-misleading-indentation"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-maybe-uninitialized"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unused-function"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-stringop-overflow"
+				},
+				{
+					"backtrace" : 8,
+					"fragment" : "-Wno-unknown-warning-option"
+				},
+				{
+					"backtrace" : 9,
+					"fragment" : "-DBASISU_SUPPORT_SSE=0"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 10,
+					"define" : "_DEBUG"
+				}
+			],
+			"language" : "C",
+			"sourceIndexes" : 
+			[
+				23
+			]
+		}
+	],
+	"id" : "basisu_encoder::@265734cbfed79ba2fde2",
+	"install" : 
+	{
+		"destinations" : 
+		[
+			{
+				"backtrace" : 3,
+				"path" : "lib"
+			}
+		],
+		"prefix" : 
+		{
+			"path" : "C:/Program Files (x86)/2025ENGINE_ROOT"
+		}
+	},
+	"name" : "basisu_encoder",
+	"nameOnDisk" : "basisu_encoder.lib",
+	"paths" : 
+	{
+		"build" : "DEPENDENCIES/KTX/lib/basisu-encoder",
+		"source" : "DEPENDENCIES/KTX/external/basis_universal"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23
+			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				24,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30,
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54,
+				55,
+				56,
+				57,
+				58,
+				59,
+				60,
+				61,
+				62,
+				63,
+				64,
+				65
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_backend.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_basis_file.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_comp.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_enc.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_etc.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_frontend.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_gpu_texture.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_pvrtc1_4.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_resampler.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_resample_filters.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_ssim.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_uastc_enc.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_bc7enc.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/jpgd.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_kernels_sse.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_opencl.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/pvpngreader.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_uastc_hdr_4x4_enc.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_astc_hdr_6x6_enc.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_astc_hdr_common.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/3rdparty/android_astc_decomp.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/3rdparty/tinyexr.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/transcoder/basisu_transcoder.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/zstd/zstd.c",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_astc_hdr_6x6_enc.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_astc_hdr_common.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_backend.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_basis_file.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_bc7enc.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_comp.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_enc.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_etc.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_frontend.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_gpu_texture.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_kernels_declares.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_kernels_imp.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_math.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_miniz.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_ocl_kernels.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_opencl.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_pvrtc1_4.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_resampler_filters.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_resampler.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_ssim.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_uastc_enc.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/basisu_uastc_hdr_4x4_enc.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/cppspmd_flow.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/cppspmd_math_declares.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/cppspmd_math.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/cppspmd_sse.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/cppspmd_type_aliases.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/jpgd.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/pvpngreader.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/3rdparty/android_astc_decomp.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/3rdparty/qoi.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/encoder/3rdparty/tinyexr.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/transcoder/basisu_astc_hdr_core.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/transcoder/basisu_astc_helpers.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/transcoder/basisu_containers_impl.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/transcoder/basisu_containers.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/transcoder/basisu_file_headers.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/transcoder/basisu_transcoder_internal.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/transcoder/basisu_transcoder_uastc.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/transcoder/basisu_transcoder.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/transcoder/basisu.h",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"path" : "DEPENDENCIES/KTX/external/basis_universal/zstd/zstd.h",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "STATIC_LIBRARY"
+}

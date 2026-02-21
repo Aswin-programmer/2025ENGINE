@@ -9,6 +9,7 @@ bool GlobalInformation::renderShadowPass = false;
 bool GlobalInformation::IsReactPhysics3DDebuggerEnabled = false;
 bool GlobalInformation::IsReactPhysics3DStateCommited = false;
 bool GlobalInformation::IsScenePlaying = false;
+bool GlobalInformation::IsInGameUIRendered = false;
 
 void GlobalInformation::InitSun()
 {

@@ -69,8 +69,8 @@ bool Mouse::IsBtnJustReleased(int btn)
     return it->second.bJustReleased;
 }
 
-std::tuple<int, int> Mouse::GetMouseScreenPosition(GLFWwindow* window)
+std::pair<int, int> Mouse::GetMouseScreenPosition(GLFWwindow* window)
 {
     glfwGetCursorPos(window, &s_X, &s_Y);
-    return std::make_tuple((int)s_X, (int)s_Y);
+    return std::make_pair((int)s_X, (int)s_Y);
 }
