@@ -107,6 +107,9 @@ ReactPhysics3DSystem::ReactPhysics3DSystem(
                     true
                 );
 
+                //Enable UserData
+                physics.rigidBody->setUserData(reinterpret_cast<void*>((uint64_t)e.id()));
+
                 std::cout << "Number Of RigidBodies: "
                     << world->getNbRigidBodies() << std::endl;
             });
@@ -239,6 +242,9 @@ void ReactPhysics3DSystem::CommitReactPhysics3DState()
                 physics.rigidBody->setIsDebugEnabled(
                     physics.IsDebugEnabled
                 );
+
+                //Enable UserData
+                physics.rigidBody->setUserData(reinterpret_cast<void*>((uint64_t)e.id()));
             }
             catch (const std::exception& ex)
             {

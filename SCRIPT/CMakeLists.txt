@@ -11,4 +11,5 @@ target_link_libraries(ScriptImpl PRIVATE
     reactphysics3d
     glm
     glad
+    OliUI
 )

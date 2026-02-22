@@ -69,7 +69,7 @@ bool NativeCPPScriptManager::LoadDLL()
 		return false;
 	}
 
-	scriptInstance->SetupDependencies(ecsWorld);
+	scriptInstance->SetupDependencies(ecsWorld, oliUIMainContext, physicsCore);
 
 	std::cout << "[ENGINE] &g_World: " << ecsWorld.get() << "\n";
 
@@ -137,9 +137,15 @@ void NativeCPPScriptManager::UpdateScript()
 	}
 }
 
-void NativeCPPScriptManager::LoadDependencies(std::shared_ptr<ECSWorld> ecsWorld_)
+void NativeCPPScriptManager::LoadDependencies(
+	std::shared_ptr<ECSWorld> ecsWorld_, 
+	OliUIMainContext* oliUIMainContext_,
+	std::shared_ptr<ReactPhysics3DCore> physicsCore_
+)
 {
 	ecsWorld = ecsWorld_;
+	oliUIMainContext = oliUIMainContext_;
+	physicsCore = physicsCore_;
 }
 
 LibHandle NativeCPPScriptManager::LoadLibraryFile(const std::string& path)

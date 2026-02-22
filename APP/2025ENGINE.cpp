@@ -286,15 +286,6 @@ int main() {
         .set<PhysicsComponent>({ PHYSICSCOLLOIDERTYPE::BOXCOLLOIDER, PHYSICSBODYTYPE::STATICMESH,
     true });*/
 
-    // ## Testing some Scripting Stuff ##
-
-    // ## Testing some Scripting Stuff ##
-
-    /*std::shared_ptr<NativeCPPScriptManager> nativeCPPScriptManager =
-        std::make_shared<NativeCPPScriptManager>(SCRIPT_PATH + std::string("ScriptImpl.dll"));
-    nativeCPPScriptManager->LoadDependencies(ecsWorld);
-    nativeCPPScriptManager->LoadDLL();*/
-
     // auto world = ecsWorld->GetWorld();
 
     // world->defer_begin();  // start deferring table modifications
@@ -324,7 +315,7 @@ int main() {
     std::shared_ptr<DebugMenuUISystem> debugMenuUISystem = std::make_shared<DebugMenuUISystem>(
         MicroUIRenderer::GetContext(), ecsWorld->GetWorld(), physicsCore);
     debugMenuUISystem->InitDebugMenuUISystem();
-
+    
     // #################################################
 
     std::shared_ptr<ReactPhysicsDebugRenderer> debugRenderer =
@@ -358,9 +349,16 @@ int main() {
     inGameUIRenderer->InitializeInGameUIRenderer();
 
     OliUIMainContext* oliUIMainContext = (OliUIMainContext*)malloc(sizeof(OliUIMainContext));
-    OliUIInit(oliUIMainContext);
+    OliUIInit(oliUIMainContext); 
 
     // ###############################################
+
+    // ############ NATIVE SCRIPTING #################
+    std::shared_ptr<NativeCPPScriptManager> nativeCPPScriptManager =
+        std::make_shared<NativeCPPScriptManager>(SCRIPT_PATH + std::string("ScriptImpl.dll"));
+    nativeCPPScriptManager->LoadDependencies(ecsWorld, oliUIMainContext, physicsCore);
+    nativeCPPScriptManager->LoadDLL();
+    // ################################################
 
     while (!Window::shouldClose()) {
         if (Keyboard::IsKeyPressed(KEY_F12)) {
@@ -406,40 +404,6 @@ int main() {
         // ######## Handling InGameUI stuff #######
 
         OliUI_GLFWInputProcessing(oliUIMainContext, Window::getGLFWWindow());
-          
-        OliUIBegin(oliUIMainContext);   
-
-        OliUIBeginWindowContainer(oliUIMainContext, OliUIRect{160, 120, 320, 240});
-        OliUIBeginLayout(oliUIMainContext, std::array<int, 5>{40, 60, 40, 60, 40}.data(), 5, OliUILayoutVertical);
-        
-        OliUIBeginSubWindowContainer(oliUIMainContext, "temp1", sizeof("temp1"));
-        OliUIEndSubWindowContainer(oliUIMainContext);
-
-        OliUIMouseClickState state1 = OliUIBeginSubWindowContainer(oliUIMainContext, "first", sizeof("first"));
-        if(state1 & OliUIJustClicked){
-            std::cout<<"The Button Is Clicked-1."<<std::endl;
-        }
-        OliUIDrawTexturedRectangle(oliUIMainContext, OliUITexture{"START"});
-        OliUIEndSubWindowContainer(oliUIMainContext);
-
-        OliUIBeginSubWindowContainer(oliUIMainContext, "temp2", sizeof("temp2"));
-        OliUIEndSubWindowContainer(oliUIMainContext);
-
-        OliUIMouseClickState state2 = OliUIBeginSubWindowContainer(oliUIMainContext, "second", sizeof("second"));
-        if (state2 & OliUIJustClicked) {
-            std::cout << "The Button Is Clicked-2." << std::endl;
-        }
-        OliUIDrawTexturedRectangle(oliUIMainContext, OliUITexture{ "CONTINUE" });
-        OliUIEndSubWindowContainer(oliUIMainContext);
-
-        OliUIBeginSubWindowContainer(oliUIMainContext, "temp3", sizeof("temp3"));
-        OliUIEndSubWindowContainer(oliUIMainContext);
-
-        OliUIEndLayout(oliUIMainContext);
-        OliUIEndWindowContainer(oliUIMainContext); 
-
-
-        OliUIEnd(oliUIMainContext);
 
         inGameUIRenderer->CleanUpInGameUIRenderer();
         inGameUIRenderer->OliUIInspectDrawCommands(oliUIMainContext);
@@ -461,9 +425,10 @@ int main() {
             world->update(1.f / 60.f);
         }
         debugRenderer->ReactPhysicsRendererRender(view, projectionP);
-        physicsSystem->UpdateReactPhysics3DSystem();
 
-        //nativeCPPScriptManager->UpdateScript();
+        nativeCPPScriptManager->UpdateScript();
+
+        physicsSystem->UpdateReactPhysics3DSystem();
 
         // std::cout<<"The FPS is : "<<Window::GetFPSValue()<<std::endl;
 
@@ -501,7 +466,7 @@ void processKeyInput(GLFWwindow *window) {
     /*if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
         camera.ProcessKeyboard(FORWARD, Window::getdt());
-    }
+    }  
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {

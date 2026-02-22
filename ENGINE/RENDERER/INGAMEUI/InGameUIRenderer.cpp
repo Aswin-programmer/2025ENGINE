@@ -147,6 +147,7 @@ void InGameUIRenderer::CleanUpInGameUIRenderer()
 
 void InGameUIRenderer::RenderInGameUI()
 {
+    if(inGameUIVertices.empty()) return;
     inGameUIShader->use();
     glm::mat4 projection = glm::ortho(
         0.0f, 640.f,   
@@ -156,7 +157,7 @@ void InGameUIRenderer::RenderInGameUI()
     inGameUIShader->setMat4("uProjection", projection);
     glBindVertexArray(inGameUIVAO);
 
-    inGameUISpriteTexture->Bind(0);
+    inGameUISpriteTexture->Bind(31);
 
     if (!inGameUIVertices.empty())
     {

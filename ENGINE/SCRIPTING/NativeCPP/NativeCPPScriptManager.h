@@ -20,8 +20,11 @@
 #include <filesystem>
 #include <thread>
 
+#include <OliUI.h>
+
 #include "../../ECS/ECSWorld.h"
 #include "../../GlobalInformation/GlobalInformation.h"
+#include "../../REACTPHYSICS3D/ReactPhysics3DCore.h"
 
 class ENGINE_API NativeCPPScriptManager
 {
@@ -38,7 +41,11 @@ public:
 
 	void UpdateScript();
 
-	void LoadDependencies(std::shared_ptr<ECSWorld> ecsWorld_);
+	void LoadDependencies(
+		std::shared_ptr<ECSWorld> ecsWorld_, 
+		OliUIMainContext* oliUIMainContext_,
+		std::shared_ptr<ReactPhysics3DCore> physicsCore_
+	);
 
 
 private:
@@ -56,5 +63,6 @@ private:
 
 	// Dependencies to be passed
 	std::shared_ptr<ECSWorld> ecsWorld;
-
+	OliUIMainContext* oliUIMainContext;
+	std::shared_ptr<ReactPhysics3DCore> physicsCore;
 };
