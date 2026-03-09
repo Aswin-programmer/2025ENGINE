@@ -7,6 +7,7 @@ PhysicsComponent::PhysicsComponent(
 )
 	:
 	rigidBody{ nullptr },
+	colloider{nullptr},
 	colloiderType{colloiderType},
 	bodyType{bodyType},
 	IsDebugEnabled{IsDebugEnabled}

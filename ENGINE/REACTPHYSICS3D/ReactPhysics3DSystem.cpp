@@ -18,12 +18,17 @@ ReactPhysics3DSystem::ReactPhysics3DSystem(
 		.build();
 
     ecsWorld->observer<PhysicsComponent, TransfromComponent, MeshComponent>()
-        .event(flecs::OnAdd)
+        .event(flecs::OnSet)
         .each([this](flecs::entity e,
             PhysicsComponent& physics,
             TransfromComponent& transform,
             MeshComponent& mesh)
             {
+                if(physics.rigidBody)
+                {
+                    return;
+                }
+
                 auto* world = this->reactPhysics3DCore->GetPhysicsWorld();
                 auto physicsCommon = this->reactPhysics3DCore->GetPhysicsCommon();
 
@@ -85,7 +90,7 @@ ReactPhysics3DSystem::ReactPhysics3DSystem(
                             boxCollider.halfExtents.z * transform.Scale.z
                             });
 
-                    physics.rigidBody->addCollider(
+                    physics.colloider = physics.rigidBody->addCollider(
                         boxShape,
                         colliderTransform
                     );
@@ -96,7 +101,7 @@ ReactPhysics3DSystem::ReactPhysics3DSystem(
                     rp3d::SphereShape* sphereShape =
                         physicsCommon->createSphereShape(1.0f);
 
-                    physics.rigidBody->addCollider(
+                    physics.colloider = physics.rigidBody->addCollider(
                         sphereShape,
                         colliderTransform
                     );
@@ -119,10 +124,29 @@ ReactPhysics3DSystem::ReactPhysics3DSystem(
         .each([this](PhysicsComponent& physics)
             {
                 auto* world = this->reactPhysics3DCore->GetPhysicsWorld();
+                auto physicsCommon = this->reactPhysics3DCore->GetPhysicsCommon();
+
+                /*if(physics.colloiderType == PHYSICSCOLLOIDERTYPE::BOXCOLLOIDER)  
+                {
+                    physicsCommon->destroyBoxShape(
+                        static_cast<rp3d::BoxShape*>(physics.colloider->getCollisionShape())
+                    );
+                }
+                else if(physics.colloiderType == PHYSICSCOLLOIDERTYPE::SPHERECOLLOIDER)
+                {
+                    physicsCommon->destroySphereShape(
+                        static_cast<rp3d::SphereShape*>(physics.colloider->getCollisionShape())
+                    );
+                }*/
+
                 if (physics.rigidBody) {
                     world->destroyRigidBody(physics.rigidBody);
                     physics.rigidBody = nullptr;
                 }
+
+                // Print here to confirm it's working!
+                std::cout << "Destroyed Body. Remaining: " 
+                          << world->getNbRigidBodies() << std::endl;
             });
 }
 

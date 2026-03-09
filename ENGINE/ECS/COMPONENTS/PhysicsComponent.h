@@ -38,6 +38,7 @@ public:
 	~PhysicsComponent();
 
 	rp3d::RigidBody* rigidBody;
+	rp3d::Collider* colloider;
 	PHYSICSCOLLOIDERTYPE colloiderType;
 	PHYSICSBODYTYPE bodyType;
 	bool IsDebugEnabled;

@@ -73,7 +73,7 @@ float GlobalDebugWindowShow = false;
 void OliUI_GLFWInputProcessing(OliUIMainContext* oliUIMainContext, GLFWwindow* window);
 
 int main() {
-    Window::init("TESTING");
+    Window::init("TESTING");   
 
     std::shared_ptr<Memory> memory = std::make_shared<Memory>();
 
@@ -82,30 +82,30 @@ int main() {
 
     // Initialzing DebugUI
     MicroUIRenderer::InitMicroUIRenderer();
-
+      
     glfwSetCursorPosCallback(Window::getGLFWWindow(), mouse_pos_callback);
     glfwSetScrollCallback(Window::getGLFWWindow(), scroll_callback);
     glfwSetKeyCallback(Window::getGLFWWindow(), key_callback);
     glfwSetMouseButtonCallback(Window::getGLFWWindow(), mouse_button_callback);
     glfwSetCharCallback(Window::getGLFWWindow(), char_callback);
 
-    Shader shader = Shader((std::string(RESOURCES_PATH) + "SHADER/cube.vert").c_str(),
-                           (std::string(RESOURCES_PATH) + "SHADER/cube.frag").c_str());
+    // Shader shader = Shader((std::string(RESOURCES_PATH) + "SHADER/cube.vert").c_str(),
+    //                        (std::string(RESOURCES_PATH) + "SHADER/cube.frag").c_str());
 
-    TextureKTX2 textureKTX2 = TextureKTX2(
-        (std::string(RESOURCES_PATH) + "TEXTURE/KTX/cube.ktx2").c_str(), TextureType::NORMAL{});
+    // TextureKTX2 textureKTX2 = TextureKTX2(
+    //     (std::string(RESOURCES_PATH) + "TEXTURE/KTX/cube.ktx2").c_str(), TextureType::NORMAL{});
 
-    Shader shader2 =
-        Shader((std::string(RESOURCES_PATH) + "SHADER/GEO_TEST/geo_vert.glsl").c_str(),
-               (std::string(RESOURCES_PATH) + "SHADER/GEO_TEST/geo_frag.glsl").c_str(), nullptr,
-               nullptr, (std::string(RESOURCES_PATH) + "SHADER/GEO_TEST/geo_geo.glsl").c_str());
+    // Shader shader2 =
+    //     Shader((std::string(RESOURCES_PATH) + "SHADER/GEO_TEST/geo_vert.glsl").c_str(),
+    //            (std::string(RESOURCES_PATH) + "SHADER/GEO_TEST/geo_frag.glsl").c_str(), nullptr,
+    //            nullptr, (std::string(RESOURCES_PATH) + "SHADER/GEO_TEST/geo_geo.glsl").c_str());
 
-    Shader shader3 = Shader(
-        (std::string(RESOURCES_PATH) + "SHADER/PARTICLE_SYSTEMS/particle_vert.glsl").c_str(),
-        (std::string(RESOURCES_PATH) + "SHADER/PARTICLE_SYSTEMS/particle_frag.glsl").c_str(),
-        nullptr, nullptr,
-        (std::string(RESOURCES_PATH) + "SHADER/PARTICLE_SYSTEMS/geometry_particle_shader.glsl")
-            .c_str());
+    // Shader shader3 = Shader(
+    //     (std::string(RESOURCES_PATH) + "SHADER/PARTICLE_SYSTEMS/particle_vert.glsl").c_str(),
+    //     (std::string(RESOURCES_PATH) + "SHADER/PARTICLE_SYSTEMS/particle_frag.glsl").c_str(),
+    //     nullptr, nullptr,
+    //     (std::string(RESOURCES_PATH) + "SHADER/PARTICLE_SYSTEMS/geometry_particle_shader.glsl")
+    //         .c_str());
 
     /*if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) +
     "GLTFMODEL/MIXED_MODEL/mix.gltf"))
@@ -126,51 +126,51 @@ int main() {
     {
         std::cout << "Failed to load the sample model!\n";
     }*/
-    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) +
-                                           "GLTFMODEL/ANIMATED_TESTING/AnimatedTesting.gltf",
-                                       true, false)) {
-        std::cout << "Failed to load the sample model!\n";
-    }
+    // if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) +
+    //                                        "GLTFMODEL/ANIMATED_TESTING/AnimatedTesting.gltf",
+    //                                    true, false)) {
+    //     std::cout << "Failed to load the sample model!\n";
+    // }
 
-    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) +
-                                           "GLTFMODEL/ANIMATED_TESTING_2/AnimatedTesting2.gltf",
-                                       true, false)) {
-        std::cout << "Failed to load the sample model!\n";
-    }
+    // if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) +
+    //                                        "GLTFMODEL/ANIMATED_TESTING_2/AnimatedTesting2.gltf",
+    //                                    true, false)) {
+    //     std::cout << "Failed to load the sample model!\n";
+    // }
 
-    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) +
-                                           "GLTFMODEL/ANIMATED_TESTING_3/AnimatedTesting3.gltf",
-                                       true, false)) {
-        std::cout << "Failed to load the sample model!\n";
-    }
+    // if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) +
+    //                                        "GLTFMODEL/ANIMATED_TESTING_3/AnimatedTesting3.gltf",
+    //                                    true, false)) {
+    //     std::cout << "Failed to load the sample model!\n";
+    // }
 
-    if (!GLTFMESHLoader::LoadGLTFModel(
-            std::string(RESOURCES_PATH) + "GLTFMODEL/AVOCADO/Avocado.gltf", false, false)) {
-        std::cout << "Failed to load the sample model!\n";
-    }
+    // if (!GLTFMESHLoader::LoadGLTFModel(
+    //         std::string(RESOURCES_PATH) + "GLTFMODEL/AVOCADO/Avocado.gltf", false, false)) {
+    //     std::cout << "Failed to load the sample model!\n";
+    // }
 
-    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/LIGHT/light.gltf",
-                                       false, false)) {
-        std::cout << "Failed to load the sample model!\n";
-    }
+    // if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/LIGHT/light.gltf",
+    //                                    false, false)) {
+    //     std::cout << "Failed to load the sample model!\n";
+    // }
 
-    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/CUBE/cube.gltf",
-                                       false, false)) {
-        std::cout << "Failed to load the sample model!\n";
-    }
-    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/PHYSICS1/box.gltf",
-                                       false, true)) {
-        std::cout << "Failed to load the sample model!\n";
-    }
-    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/PHYSICS2/box2.gltf",
-                                       false, true)) {
-        std::cout << "Failed to load the sample model!\n";
-    }
-    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) +
-                                           "GLTFMODEL/PHYSICS3/AnimatedColloider.gltf",
-                                       true, true)) {
-        std::cout << "Failed to load the sample model!\n";
-    }
+    // if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/CUBE/cube.gltf",
+    //                                    false, false)) {
+    //     std::cout << "Failed to load the sample model!\n";
+    // }
+    // if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/PHYSICS1/box.gltf",
+    //                                    false, true)) {
+    //     std::cout << "Failed to load the sample model!\n";
+    // }
+    // if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "GLTFMODEL/PHYSICS2/box2.gltf",
+    //                                    false, true)) {
+    //     std::cout << "Failed to load the sample model!\n";
+    // }
+    // if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) +
+    //                                        "GLTFMODEL/PHYSICS3/AnimatedColloider.gltf",
+    //                                    true, true)) {
+    //     std::cout << "Failed to load the sample model!\n";
+    // }
 
     // ######### Setting Up The ECS      ##########
 
@@ -360,6 +360,25 @@ int main() {
     nativeCPPScriptManager->LoadDLL();
     // ################################################
 
+    // ############ TRYING TO MAKE A SMALL GAME #######
+
+    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "SMALL_GAME/groundBlock.gltf",
+                                       false, true)) {
+        std::cout << "Failed to load the sample model!\n";
+    }
+
+    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "SMALL_GAME/playerBlock.gltf",
+                                       false, true)) {
+        std::cout << "Failed to load the sample model!\n";
+    }
+
+    if (!GLTFMESHLoader::LoadGLTFModel(std::string(RESOURCES_PATH) + "SMALL_GAME/enemyBlock.gltf",
+                                       false, true)) {
+        std::cout << "Failed to load the sample model!\n";
+    }
+    
+    // ################################################
+
     while (!Window::shouldClose()) {
         if (Keyboard::IsKeyPressed(KEY_F12)) {
             memory->PrintCurrentMemoryConsumption();
@@ -378,11 +397,11 @@ int main() {
         // Create A Orthogonal Projection Matrix [ORTHOGONAL]
         glm::mat4 projectionO = glm::mat4(1.f);
         projectionO = glm::ortho(-32.f, 32.f, -24.f, 24.f, 0.1f, 200.f);
-
+  
         // Camera or View transformation
-        glm::mat4 view = camera.GetViewMatrix();
-        shader3.setMat4("view", view);
-
+        glm::mat4 view = camera.GetViewMatrix(); 
+        // shader3.setMat4("view", view);
+  
         // glm::vec3 lightTarget = glm::vec3(0.0f, 0.0f, 0.0f); // Look at scene center
         // glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
         // glm::mat4 lightViewMatrix = glm::lookAt(shadowCamera.GetPosition(), lightTarget,
@@ -542,7 +561,7 @@ void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
         shadowCamera.OnMouseScroll((float)yoffset);
     } 
     else if (GlobalInformation::IsInGameUIRendered)
-    {
+    {         
 
     }
     else {

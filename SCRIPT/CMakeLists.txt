@@ -2,6 +2,8 @@
 
 add_library(ScriptImpl SHARED
     ScriptImplementation.cpp
+    Random.h Random.cpp
+    Timer.h Timer.cpp
 )
 
 

@@ -13,9 +13,9 @@
                     "nullopt": false,
                     "data": {
                         "Position": {
-                            "v.x": -0.003929351922124624,
-                            "v.y": 42.99345016479492,
-                            "v.z": 0.7504422068595886
+                            "v.x": 0.0,
+                            "v.y": 0.0,
+                            "v.z": 10.0
                         },
                         "Rotation": {
                             "v.x": 0.0,
@@ -45,9 +45,9 @@
                             "v.z": 78.0
                         },
                         "lightColor": {
-                            "v.x": 1.0,
-                            "v.y": 1.0,
-                            "v.z": 1.0
+                            "v.x": 0.800000011920929,
+                            "v.y": 0.10000000149011612,
+                            "v.z": 0.30000001192092898
                         },
                         "ambientStrength": 0.15000000596046449,
                         "diffuseStrength": 0.75,
@@ -68,89 +68,37 @@
                 }
             },
             {
-                "entityName": "b1",
+                "entityName": "p",
                 "identiferComponent": {
                     "nullopt": false,
                     "data": {
-                        "entityName": "b1"
+                        "entityName": "p"
                     }
                 },
                 "transfromComponent": {
                     "nullopt": false,
                     "data": {
                         "Position": {
-                            "v.x": 0.0,
-                            "v.y": 0.0,
-                            "v.z": 0.0
+                            "v.x": -0.8083008527755737,
+                            "v.y": 1.9999330043792725,
+                            "v.z": 31.092435836791993
                         },
                         "Rotation": {
-                            "v.x": 0.0,
-                            "v.y": -0.0,
-                            "v.z": 0.0
+                            "v.x": 0.00018644296505954117,
+                            "v.y": 2.5842619155724835e-9,
+                            "v.z": -0.0004306758055463433
                         },
                         "Scale": {
-                            "v.x": 5.245182991027832,
-                            "v.y": 0.27027034759521487,
-                            "v.z": 5.000000953674316
+                            "v.x": 1.0,
+                            "v.y": 1.0,
+                            "v.z": 1.0
                         }
                     }
                 },
                 "meshComponent": {
                     "nullopt": false,
                     "data": {
-                        "MeshName": "box2.gltf",
-                        "ambientStrength": 1.0,
-                        "diffuseStrength": 1.0,
-                        "specularStrength": 1.0
-                    }
-                },
-                "animationComponent": {
-                    "nullopt": true
-                },
-                "lightingComponent": {
-                    "nullopt": true
-                },
-                "physicsComponent": {
-                    "nullopt": false,
-                    "data": {
-                        "colloiderType": 0,
-                        "bodyType": 0,
-                        "IsDebugEnabled": true
-                    }
-                }
-            },
-            {
-                "entityName": "b3",
-                "identiferComponent": {
-                    "nullopt": false,
-                    "data": {
-                        "entityName": "b3"
-                    }
-                },
-                "transfromComponent": {
-                    "nullopt": false,
-                    "data": {
-                        "Position": {
-                            "v.x": 1.1808186769485474,
-                            "v.y": 3.211850881576538,
-                            "v.z": -1.580543875694275
-                        },
-                        "Rotation": {
-                            "v.x": 0.025221066549420358,
-                            "v.y": 81.6337661743164,
-                            "v.z": 0.12642377614974976
-                        },
-                        "Scale": {
-                            "v.x": 0.19999980926513673,
-                            "v.y": 0.19999980926513673,
-                            "v.z": 0.19999980926513673
-                        }
-                    }
-                },
-                "meshComponent": {
-                    "nullopt": false,
-                    "data": {
-                        "MeshName": "box2.gltf",
+                        "MeshName": "playerBlock.gltf",
                         "ambientStrength": 1.0,
                         "diffuseStrength": 1.0,
                         "specularStrength": 1.0
@@ -172,37 +120,37 @@
                 }
             },
             {
-                "entityName": "b2",
+                "entityName": "g",
                 "identiferComponent": {
                     "nullopt": false,
                     "data": {
-                        "entityName": "b2"
+                        "entityName": "g"
                     }
                 },
                 "transfromComponent": {
                     "nullopt": false,
                     "data": {
                         "Position": {
-                            "v.x": -2.5395827293395998,
-                            "v.y": 2.222222328186035,
-                            "v.z": 12.805912017822266
+                            "v.x": 0.0,
+                            "v.y": 0.0,
+                            "v.z": 0.0
                         },
                         "Rotation": {
                             "v.x": 0.0,
-                            "v.y": 0.06493521481752396,
+                            "v.y": -0.0,
                             "v.z": 0.0
                         },
                         "Scale": {
                             "v.x": 1.0,
-                            "v.y": 0.09803915023803711,
-                            "v.z": 0.4545454978942871
+                            "v.y": 1.0,
+                            "v.z": 4.0
                         }
                     }
                 },
                 "meshComponent": {
                     "nullopt": false,
                     "data": {
-                        "MeshName": "box2.gltf",
+                        "MeshName": "groundBlock.gltf",
                         "ambientStrength": 1.0,
                         "diffuseStrength": 1.0,
                         "specularStrength": 1.0
@@ -218,7 +166,7 @@
                     "nullopt": false,
                     "data": {
                         "colloiderType": 0,
-                        "bodyType": 1,
+                        "bodyType": 0,
                         "IsDebugEnabled": true
                     }
                 }

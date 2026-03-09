@@ -1,5 +1,9 @@
 # --- Executable ---
-add_executable(2025ENGINE_EXE
+# add_executable(2025ENGINE_EXE WIN32
+#     "2025ENGINE.cpp"
+# )
+
+add_executable(2025ENGINE_EXE WIN32
     "2025ENGINE.cpp"
 )
 
@@ -49,15 +53,22 @@ add_custom_command(TARGET 2025ENGINE_EXE POST_BUILD
     COMMENT "Copying OliUI.dll next to 2025ENGINE_EXE"
 )
 
+# Modern CMake approach to pass flags directly to the linker
+# target_link_options(2025ENGINE_EXE PRIVATE "LINKER:/ENTRY:mainCRTStartup")
 
-target_compile_definitions(2025ENGINE_EXE PRIVATE 
-	RESOURCES_PATH="${CMAKE_SOURCE_DIR}/ASSETS/"
-)
-
-target_compile_definitions(2025ENGINE_EXE PRIVATE 
-	SCRIPT_PATH="${CMAKE_BINARY_DIR}/SCRIPT/"
-)
-
-# target_compile_definitions(GetIntoGameDevOPENGL PRIVATE 
-# 	RESOURCES_PATH="ASSETS/"
+# target_compile_definitions(2025ENGINE_EXE PRIVATE 
+#     RESOURCES_PATH="${CMAKE_SOURCE_DIR}/ASSETS/"
 # )
+
+# target_compile_definitions(2025ENGINE_EXE PRIVATE 
+#     SCRIPT_PATH="${CMAKE_BINARY_DIR}/SCRIPT/"
+# )
+
+target_compile_definitions(2025ENGINE_EXE PRIVATE 
+	RESOURCES_PATH="ASSETS/"
+)
+
+target_compile_definitions(2025ENGINE_EXE PRIVATE 
+	SCRIPT_PATH="SCRIPT/"
+)
+
